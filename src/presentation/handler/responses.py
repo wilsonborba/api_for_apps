@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from fastapi import status
 from pydantic import BaseModel
 
@@ -13,7 +13,7 @@ class MyResponse(BaseModel):
     """
     status: int
     message: Optional[str] = None
-    data: str = None
+    data: Optional[Any] = None
 
     def __init__(self, status: str, message: Optional[str] = None, data: Optional[dict] = None):
         super().__init__(status=status, message=message, data=data)

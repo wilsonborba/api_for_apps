@@ -6,7 +6,7 @@ from firebase_admin import credentials, auth
 from typing import Optional, Dict
 import os
 
-from src.domain.models.firebase_user_model import FirebaseUserModel
+from src.domain.models.user_model import FirebaseUserModel
 
 
 
@@ -37,7 +37,7 @@ class FirebaseAdapter:
                 email_verified=user.email_verified,
                 disabled=user.disabled,
                 provider_data=[p.__dict__ for p in user.provider_data]
-            ).to_dict()
+            ).model_dump()
         
 
         except auth.UserNotFoundError:

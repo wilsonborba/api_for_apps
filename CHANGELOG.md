@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - *(routes)* Organized the initial structures for both entities app and user
 - *(db)* Created initial structure for user db connections
 - *(db)* First query into db from api implemented
+- *(db)* Improved query of all user with firebase + db integration
+- *(sync)* Created services/handlers/routes for login and sign
 
 ### ⚙️ Miscellaneous Tasks
 

@@ -1,9 +1,11 @@
 
 
 
+from src.domain.models.user_model import FirebaseUserModel
 from src.dal.remote.firebase_adapter import FirebaseAdapter
 from src.dal.local.db_adapter import DBAdapter
-
+from src.core.logs import debug
+import time
 
 class UserService:
 
@@ -14,9 +16,57 @@ class UserService:
         self.firebase_adapter = FirebaseAdapter()
     
 
+    def sign_up(self, raw_user_data):
+        """
+        Sign up a new user.
+        This method should handle the creation of a new user in both the database and Firebase.
+        """
+        firebase_user = raw_user_data
 
-    def create_user(self, user_data):
-        return self.user_repository.create(user_data)
+        db_user = firebase_user.to_database_user(
+            last_login=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+            date_joined=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+            access_level=3,  # Default access level
+        )
+
+        dumped_db_user = db_user.model_dump()
+        dumped_firebase_user = firebase_user.model_dump()
+
+        dumped_db_user.pop('id', None)
+        
+        debug(f"Firebase model data: {dumped_firebase_user}")
+        debug(f"Database model data: {dumped_db_user}")
+
+        
+        return self.db_adapter.insert_row(self._table_name, dumped_db_user)
+
+    def log_in(self, raw_user_data):
+        """
+        Log in a user.
+        This method should handle user authentication and return user data if successful.
+
+        """
+
+
+        db_user = self.db_adapter.read_by_id(
+            self._table_name, 
+            raw_user_data.email, 
+            id_column="email"
+        )
+
+        debug(f"Database user data: {db_user}")
+
+        updated_db_user = self.db_adapter.update_row(
+            self._table_name, 
+            db_user['id'], 
+            {'last_login': time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())}
+        )
+
+        return updated_db_user
+
+
+
+
 
     def get_user(self, user_id):
         return self.user_repository.get(user_id)

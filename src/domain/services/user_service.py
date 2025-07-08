@@ -1,6 +1,7 @@
 
 
 
+from src.dal.remote.firebase_adapter import FirebaseAdapter
 from src.dal.local.db_adapter import DBAdapter
 
 
@@ -9,7 +10,8 @@ class UserService:
     _table_name = "defaultdb_user"
 
     def __init__(self):
-        self.adapter = DBAdapter()
+        self.db_adapter = DBAdapter()
+        self.firebase_adapter = FirebaseAdapter()
     
 
 
@@ -26,4 +28,11 @@ class UserService:
         return self.user_repository.delete(user_id)
     
     def get_all_users(self):
-        return self.adapter.read_all(self._table_name)
+        
+        all_user_from_db = self.db_adapter.read_all(self._table_name)
+
+        for user in all_user_from_db:
+            user['firebase_info'] = self.firebase_adapter.get_user_info(user['firebase_id'])
+
+        return all_user_from_db
+

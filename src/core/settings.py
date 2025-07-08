@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 from dotenv import load_dotenv
 
-from src.domain.models.db_config import DatabaseConfig
+from src.domain.models.db_config_model import DatabaseConfig
 
 load_dotenv()  # Loads .env file
 
@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     DEFAULT_DB_PASSWORD: str
     DEFAULT_DB_NAME: str
     DEFAULT_DB_SSLMODE: str = "require"  # Default SSL mode for PostgreSQL
+    FIREBASE_SERVICE_ACCOUNT_PATH: str = "./firebase.json"  # Path to Firebase service account JSON file
 
     # Development flag
     development_mode: bool = True

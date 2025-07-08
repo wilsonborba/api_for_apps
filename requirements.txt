@@ -6,4 +6,5 @@ python-dotenv
 pythonbible
 SQLAlchemy
 psycopg2-binary
+firebase-admin
 

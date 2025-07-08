@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 - *(auth)* Implement basic API key auth with protected and open endpoints
 - *(routes)* Organized the initial structures for both entities app and user
+- *(db)* Created initial structure for user db connections
 
 ### ⚙️ Miscellaneous Tasks
 

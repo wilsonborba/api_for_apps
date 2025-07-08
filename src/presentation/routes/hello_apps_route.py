@@ -8,7 +8,7 @@ from ..handler.responses import MyResponse
 
 hello_apps_v1 = APIRouter(prefix='/v1')
 
-@hello_apps_v1.get("/hello_apps", tags=["Hello Apps"], 
+@hello_apps_v1.get("/hello_apps", tags=["Apps"], 
                     summary="Hello Apps Endpoint",
                     description="This endpoint returns a random verse from the Bible.",
                     response_model=MyResponse)

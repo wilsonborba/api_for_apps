@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 from dotenv import load_dotenv
 
-from domain.models.db_config import DatabaseConfig
+from src.domain.models.db_config import DatabaseConfig
 
 load_dotenv()  # Loads .env file
 

@@ -18,3 +18,9 @@ app.include_router(
     schemas_from_user.routes.hello_user_v1, 
     prefix=f"{schemas_from_user.path_segment}"
 )
+
+app.include_router(
+    schemas_from_user.routes.user_v1, 
+    prefix=f"{schemas_from_user.path_segment}{schemas_from_user.segments_path.info}"
+)
+

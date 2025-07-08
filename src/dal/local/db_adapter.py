@@ -42,7 +42,7 @@ class DBAdapter:
         table = self.reflect_table(table_name, schema)
         stmt = select(table)
         with self.connect() as conn:
-            return [dict(row) for row in conn.execute(stmt)]
+            return [dict(row) for row in conn.execute(stmt).mappings()]
 
     def read_by_id(self, table_name: str, id_value, id_column: str = "id", schema: str = None):
         table = self.reflect_table(table_name, schema)

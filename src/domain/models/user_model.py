@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 import uuid
 
+from pyparsing import Any
+
 
 class DatabaseUserModel(BaseModel):
 
@@ -18,7 +20,8 @@ class DatabaseUserModel(BaseModel):
     date_joined: str  # ISO format datetime string
     phone_number: Optional[str] = None
     firebase_id: Optional[str] = None  # Firebase UID if linked to Firebase user
-
+    firebase_info: Optional[Dict[str, Any]] = None
+    exp: Optional[int] = None  # Expiration time for token, in seconds since epoch
     def to_firebase_user(self, email_verified: bool) -> 'FirebaseUserModel':
         """
         Convert DatabaseUserModel to FirebaseUserModel.

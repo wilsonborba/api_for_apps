@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 - *(sync)* Created services/handlers/routes for login and sign
 - *(db)* Improved query return for login adding firebase user info
 
+### 🐛 Bug Fixes
+
+- *(db)* Adjusted load token from json
+
 ### ⚙️ Miscellaneous Tasks
 
 - *(env)* Created initial env struct for api/middleware

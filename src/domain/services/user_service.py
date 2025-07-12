@@ -7,6 +7,7 @@ from src.dal.remote.firebase_adapter import FirebaseAdapter
 from src.dal.local.db_adapter import DBAdapter
 from src.core.logs import debug
 import time
+import json
 
 class UserService:
 
@@ -19,33 +20,29 @@ class UserService:
     
 
     def sign_up(self, raw_user_data):
-        """
-        Sign up a new user.
-        This method should handle the creation of a new user in both the database and Firebase.
-        """
         firebase_user = raw_user_data
 
+        # 1) build your Pydantic model for the DB row
         db_user = firebase_user.to_database_user(
-            last_login=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
-            date_joined=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
-            access_level=3,  # Default access level
+            last_login=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            date_joined=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            access_level=3,
         )
 
-        dumped_db_user = db_user.model_dump()
-        dumped_firebase_user = firebase_user.model_dump()
-
-        dumped_db_user.pop('id', None)
         
-        debug(f"Firebase model data: {dumped_firebase_user}")
-        debug(f"Database model data: {dumped_db_user}")
 
-        self.db_adapter.insert_row(self._table_name, dumped_db_user)
+        # 2) insert into Postgres and get the new integer ID
+        inserted = self.db_adapter.insert_row(self._table_name, db_user.model_dump(exclude={"id", "firebase_info", "exp"}))
+        db_user.id = inserted[0]
 
-        encrypted_usr_as_cookie = self.cryptography_service.encrypt(
-            str(db_user.model_dump().encode('utf-8'))
-        )
+        # 3) tack on the rest of your token payload
+        db_user.firebase_info = self.firebase_adapter.get_user_info(db_user.firebase_id)
+        db_user.exp = int(time.time()) + (3 * 24 * 3600)  # 3 days
 
-        return encrypted_usr_as_cookie
+        # 4) now let Pydantic do the JSON serialization
+        json_bytes = db_user.model_dump_json().encode("utf-8")
+        token = self.cryptography_service.encrypt(json_bytes)
+        return token
 
     def log_in(self, raw_user_data):
         """
@@ -75,9 +72,15 @@ class UserService:
 
         dumped_db_user['last_login'] = last_login
         dumped_db_user['firebase_info'] = self.firebase_adapter.get_user_info(dumped_db_user['firebase_id'])
+        # Set expiration time to 3 minutes from now
+        dumped_db_user['exp'] = int(time.time()) + 180
 
+        # 1) JSON‑encode your Python dict (double‑quotes, valid JSON)
+        json_str: str = json.dumps(dumped_db_user, default=str)
+
+        # 2) Turn it into bytes and encrypt
         encrypted_usr_as_cookie = self.cryptography_service.encrypt(
-            str(dumped_db_user).encode('utf-8')
+            json_str.encode('utf-8')
         )
 
         return encrypted_usr_as_cookie

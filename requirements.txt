@@ -8,4 +8,5 @@ SQLAlchemy
 psycopg2-binary
 firebase-admin
 colorlog
+cryptography
 

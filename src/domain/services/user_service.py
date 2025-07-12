@@ -1,6 +1,7 @@
 
 
 
+from src.domain.services.cryptography_service import CryptographyService
 from src.domain.models.user_model import FirebaseUserModel
 from src.dal.remote.firebase_adapter import FirebaseAdapter
 from src.dal.local.db_adapter import DBAdapter
@@ -14,6 +15,7 @@ class UserService:
     def __init__(self):
         self.db_adapter = DBAdapter()
         self.firebase_adapter = FirebaseAdapter()
+        self.cryptography_service = CryptographyService()
     
 
     def sign_up(self, raw_user_data):
@@ -37,8 +39,13 @@ class UserService:
         debug(f"Firebase model data: {dumped_firebase_user}")
         debug(f"Database model data: {dumped_db_user}")
 
-        
-        return self.db_adapter.insert_row(self._table_name, dumped_db_user)
+        self.db_adapter.insert_row(self._table_name, dumped_db_user)
+
+        encrypted_usr_as_cookie = self.cryptography_service.encrypt(
+            str(db_user.model_dump().encode('utf-8'))
+        )
+
+        return encrypted_usr_as_cookie
 
     def log_in(self, raw_user_data):
         """
@@ -54,15 +61,26 @@ class UserService:
             id_column="email"
         )
 
+        last_login = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
         debug(f"Database user data: {db_user}")
 
-        updated_db_user = self.db_adapter.update_row(
+        self.db_adapter.update_row(
             self._table_name, 
             db_user['id'], 
-            {'last_login': time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())}
+            {'last_login': last_login}
         )
 
-        return updated_db_user
+        dumped_db_user = dict(db_user)
+
+        dumped_db_user['last_login'] = last_login
+        dumped_db_user['firebase_info'] = self.firebase_adapter.get_user_info(dumped_db_user['firebase_id'])
+
+        encrypted_usr_as_cookie = self.cryptography_service.encrypt(
+            str(dumped_db_user).encode('utf-8')
+        )
+
+        return encrypted_usr_as_cookie
 
 
 

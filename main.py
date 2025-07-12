@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
 
@@ -7,7 +9,13 @@ from src.presentation.schema.user_schema import schemas_from_user
 app = FastAPI(root_path="/", root_path_in_servers=False, redirect_slashes=True)
 
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(
     schemas_from_apps.routes.hello_apps_v1, 

@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - *(db)* First query into db from api implemented
 - *(db)* Improved query of all user with firebase + db integration
 - *(sync)* Created services/handlers/routes for login and sign
+- *(db)* Improved query return for login adding firebase user info
 
 ### ⚙️ Miscellaneous Tasks
 

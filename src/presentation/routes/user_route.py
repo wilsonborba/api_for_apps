@@ -34,7 +34,7 @@ def get_all_user_info(api_key_secret: str = Depends(verify_api_key)):
              status_code=status.HTTP_201_CREATED,
 
              )
-def post_sign_up_user(raw_user_data: FirebaseUserModel, api_key_secret: str = Depends(verify_api_key)):
+def post_sign_up_user(raw_user_data: FirebaseUserModel):
     """
     Sign up a new user.
     This endpoint handles the creation of a new user in both the database and Firebase.
@@ -52,7 +52,7 @@ def post_sign_up_user(raw_user_data: FirebaseUserModel, api_key_secret: str = De
              description="This endpoint handles user authentication and returns user data if successful.",
              response_model=MyResponse,
              status_code=status.HTTP_200_OK)
-def post_log_in_user(raw_user_data: FirebaseUserModel, api_key_secret: str = Depends(verify_api_key)):
+def post_log_in_user(raw_user_data: FirebaseUserModel):
     """
     Log in a user.
     This endpoint handles user authentication and returns user data if successful.

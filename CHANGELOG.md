@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - *(db)* Adjusted load token from json
+- *(auth)* No api key on headers
 
 ### ⚙️ Miscellaneous Tasks
 

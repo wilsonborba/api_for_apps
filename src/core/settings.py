@@ -1,5 +1,6 @@
 # src/core/settings.py
 
+
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from dotenv import load_dotenv
@@ -20,6 +21,10 @@ class Settings(BaseSettings):
     DEFAULT_DB_SSLMODE: str = "require"  # Default SSL mode for PostgreSQL
     FIREBASE_SERVICE_ACCOUNT_PATH: str = "./firebase.json"  # Path to Firebase service account JSON file
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
+
+    # REDIS
+    REDIS_URL: str = "redis://127.0.0.1:6379/0"
+    REDIS_NAMESPACE: str = "api_for_apps:"
 
     # Development flag
     development_mode: bool = True

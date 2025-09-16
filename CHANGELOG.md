@@ -13,11 +13,13 @@ All notable changes to this project will be documented in this file.
 - *(db)* Improved query of all user with firebase + db integration
 - *(sync)* Created services/handlers/routes for login and sign
 - *(db)* Improved query return for login adding firebase user info
+- *(auth)* Added a limit rate and hashpassword
 
 ### 🐛 Bug Fixes
 
 - *(db)* Adjusted load token from json
 - *(auth)* No api key on headers
+- *(auth)* Try block to avoid 500 code
 
 ### ⚙️ Miscellaneous Tasks
 

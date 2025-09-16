@@ -8,6 +8,8 @@ from src.dal.local.db_adapter import DBAdapter
 from src.core.logs import debug
 import time
 import json
+from argon2 import PasswordHasher
+import re
 
 class UserService:
 
@@ -17,7 +19,24 @@ class UserService:
         self.db_adapter = DBAdapter()
         self.firebase_adapter = FirebaseAdapter()
         self.cryptography_service = CryptographyService()
+        self._ph = PasswordHasher()
     
+
+    def _hash_password(self, password: str) -> str:
+         return self._ph.hash(password)
+    
+    def _verify_password(self, hashed_password: str, plain_password: str) -> bool:
+        try:
+            return self._ph.verify(hashed_password, plain_password)
+        except:
+            return False
+        
+    def _validate_email(self, email: str) -> bool:
+        # Basic email validation logic
+
+        
+        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        return re.match(email_regex, email) is not None
 
     def sign_up(self, raw_user_data):
         firebase_user = raw_user_data
@@ -29,7 +48,11 @@ class UserService:
             access_level=3,
         )
 
-        
+        # validate email
+        if not self._validate_email(db_user.email):
+            raise ValueError("Invalid email format.")
+
+        db_user.password = self._hash_password(raw_user_data.password)
 
         # 2) insert into Postgres and get the new integer ID
         inserted = self.db_adapter.insert_row(self._table_name, db_user.model_dump(exclude={"id", "firebase_info", "exp"}))
@@ -51,6 +74,11 @@ class UserService:
 
         """
 
+        if not self._validate_email(raw_user_data.email):
+            raise ValueError("Invalid email format.")
+        
+
+
 
         db_user = self.db_adapter.read_by_id(
             self._table_name, 
@@ -59,6 +87,9 @@ class UserService:
         )
 
         last_login = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+        # 3) Verify password
+        if not self._verify_password(db_user.get('password', ''), raw_user_data.password):
+            raise ValueError("Invalid credentials.")
 
         debug(f"Database user data: {db_user}")
 

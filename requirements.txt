@@ -10,3 +10,6 @@ firebase-admin
 colorlog
 cryptography
 gunicorn
+redis
+msgpack-python
+argon2-cffi

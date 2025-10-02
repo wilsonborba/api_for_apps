@@ -42,20 +42,30 @@ app.add_middleware(
 
 app.include_router(
     schemas_from_apps.routes.hello_apps_v1, 
-    prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}"
+    prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
+    tags=[schemas_from_apps.tag]
 )
 
 app.include_router(
     schemas_from_user.routes.hello_user_v1, 
-    prefix=f"{schemas_from_user.path_segment}"
+    prefix=f"{schemas_from_user.path_segment}",
+    tags=[schemas_from_user.tag]
 )
 
 app.include_router(
     schemas_from_user.routes.user_info_v1, 
-    prefix=f"{schemas_from_user.path_segment}{schemas_from_user.segments_path.info}"
+    prefix=f"{schemas_from_user.path_segment}{schemas_from_user.segments_path.info}",
+    tags=[schemas_from_user.tag]
 )
 
 app.include_router(
     schemas_from_user.routes.user_sync_v1, 
-    prefix=f"{schemas_from_user.path_segment}{schemas_from_user.segments_path.sync}"
+    prefix=f"{schemas_from_user.path_segment}{schemas_from_user.segments_path.sync}",
+    tags=[schemas_from_user.tag]
+)
+
+app.include_router(
+    schemas_from_apps.routes.exchange_app_route, 
+    prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
+    tags=[schemas_from_apps.tag]
 )

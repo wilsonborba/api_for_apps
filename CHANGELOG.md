@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - *(sync)* Created services/handlers/routes for login and sign
 - *(db)* Improved query return for login adding firebase user info
 - *(auth)* Added a limit rate and hashpassword
+- *(sync)* Created initial endpoint for auth apps
 
 ### 🐛 Bug Fixes
 

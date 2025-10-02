@@ -14,6 +14,7 @@ class UserBaseSchema:
     """
 
     path_segment: str = "/user"
+    tag: str = "User"
 
     @property
     @abstractmethod

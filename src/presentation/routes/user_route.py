@@ -4,7 +4,7 @@ from fastapi.params import Depends
 
 from src.domain.models.user_model import FirebaseUserModel
 from src.presentation.handler.user_handler import get_all_user_info_from_db, sign_up_user, log_in_user
-from ..handler.responses import MyResponse
+from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error
 from src.presentation.handler.auth import verify_api_key
 from src.presentation.handler.user_security_handler import (
@@ -20,9 +20,9 @@ user_info_v1 = APIRouter(prefix='/v1')
 user_sync_v1 = APIRouter(prefix='/v1')
 
 @user_info_v1.get(f"/all",
-            summary="Get All User Info", tags=["User"],
+            summary="Get All User Info", 
             description="This endpoint returns all user information.",
-            response_model=MyResponse,
+            response_model=MyResponseModel,
             status_code=status.HTTP_200_OK)
 def get_all_user_info( response: Response,api_key_secret: str = Depends(verify_api_key), ):
     
@@ -31,7 +31,7 @@ def get_all_user_info( response: Response,api_key_secret: str = Depends(verify_a
     try:
         response.status_code = status.HTTP_200_OK
         return MyResponse(
-            status=status.HTTP_200_OK,
+            status_code=status.HTTP_200_OK,
             message="All user information retrieved successfully.",
             data=all_user_info
         )
@@ -39,15 +39,15 @@ def get_all_user_info( response: Response,api_key_secret: str = Depends(verify_a
         error(str(e))
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return MyResponse(
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message="Failed to retrieve user information.",
             data=None
         )
 
 @user_sync_v1.post(f"/sign-up",
-             summary="Sign Up User", tags=["User"],
+             summary="Sign Up User", 
              description="This endpoint handles the creation of a new user in both the database and Firebase.",
-             response_model=MyResponse,
+             response_model=MyResponseModel,
              status_code=status.HTTP_201_CREATED,
 
              )
@@ -73,7 +73,7 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
     try:
         response.status_code = status.HTTP_201_CREATED
         return MyResponse(
-            status=status.HTTP_201_CREATED,
+            status_code=status.HTTP_201_CREATED,
             message="User signed up successfully.",
             data=sign_up_user(raw_user_data)
         )
@@ -81,15 +81,15 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
         error(str(e))
         response.status_code = status.HTTP_400_BAD_REQUEST
         return MyResponse(
-            status=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_400_BAD_REQUEST,
             message="User sign-up failed. Please check the provided data.",
             data=None
         )
 
 @user_sync_v1.patch(f"/log-in",
-             summary="Log In User", tags=["User"],
+             summary="Log In User", 
              description="This endpoint handles user authentication and returns user data if successful.",
-             response_model=MyResponse,
+             response_model=MyResponseModel,
              status_code=status.HTTP_200_OK)
 async def post_log_in_user(response: Response, request: Request, raw_user_data: FirebaseUserModel):
     """
@@ -113,7 +113,7 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     try:
         response.status_code = status.HTTP_200_OK
         return MyResponse(
-            status=status.HTTP_200_OK,
+            status_code=status.HTTP_200_OK,
             message="User logged in successfully.",
             data=log_in_user(raw_user_data)
         )
@@ -122,7 +122,7 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
         error(str(e))
         response.status_code = status.HTTP_401_UNAUTHORIZED
         return MyResponse(
-            status=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             message="Authentication failed. Please check your credentials.",
             data=None
         )

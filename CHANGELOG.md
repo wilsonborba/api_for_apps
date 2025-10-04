@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - *(auth)* Added a limit rate and hashpassword
 - *(sync)* Created initial endpoint for auth apps
 - *(auth)* Added a local proxy apps services redirect
+- *(sync)* Initial communication with righ sync/auth process
 
 ### 🐛 Bug Fixes
 

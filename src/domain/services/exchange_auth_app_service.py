@@ -22,6 +22,10 @@ class ExchangeAuthService:
 
     def now_in_seconds(self) -> int:
         return int(time.time())
+    
+    def encrypt_new_nonce(self, nonce: str) -> str:
+        encrypted_nonce = self.cryptography_service.encrypt(nonce.encode('utf-8'))
+        return encrypted_nonce.decode('utf-8')
 
     def decrypt_token(self, token: str) -> str: 
         """ 
@@ -59,6 +63,8 @@ class ExchangeAuthService:
 
 
         # check the expiration comparing with current time
+
+        debug(f"Token to validate: {json.dumps(token)}")
 
         exp_from_token = token.get("exp", None)
         if exp_from_token is None:

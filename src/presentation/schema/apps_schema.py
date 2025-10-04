@@ -1,9 +1,12 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from src.core.settings import app_settings
 from src.presentation.routes.hello_apps_route import hello_apps_v1
-from src.presentation.routes.exchange_app_route import exchange_app_route
+from src.presentation.routes.exchange_auth_app_route import exchange_app_route_v1
+from src.presentation.routes.apps_route import apps_proxy_v1
 
+settings = app_settings()
 
 @abstractmethod
 @dataclass
@@ -37,12 +40,11 @@ class AppsBaseSchema:
 class AppsRoutes:
 
     hello_apps_v1 = hello_apps_v1
-    exchange_app_route = exchange_app_route
+    exchange_app_route_v1 = exchange_app_route_v1
+    apps_proxy_v1 = apps_proxy_v1
 
 
-class AvailableApps:
 
-    api = "/api"
 
 
 
@@ -54,7 +56,7 @@ class AppsSchema(AppsBaseSchema):
 
     routes = AppsRoutes()
 
-    available_apps = AvailableApps()
+    available_apps = settings.available_apps
 
 
 

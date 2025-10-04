@@ -6,7 +6,7 @@ from src.domain.models.user_model import FirebaseUserModel
 from src.presentation.handler.user_handler import get_all_user_info_from_db, sign_up_user, log_in_user
 from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error
-from src.presentation.handler.auth import verify_api_key
+from src.presentation.handler.auth import verify_auth
 from src.presentation.handler.user_security_handler import (
     enforce_ip_rate,
     enforce_username_rate,   # now using email
@@ -24,12 +24,11 @@ user_sync_v1 = APIRouter(prefix='/v1')
             description="This endpoint returns all user information.",
             response_model=MyResponseModel,
             status_code=status.HTTP_200_OK)
-def get_all_user_info( response: Response,api_key_secret: str = Depends(verify_api_key), ):
+def get_all_user_info( response: Response, api_key_secret: str = Depends(verify_auth), ):
     
     all_user_info = get_all_user_info_from_db()
 
     try:
-        response.status_code = status.HTTP_200_OK
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="All user information retrieved successfully.",
@@ -37,7 +36,7 @@ def get_all_user_info( response: Response,api_key_secret: str = Depends(verify_a
         )
     except Exception as e:
         error(str(e))
-        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        
         return MyResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             message="Failed to retrieve user information.",
@@ -71,7 +70,7 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
 
 
     try:
-        response.status_code = status.HTTP_201_CREATED
+        
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
             message="User signed up successfully.",
@@ -79,7 +78,7 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
         )
     except Exception as e:
         error(str(e))
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             message="User sign-up failed. Please check the provided data.",
@@ -111,7 +110,7 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     await asyncio.sleep(delay_ms / 1000.0)
 
     try:
-        response.status_code = status.HTTP_200_OK
+        
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="User logged in successfully.",
@@ -120,7 +119,7 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     except Exception as e:
 
         error(str(e))
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+       
         return MyResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             message="Authentication failed. Please check your credentials.",

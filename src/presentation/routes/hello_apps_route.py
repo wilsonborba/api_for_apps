@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 import pythonbible as bible
 
 
-from src.presentation.handler.auth import verify_api_key
+from src.presentation.handler.auth import verify_auth
 from src.presentation.handler.hello_word_handler import get_random_verse
 from ..handler.responses import MyResponseModel, MyResponse
 

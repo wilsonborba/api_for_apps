@@ -65,7 +65,13 @@ app.include_router(
 )
 
 app.include_router(
-    schemas_from_apps.routes.exchange_app_route, 
+    schemas_from_apps.routes.exchange_app_route_v1, 
     prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
+    tags=[schemas_from_apps.tag]
+)
+
+app.include_router(
+    schemas_from_apps.routes.apps_proxy_v1,
+    prefix=f"{schemas_from_apps.path_segment}",
     tags=[schemas_from_apps.tag]
 )

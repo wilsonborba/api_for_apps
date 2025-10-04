@@ -11,7 +11,7 @@ load_dotenv()  # Loads .env file
 
 class Settings(BaseSettings):
     # API
-    API_KEY_NAME: str = "Authorization"
+    API_ADMIN_KEY_NAME: str = "Authorization"
     API_KEY_SECRET: str  # Will be loaded from .env
     DEFAULT_DB_HOST: str
     DEFAULT_DB_PORT: int
@@ -21,6 +21,19 @@ class Settings(BaseSettings):
     DEFAULT_DB_SSLMODE: str = "require"  # Default SSL mode for PostgreSQL
     FIREBASE_SERVICE_ACCOUNT_PATH: str = "./firebase.json"  # Path to Firebase service account JSON file
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
+
+    # private server key for fernet encryption/decryption
+    SERVER_FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded
+
+    # headers auth key name
+    NEXT_AUTH_NONCE_HEADER_KEY_NAME: str = "N-A-N"  # Example header key name
+    ACTUAL_AUTH_NONCE_HEADER_KEY_NAME: str = "A-A-N"  # Example header key name
+    TEMPORARY_AUTH_NONCE_HEADER_KEY_NAME : str = "T-A-N"  # Example header key name
+
+
+    # cookies key name
+    HTTP_ONLY_COOKIE_KEY_NAME: str = "sid"
+    PUBLIC_COOKIE_KEY_NAME: str = "hint"
 
     # REDIS
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
@@ -43,6 +56,19 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"  # Optional with load_dotenv, but good for pydantic to know
+
+
+
+    # Schema related settings    
+
+    class AvailableApps:
+
+        api = "/api"
+        certifications = "/certifications"
+
+    @property
+    def available_apps(self) -> AvailableApps:
+        return self.AvailableApps()
 
 # Singleton
 @lru_cache()

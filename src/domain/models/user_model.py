@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 import uuid
@@ -75,3 +76,26 @@ class FirebaseUserModel(BaseModel):
             phone_number=self.phone_number,
             firebase_id=self.uid
         )
+    
+
+@dataclass
+class UserCookieModel:
+    
+    session_id: str
+    firebase_id: str
+    access_level: int
+    user_id: int
+    user_uuid_id: str
+    email: str
+    nonce: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "session_id": self.session_id,
+            "firebase_id": self.firebase_id,
+            "access_level": self.access_level,
+            "user_id": self.user_id,
+            "user_uuid_id": self.user_uuid_id,
+            "email": self.email,
+            "nonce": self.nonce
+        }

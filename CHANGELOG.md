@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - *(db)* Improved query return for login adding firebase user info
 - *(auth)* Added a limit rate and hashpassword
 - *(sync)* Created initial endpoint for auth apps
+- *(auth)* Added a local proxy apps services redirect
 
 ### 🐛 Bug Fixes
 

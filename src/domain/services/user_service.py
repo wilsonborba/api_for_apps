@@ -106,6 +106,15 @@ class UserService:
         # Set expiration time to 3 minutes from now
         dumped_db_user['exp'] = int(time.time()) + 180
 
+        # remove password before creating token
+        if 'password' in dumped_db_user:
+            del dumped_db_user['password']
+
+        # verify is user is active
+        if not dumped_db_user.get('is_active', False):
+            raise ValueError("User account is inactive.")
+
+
         # 1) JSON‑encode your Python dict (double‑quotes, valid JSON)
         json_str: str = json.dumps(dumped_db_user, default=str)
 

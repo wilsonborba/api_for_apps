@@ -4,6 +4,13 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 
+class ExchangeAuthError(Exception):
+    pass
+
+class AppNotFoundError(Exception):
+    pass
+
+
 class MyResponse(JSONResponse):
     def __init__(
         self,

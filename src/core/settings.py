@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
     REDIS_NAMESPACE: str = "api_for_apps:"
 
+    # redis cache prefix
+    CACHE_AUTH_PREFIX: str = "exchange_auth_app"
+
     # Development flag
     development_mode: bool = True
 

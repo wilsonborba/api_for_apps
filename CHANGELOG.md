@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - *(sync)* Created initial endpoint for auth apps
 - *(auth)* Added a local proxy apps services redirect
 - *(sync)* Initial communication with righ sync/auth process
+- *(sync)* Implemented a user id redirect for localhost api
 
 ### 🐛 Bug Fixes
 

@@ -103,8 +103,10 @@ async def verify_auth(request: Request, response: Response, api_key_secret: str 
 
     #overwrite the temporary nonce in redis
 
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, temporary_nonce_headers)
+
     await adapter.set(
-        key=temporary_nonce_headers,
+        key=key,
         value=temporary_nonce_redis,
         ex=5 * 60  # 5 minutes
     )

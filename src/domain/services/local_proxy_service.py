@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, Response
 from src.presentation.handler.responses import AppNotFoundError
 from starlette.responses import StreamingResponse
 import httpx
@@ -29,12 +29,18 @@ class LocalProxyService:
         port = self.get_port(app_name)
         return f"http://{self.host}:{port}{path}"
 
-    def adjust_headers(self, headers: dict) -> dict:
+    def adjust_request_headers(self, headers: dict) -> dict:
         hop_by_hop_headers = [
             "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
             "te", "trailers", "transfer-encoding", "upgrade"
         ]
         return {k: v for k, v in headers.items() if k.lower() not in hop_by_hop_headers and k.lower() != "host"}
+    
+    def adjust_response_headers(self, headers: dict) -> dict:
+        hop_by_hop_headers = [
+            "x-uuid", "x-test"
+        ]
+        return {k: v for k, v in headers.items() if k.lower()  in hop_by_hop_headers and k.lower() != "host"}
 
     async def _retry_request(self, client: httpx.AsyncClient, **kwargs) -> httpx.Response:
         for attempt in range(3):
@@ -46,14 +52,16 @@ class LocalProxyService:
                 await asyncio.sleep(0.2 * (attempt + 1))
         raise RuntimeError("retry logic fell through")
 
-    async def forward_request(self, app: str, path: str, request: Request) -> StreamingResponse:
+    async def forward_request(self, app: str, path: str, request: Request, response: Response) -> StreamingResponse:
         target_url = self.get_full_url(app, path)
         if request.url.query:
             target_url += f"?{request.url.query}"
 
         # for big uploads, you can stream the request too; keeping simple here:
         body = await request.body()
-        headers = self.adjust_headers(dict(request.headers))
+        request_headers = self.adjust_request_headers(dict(request.headers))
+        response_headers = self.adjust_response_headers(dict(response.headers))
+        headers = {**request_headers, **response_headers}
 
         # add forwarded headers
         if request.client:
@@ -78,7 +86,7 @@ class LocalProxyService:
                     # propagate response headers + status out of the context
                     nonlocal upstream_status, upstream_headers, upstream_media_type
                     upstream_status = r.status_code
-                    upstream_headers = self.adjust_headers(dict(r.headers))
+                    upstream_headers = self.adjust_request_headers(dict(r.headers))
                     upstream_media_type = r.headers.get("content-type")
 
                     async for chunk in r.aiter_raw():

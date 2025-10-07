@@ -13,6 +13,8 @@ from src.core.logs import debug
 exchange_auth_service = ExchangeAuthService()
 settings = app_settings()
 
+
+
 def exchange_auth_sync(token: str) -> str:
     loaded_decrypted_token = exchange_auth_service.decrypt_token(token)
     is_valid, error_message = exchange_auth_service.validate_token(loaded_decrypted_token)
@@ -49,8 +51,10 @@ async def set_http_only_cookies_for_auth_sync(adapter: RedisAdapter, request: Re
 
     # save the session id in the redis
 
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, user_cookie.session_id)
+
     await adapter.set(
-        key=user_cookie.session_id,
+        key=key,
         value=user_cookie.to_dict(),
         ex=1 * 24 * 60 * 60 + 1 * 60 * 60  # 1 day and 1 hour
     )
@@ -72,8 +76,11 @@ async def set_public_cookies_for_auth_sync(adapter: RedisAdapter, request: Reque
         max_age=1 * 24 * 60 * 60  # 1 day
     )
 
+    # save the nonce in the redis
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, user_cookie.nonce)
+
     await adapter.set(
-        key=user_cookie.nonce,
+        key=key,
         value={
             "is_valid": True,
             "is_not_valid_since": None,
@@ -92,8 +99,11 @@ async def generate_new_nonce_sync(adapter: RedisAdapter) -> str:
 
     encrypted_nonce = exchange_auth_service.encrypt_new_nonce(new_nonce)
 
+    # save the nonce in the redis
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, new_nonce)
+
     await adapter.set(
-        key=new_nonce,
+        key=key,
         value={
             "is_valid": True,
             "is_not_valid_since": None,
@@ -105,11 +115,16 @@ async def generate_new_nonce_sync(adapter: RedisAdapter) -> str:
 
 
 async def get_user_info_from_redis_sync(adapter: RedisAdapter, session_id: str) -> dict:
-    user_info = await adapter.get(session_id)
+
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, session_id)
+
+    user_info = await adapter.get(key)
     return user_info
 
 
 async def get_nonce_from_redis_sync(adapter: RedisAdapter, nonce_id: str) -> str:
-    
-    nonce_info = await adapter.get(nonce_id)
+
+    key = adapter.k(settings.CACHE_AUTH_PREFIX, nonce_id)
+
+    nonce_info = await adapter.get(key)
     return nonce_info

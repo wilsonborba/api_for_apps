@@ -1,11 +1,14 @@
 # src/routes/proxy_router.py
 from fastapi import APIRouter, Request, Response, status, Depends
+from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
+from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 from src.domain.services.local_proxy_service import LocalProxyService
 from src.presentation.handler.responses import MyResponse
 from src.core.logs import error
 from urllib.parse import urlunsplit
 from src.presentation.handler.auth import verify_auth
+from src.core.logs import debug, warning
 
 apps_proxy_v1 = APIRouter(prefix="/{app}/v1")
 proxy_service = LocalProxyService()
@@ -41,7 +44,19 @@ async def proxy_preflight(app: str, path: str, request: Request):
 @apps_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response, api_key_secret: str = Depends(verify_auth)):
     try:
-        proxied = await proxy_service.forward_request(app, f"/{path}", request)
+
+
+        user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+
+        adapter = get_redis_adapter(request)
+
+        user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=user_session_id)
+
+        response.headers["x-uuid"] = user_info.get("user_uuid_id", "")
+
+       
+
+        proxied = await proxy_service.forward_request(app, f"/{path}", request, response)
 
         # IMPORTANT: copy headers set by dependencies (e.g., NEXT_AUTH_NONCE) onto the proxied response
         # (they would otherwise be dropped because StreamingResponse bypasses the injected Response)
@@ -49,6 +64,12 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
             # don't clobber upstream headers unless it's your own nonce header
             if k.lower() == settings.NEXT_AUTH_NONCE_HEADER_KEY_NAME.lower() or k not in proxied.headers:
                 proxied.headers[k] = v
+
+        # remove back for security the x-uuid header
+        
+        if "x-uuid" in proxied.headers:
+            warning("Removing x-uuid header from proxied response for security.")
+            del proxied.headers["x-uuid"]            
 
         return proxied
     except Exception as e:

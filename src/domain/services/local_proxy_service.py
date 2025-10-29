@@ -72,7 +72,7 @@ class LocalProxyService:
         if settings().API_ADMIN_KEY_NAME in headers:
             del headers[settings().API_ADMIN_KEY_NAME]  # remove admin key if any
 
-        timeout = httpx.Timeout(connect=2.0, read=360, write=30.0, pool=2.0)
+        timeout = httpx.Timeout(connect=2.0, read=3000, write=3000, pool=2.0)
         client = httpx.AsyncClient(timeout=timeout, follow_redirects=False)
 
         async def iterator():

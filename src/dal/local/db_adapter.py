@@ -81,6 +81,13 @@ class DBAdapter:
 
     def get_columns(self, table_name: str, schema: str = None):
         return self.get_inspector().get_columns(table_name, schema=schema)
+    
+    def get_fields(self, table_name: str, schema: str = None):
+        table = self.reflect_table(table_name, schema)
+        # return list of column names and types
+        return {column.name: str(column.type) for column in table.columns}
+
+       
 
 
 

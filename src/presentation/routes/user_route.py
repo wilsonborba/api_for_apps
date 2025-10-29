@@ -3,9 +3,9 @@ from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.params import Depends
 
 from src.domain.models.user_model import FirebaseUserModel
-from src.presentation.handler.user_handler import get_all_user_info_from_db, sign_up_user, log_in_user
+from src.presentation.handler.user_handler import get_all_user_info_from_db, modify_user_info, sign_up_user, log_in_user
 from ..handler.responses import MyResponseModel, MyResponse
-from src.core.logs import error
+from src.core.logs import error, debug
 from src.presentation.handler.auth import verify_auth
 from src.presentation.handler.user_security_handler import (
     enforce_ip_rate,
@@ -14,6 +14,9 @@ from src.presentation.handler.user_security_handler import (
     progressive_backoff_delay_ms,
 )
 from src.core.utils import get_redis_adapter
+from src.core.settings import app_settings
+
+settings = app_settings()
 
 
 user_info_v1 = APIRouter(prefix='/v1')
@@ -42,6 +45,60 @@ def get_all_user_info( response: Response, api_key_secret: str = Depends(verify_
             message="Failed to retrieve user information.",
             data=None
         )
+
+@user_info_v1.patch(f"/",
+                    summary="Update User Info",
+                    description="This endpoint updates user information.",
+                    response_model=MyResponseModel,
+                    status_code=status.HTTP_200_OK)
+async def update_user_info(response: Response, api_key_secret: str = Depends(verify_auth), request: Request = None):
+    """
+    Update user information.
+    This endpoint updates user information.
+    """
+    try:
+        # debug(f"Request Headers {request.headers}")
+        # debug(f"Response Headers {response.headers}")
+        # debug(f"Request Body {await request.body()}")
+
+        # headers = request.headers
+        cookies = request.cookies
+
+        sid = cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+
+        body = await request.json()
+
+        first_name = body.get("first_name")
+        last_name = body.get("last_name")
+        phone_number = body.get("phone_number")
+
+
+
+        user_modified = await modify_user_info(
+            request=request, 
+            sid=sid, 
+            first_name=first_name, 
+            last_name=last_name, 
+            phone_number=phone_number
+        )
+
+        debug(f"Updated User Info: {user_modified}")
+
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="User information updated successfully.",
+            data=None
+        )
+    except Exception as e:
+        error(str(e))
+        
+        return MyResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            message="Failed to update user information.",
+            data=None
+        )
+       
+
 
 @user_sync_v1.post(f"/sign-up",
              summary="Sign Up User", 

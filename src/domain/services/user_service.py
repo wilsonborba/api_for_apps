@@ -20,6 +20,11 @@ class UserService:
         self.firebase_adapter = FirebaseAdapter()
         self.cryptography_service = CryptographyService()
         self._ph = PasswordHasher()
+
+
+    def fields(self):
+        return self.db_adapter.get_fields(self._table_name)
+
     
 
     def _hash_password(self, password: str) -> str:
@@ -133,7 +138,12 @@ class UserService:
         return self.user_repository.get(user_id)
 
     def update_user(self, user_id, user_data):
-        return self.user_repository.update(user_id, user_data)
+        return self.db_adapter.update_row(
+            table_name=self._table_name,
+            id_value=user_id,
+            data=user_data,
+            id_column="id"
+        )
 
     def delete_user(self, user_id):
         return self.user_repository.delete(user_id)

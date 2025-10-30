@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - *(app)* Fixed proxy timeout
 - *(user)* Patch some info about the user
 - *(user)* Created new routes info about user
+- *(proxy)* Improved to return the same code status proxied
 
 ### 🐛 Bug Fixes
 

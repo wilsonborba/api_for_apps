@@ -56,7 +56,7 @@ class ExchangeAuthService:
 
         decrypted_token = self.cryptography_service.decrypt(token.encode('utf-8')) 
         loaded_token = json.loads(decrypted_token.decode('utf-8'))
-        debug(f"Loaded token type: {type(loaded_token)}")
+        #debug(f"Loaded token type: {type(loaded_token)}")
         return loaded_token
     
     def validate_token(self, token: str) -> Tuple[bool, Optional[str]]:
@@ -64,7 +64,7 @@ class ExchangeAuthService:
 
         # check the expiration comparing with current time
 
-        debug(f"Token to validate: {json.dumps(token)}")
+        #debug(f"Token to validate: {json.dumps(token)}")
 
         exp_from_token = token.get("exp", None)
         if exp_from_token is None:

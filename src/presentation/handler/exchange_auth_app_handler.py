@@ -8,7 +8,7 @@ from src.domain.models.user_model import UserCookieModel
 from src.core.settings import app_settings
 from src.presentation.handler.responses import ExchangeAuthError
 from src.domain.services.exchange_auth_app_service import ExchangeAuthService
-from src.core.logs import debug
+
 
 exchange_auth_service = ExchangeAuthService()
 settings = app_settings()
@@ -38,7 +38,7 @@ async def set_http_only_cookies_for_auth_sync(adapter: RedisAdapter, request: Re
 
     is_https = request.url.scheme == "https"
 
-    debug(f"Is HTTPS: {is_https}")
+    
 
     response.set_cookie(
         key=settings.HTTP_ONLY_COOKIE_KEY_NAME,
@@ -65,7 +65,7 @@ async def set_public_cookies_for_auth_sync(adapter: RedisAdapter, request: Reque
     
     is_https = request.url.scheme == "https"
     
-    debug(f"Is HTTPS: {is_https}")
+   
 
     response.set_cookie(
         key=settings.PUBLIC_COOKIE_KEY_NAME,

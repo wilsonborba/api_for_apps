@@ -57,50 +57,50 @@ class LocalProxyService:
         if request.url.query:
             target_url += f"?{request.url.query}"
 
-        # for big uploads, you can stream the request too; keeping simple here:
         body = await request.body()
-        request_headers = self.adjust_request_headers(dict(request.headers))
+        request_headers  = self.adjust_request_headers(dict(request.headers))
         response_headers = self.adjust_response_headers(dict(response.headers))
         headers = {**request_headers, **response_headers}
 
-        # add forwarded headers
         if request.client:
             headers["x-forwarded-for"] = request.client.host
         headers["x-forwarded-proto"] = request.url.scheme
         headers["x-forwarded-host"]  = request.url.hostname or "localhost"
 
         if settings().API_ADMIN_KEY_NAME in headers:
-            del headers[settings().API_ADMIN_KEY_NAME]  # remove admin key if any
+            del headers[settings().API_ADMIN_KEY_NAME]
 
         timeout = httpx.Timeout(connect=2.0, read=3000, write=3000, pool=2.0)
         client = httpx.AsyncClient(timeout=timeout, follow_redirects=False)
 
+        # 1) Open the upstream stream *now* so we can read status/headers before returning.
+        req = client.build_request(
+            method=request.method,
+            url=target_url,
+            headers=headers,
+            content=body if request.method != "HEAD" else None,
+        )
+        upstream = await client.send(req, stream=True)
+
+        # 2) Capture status and headers up front
+        status_code = upstream.status_code
+        media_type  = upstream.headers.get("content-type")
+        # Strip hop-by-hop and anything else you don’t want to expose
+        passthrough_headers = self.adjust_request_headers(dict(upstream.headers))
+
+        # 3) Stream the body
         async def iterator():
             try:
-                async with client.stream(
-                    method=request.method,
-                    url=target_url,
-                    headers=headers,
-                    content=body,
-                ) as r:
-                    # propagate response headers + status out of the context
-                    nonlocal upstream_status, upstream_headers, upstream_media_type
-                    upstream_status = r.status_code
-                    upstream_headers = self.adjust_request_headers(dict(r.headers))
-                    upstream_media_type = r.headers.get("content-type")
-
-                    async for chunk in r.aiter_raw():
+                if request.method != "HEAD":
+                    async for chunk in upstream.aiter_raw():
                         yield chunk
             finally:
+                await upstream.aclose()
                 await client.aclose()
-
-        upstream_status = 200
-        upstream_headers = {}
-        upstream_media_type = None
 
         return StreamingResponse(
             iterator(),
-            status_code=upstream_status,
-            headers=upstream_headers,
-            media_type=upstream_media_type,
+            status_code=status_code,
+            headers=passthrough_headers,
+            media_type=media_type,
         )

@@ -5,7 +5,7 @@ from src.domain.services.cryptography_service import CryptographyService
 from src.domain.models.user_model import FirebaseUserModel
 from src.dal.remote.firebase_adapter import FirebaseAdapter
 from src.dal.local.db_adapter import DBAdapter
-from src.core.logs import debug
+from src.core.logs import debug, error
 import time
 import json
 from argon2 import PasswordHasher
@@ -134,8 +134,17 @@ class UserService:
 
 
 
-    def get_user(self, user_id):
-        return self.user_repository.get(user_id)
+    def get_user_by_id(self, user_id):
+        user = self.db_adapter.read_by_id(
+            table_name=self._table_name,
+            id_value=user_id,
+            id_column="id"
+        )
+
+        if user and 'password' in user:
+            user.pop('password')
+
+        return user
 
     def update_user(self, user_id, user_data):
         return self.db_adapter.update_row(
@@ -149,11 +158,18 @@ class UserService:
         return self.user_repository.delete(user_id)
     
     def get_all_users(self):
-        
         all_user_from_db = self.db_adapter.read_all(self._table_name)
 
         for user in all_user_from_db:
-            user['firebase_info'] = self.firebase_adapter.get_user_info(user['firebase_id'])
+            # remove sensitive field
+            user.pop('password', None)
+
+            # optional: attach firebase info
+            try:
+                user['firebase_info'] = self.firebase_adapter.get_user_info(user['firebase_id'])
+            except Exception as e:
+                error(f"Error fetching Firebase info for user {user.get('id')}: {e}")
 
         return all_user_from_db
+
 

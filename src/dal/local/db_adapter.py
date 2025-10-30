@@ -3,6 +3,10 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import NoSuchTableError
 from contextlib import contextmanager
 from src.core.settings import app_settings
+import uuid
+from datetime import datetime, date
+from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
 
 class DBAdapter:
@@ -38,17 +42,43 @@ class DBAdapter:
 
     # ------- CRUD operations -------- #
 
+    def _to_json_safe(self, value):
+        if isinstance(value, uuid.UUID):
+            return str(value)
+        if isinstance(value, (datetime, date)):
+            return value.isoformat()
+        if isinstance(value, Decimal):
+            return float(value)
+        return value
+    
+    def _row_to_json_safe(self, row) -> Dict[str, Any]:
+        d = dict(row)  # RowMapping -> dict
+        for k, v in d.items():
+            d[k] = self._to_json_safe(v)
+        return d
+
     def read_all(self, table_name: str, schema: str = None):
         table = self.reflect_table(table_name, schema)
         stmt = select(table)
         with self.connect() as conn:
-            return [dict(row) for row in conn.execute(stmt).mappings()]
+            rows = [dict(row) for row in conn.execute(stmt).mappings()]
+        for r in rows:
+            for k, v in list(r.items()):
+                r[k] = self._to_json_safe(v)
+        return rows
 
-    def read_by_id(self, table_name: str, id_value, id_column: str = "id", schema: str = None):
-        table = self.reflect_table(table_name, schema)
-        stmt = select(table).where(table.c[id_column] == id_value)
-        with self.connect() as conn:
-            return conn.execute(stmt).mappings().first()
+    def read_by_id(
+        self,
+        table_name: str,
+        id_value,
+        id_column: str = "id",
+        schema: str = None
+        ) -> Optional[Dict[str, Any]]:
+            table = self.reflect_table(table_name, schema)
+            stmt = select(table).where(table.c[id_column] == id_value)
+            with self.connect() as conn:
+                row = conn.execute(stmt).mappings().first()
+                return self._row_to_json_safe(row) if row else None
 
     def insert_row(self, table_name: str, data: dict, schema: str = None):
         table = self.reflect_table(table_name, schema)

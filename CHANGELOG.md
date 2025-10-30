@@ -19,6 +19,8 @@ All notable changes to this project will be documented in this file.
 - *(sync)* Initial communication with righ sync/auth process
 - *(sync)* Implemented a user id redirect for localhost api
 - *(app)* Fixed proxy timeout
+- *(user)* Patch some info about the user
+- *(user)* Created new routes info about user
 
 ### 🐛 Bug Fixes
 

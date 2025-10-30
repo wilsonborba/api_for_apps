@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.params import Depends
 
 from src.domain.models.user_model import FirebaseUserModel
-from src.presentation.handler.user_handler import get_all_user_info_from_db, modify_user_info, sign_up_user, log_in_user
+from src.presentation.handler.user_handler import get_all_user_info_from_db, get_fields_info_about_user, get_specific_user_info, modify_user_info, sign_up_user, log_in_user
 from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error, debug
 from src.presentation.handler.auth import verify_auth
@@ -45,6 +45,68 @@ def get_all_user_info( response: Response, api_key_secret: str = Depends(verify_
             message="Failed to retrieve user information.",
             data=None
         )
+
+@user_info_v1.get(f"/",
+            summary="Get User Info", 
+            description="This endpoint returns user information.",
+            response_model=MyResponseModel,
+            status_code=status.HTTP_200_OK)
+async def get_user_info(response: Response, api_key_secret: str = Depends(verify_auth), request: Request = None):
+    """
+    Get user information.
+    This endpoint returns user information.
+    """
+    cookies = request.cookies
+
+
+    sid = cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+
+    try:
+        user_info = await get_specific_user_info(request=request, sid=sid)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="User information retrieved successfully.",
+            data=user_info
+        )
+    except Exception as e:
+        error(str(e))
+
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to retrieve user information.",
+            data=None
+        )
+
+@user_info_v1.get(f"/fields",
+            summary="Get User Info Fields", 
+            description="This endpoint returns specific fields of user information.",
+            response_model=MyResponseModel,
+            status_code=status.HTTP_200_OK)
+async def get_user_info_fields(response: Response, api_key_secret: str = Depends(verify_auth), request: Request = None):
+    """
+    Get specific fields of user information.
+    This endpoint returns specific fields of user information.
+    """
+
+    try:
+        user_fields = await get_fields_info_about_user()
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="User information fields retrieved successfully.",
+            data=user_fields
+        )
+    
+    except Exception as e:
+        error(str(e))
+
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to retrieve user information fields.",
+            data=None
+        )
+
+
+
 
 @user_info_v1.patch(f"/",
                     summary="Update User Info",

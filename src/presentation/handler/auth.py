@@ -6,7 +6,7 @@ from fastapi import HTTPException, Security, Request, Response, Depends
 from src.presentation.handler.exchange_auth_app_handler import generate_new_nonce_sync, get_nonce_from_redis_sync, get_user_info_from_redis_sync
 from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
-from src.core.logs import error, warning
+from src.core.logs import error, warning, debug
 
 settings = app_settings()
 
@@ -84,7 +84,9 @@ async def verify_auth(request: Request, response: Response, api_key_secret: str 
             error("Missing user info for session...")
             raise HTTPException(status_code=403, detail="Missing Authentications Parameters...")
         
-        user_nonce_id = user_info.get("nonce_id", None)
+        user_nonce_id = user_info.get("nonce", None)
+
+        #debug(f"User Info: {user_info}")
 
         if actual_nonce_headers != user_nonce_id:
             error(f"Invalid Nonce...")

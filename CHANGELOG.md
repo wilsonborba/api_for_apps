@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - *(user)* Patch some info about the user
 - *(user)* Created new routes info about user
 - *(proxy)* Improved to return the same code status proxied
+- *(auth)* Changed a hardcode string that was wrong
 
 ### 🐛 Bug Fixes
 

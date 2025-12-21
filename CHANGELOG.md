@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - *(auth)* No api key on headers
 - *(auth)* Try block to avoid 500 code
 - *(proxy)* Fixed query params  for quiz api
+- *(routes)* Returning sucessful parsed data into string
 
 ### ⚙️ Miscellaneous Tasks
 

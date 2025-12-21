@@ -70,7 +70,7 @@ class UserService:
         # 4) now let Pydantic do the JSON serialization
         json_bytes = db_user.model_dump_json().encode("utf-8")
         token = self.cryptography_service.encrypt(json_bytes)
-        return token
+        return str(token)
 
     def log_in(self, raw_user_data):
         """
@@ -128,7 +128,7 @@ class UserService:
             json_str.encode('utf-8')
         )
 
-        return encrypted_usr_as_cookie
+        return str(encrypted_usr_as_cookie)
 
 
 

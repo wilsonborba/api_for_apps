@@ -189,7 +189,7 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
 
 
     try:
-        
+        debug(str(raw_user_data))
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
             message="User signed up successfully.",

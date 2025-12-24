@@ -14,8 +14,12 @@ WORKERS=${WORKERS:-4}
 echo "Starting Gunicorn + Uvicorn workers on ${HOST}:${PORT} with ${WORKERS} workers…"
 
 exec gunicorn \
-     -k uvicorn.workers.UvicornWorker \
-     main:app \
-     -b "$HOST:$PORT" \
-     -w "$WORKERS" \
-     --log-level info
+  "main:app" \
+  -k uvicorn.workers.UvicornWorker \
+  -b "${HOST}:${PORT}" \
+  -w "${WORKERS}" \
+  --log-level info \
+  --access-logfile - \
+  --error-logfile - \
+  --forwarded-allow-ips="*"
+

@@ -7,6 +7,7 @@ from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
 from src.core.settings import app_settings
 
+
 settings = app_settings()
 
 @asynccontextmanager
@@ -33,7 +34,23 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://auth.asodya.com","http://localhost:1165", "http://127.0.0.1:1165", "http://localhost:7000", "http://127.0.0.1:7000"],
+    #allow_origins=["*"],
+    allow_origins=[
+    # Localhost (Flutter web / local tools)
+    "http://localhost:1165",
+    "http://127.0.0.1:1165",
+    "http://localhost:7000",
+    "http://127.0.0.1:7000",
+
+    # Local network / hotspot IPs (example ports — adjust if needed)
+    "http://172.20.10.4:1165",
+    "http://100.93.16.79:1165",
+    "http://172.17.0.1:1165",
+
+    # Auth domain
+    "https://auth.asodya.com",
+    ],
+
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=[

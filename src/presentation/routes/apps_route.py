@@ -1,10 +1,8 @@
 # src/routes/proxy_router.py
-from fnmatch import fnmatchcase
-from urllib.parse import urlunsplit
-
 from fastapi import APIRouter, Request, Response, status
-
-from src.core.logs import debug, error, warning
+from fnmatch import fnmatchcase
+from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
+from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 from src.core.utils import get_redis_adapter
 from src.domain.services.local_proxy_service import LocalProxyService
@@ -50,7 +48,6 @@ async def proxy_preflight(app: str, path: str, request: Request):
 
     return resp
 
-
 def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
     allowed_methods = settings.PUBLIC_PROXY_ALLOWED_METHODS
     if method.upper() not in allowed_methods:
@@ -63,9 +60,7 @@ def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
     return any(fnmatchcase(normalized_path, pattern) for pattern in allowlist)
 
 
-@apps_proxy_v1.api_route(
-    "/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"]
-)
+@apps_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response):
     try:
         if not _is_public_proxy_request(app, path, request.method):
@@ -73,6 +68,10 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
             user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
 
             adapter = get_redis_adapter(request)
+
+            user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=user_session_id)
+
+            response.headers["x-uuid"] = user_info.get("user_uuid_id", "")
 
             user_info = await get_user_info_from_redis_sync(
                 adapter=adapter, session_id=user_session_id

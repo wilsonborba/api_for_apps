@@ -32,10 +32,9 @@ async def verify_auth(
 
     # Admin key path (dev/internal)
     if api_key_secret:
-        if api_key_secret != settings.API_KEY_SECRET:
-            error("Invalid API Key...")
-            raise HTTPException(status_code=403, detail="Missing Authentications Parameters...")
-        return api_key_secret
+        if api_key_secret == settings.API_KEY_SECRET:
+            return api_key_secret
+        warning("Invalid API Key; falling back to user authentication flow.")
 
     adapter = get_redis_adapter(request)
 
@@ -111,4 +110,3 @@ async def verify_auth(
     await adapter.set(key=key, value=temporary_nonce_redis, ex=5 * 60)
 
     return True
-

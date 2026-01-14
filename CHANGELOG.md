@@ -19,6 +19,7 @@
 - *(user)* Created new routes info about user
 - *(proxy)* Improved to return the same code status proxied
 - *(auth)* Changed a hardcode string that was wrong
+- *(routes)* Added public route allow list for api proxy
 
 ### 🐛 Bug Fixes
 

@@ -1,7 +1,9 @@
 # src/core/settings.py
 
 
+from pydantic import Field
 from pydantic_settings import BaseSettings
+from typing import Dict, List, Tuple
 from functools import lru_cache
 from dotenv import load_dotenv
 
@@ -44,6 +46,10 @@ class Settings(BaseSettings):
 
     # Development flag
     development_mode: bool = True
+
+    # Public proxy routes (app -> list of path patterns)
+    PUBLIC_PROXY_ROUTE_ALLOWLIST: Dict[str, List[str]] = Field(default_factory=dict)
+    PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
 
     @property
     def default_db(self) -> DatabaseConfig:

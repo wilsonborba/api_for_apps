@@ -9,14 +9,18 @@ exchange_auth_service = ExchangeAuthService()
 settings = app_settings()
 
 
-def exchange_auth_sync(token: str) -> UserCookieModel:
-    loaded_decrypted_token = exchange_auth_service.decrypt_token(token)
-    is_valid, error_message = exchange_auth_service.validate_token(loaded_decrypted_token)
+def exchange_auth_sync(auth_exchange_token: str) -> UserCookieModel:
+    auth_exchange_payload = exchange_auth_service.decrypt_auth_exchange_token(
+        auth_exchange_token
+    )
+    is_valid, error_message = exchange_auth_service.validate_auth_exchange_payload(
+        auth_exchange_payload
+    )
 
     if not is_valid:
         raise ExchangeAuthError(error_message)
 
-    user_cookie = exchange_auth_service.build_user_cookie(loaded_decrypted_token)
+    user_cookie = exchange_auth_service.build_user_cookie(auth_exchange_payload)
     return user_cookie
 
 
@@ -137,4 +141,3 @@ async def get_nonce_from_redis_sync(adapter: RedisAdapter, nonce_id: str) -> str
     key = adapter.k(settings.CACHE_AUTH_PREFIX, nonce_id)
     nonce_info = await adapter.get(key)
     return nonce_info
-

@@ -28,7 +28,7 @@ class ExchangeAuthService:
         encrypted_nonce = self.cryptography_service.encrypt(nonce.encode("utf-8"))
         return encrypted_nonce.decode("utf-8")
 
-    def decrypt_token(self, token: str) -> str:
+    def decrypt_auth_exchange_token(self, auth_exchange_token: str) -> dict:
         """
         Example of decrypted token:
 
@@ -55,17 +55,22 @@ class ExchangeAuthService:
 
         """
 
-        decrypted_token = self.cryptography_service.decrypt(token.encode("utf-8"))
-        loaded_token = json.loads(decrypted_token.decode("utf-8"))
-        # debug(f"Loaded token type: {type(loaded_token)}")
-        return loaded_token
+        decrypted_auth_exchange_token = self.cryptography_service.decrypt(
+            auth_exchange_token.encode("utf-8")
+        )
+        loaded_auth_exchange_payload = json.loads(
+            decrypted_auth_exchange_token.decode("utf-8")
+        )
+        return loaded_auth_exchange_payload
 
-    def validate_token(self, token: str) -> Tuple[bool, Optional[str]]:
+    def validate_auth_exchange_payload(
+        self, auth_exchange_payload: dict
+    ) -> Tuple[bool, Optional[str]]:
         # check the expiration comparing with current time
 
-        # debug(f"Token to validate: {json.dumps(token)}")
+        # debug(f"Token to validate: {json.dumps(auth_exchange_payload)}")
 
-        exp_from_token = token.get("exp", None)
+        exp_from_token = auth_exchange_payload.get("exp", None)
         if exp_from_token is None:
             return False, "Token does not have expiration field"
         current_time = self.now_in_seconds()
@@ -83,7 +88,7 @@ class ExchangeAuthService:
         ]
 
         for field in necessary_fields:
-            if field not in token:
+            if field not in auth_exchange_payload:
                 error(f"Token is missing field: {field}")
                 return False, f"Token is missing field..."
 
@@ -97,22 +102,24 @@ class ExchangeAuthService:
             "firebase_id",
         ]
         for field in important_fields:
-            if token[field] is None:
+            if auth_exchange_payload[field] is None:
                 error(f"Token field {field} is None")
                 return False, f"There is a field with None value"
 
         # check if user exist in firebase
-        frb_user = self.firebase_adapter.get_user_info(token["firebase_id"])
+        frb_user = self.firebase_adapter.get_user_info(
+            auth_exchange_payload["firebase_id"]
+        )
 
         if frb_user is None:
             return False, "User does not exist"
 
         # check if access level is valid need to be in [1, 2,]
 
-        if token["access_level"] not in [1, 2, 3]:
+        if auth_exchange_payload["access_level"] not in [1, 2, 3]:
             return False, "Invalid access level"
 
-        if not token["is_active"]:
+        if not auth_exchange_payload["is_active"]:
             return False, "User is not active"
 
         return True, "Token is valid"
@@ -123,14 +130,14 @@ class ExchangeAuthService:
     def generate_nonce(self) -> str:
         return secrets.token_urlsafe(24)
 
-    def build_user_cookie(self, token: str) -> UserCookieModel:
+    def build_user_cookie(self, auth_exchange_payload: dict) -> UserCookieModel:
         return UserCookieModel(
             session_id=self.generate_sid(),
-            firebase_id=token["firebase_id"],
-            access_level=token["access_level"],
-            user_id=token["id"],
-            user_uuid_id=token["uuid_id"],
-            email=token["email"],
+            firebase_id=auth_exchange_payload["firebase_id"],
+            access_level=auth_exchange_payload["access_level"],
+            user_id=auth_exchange_payload["id"],
+            user_uuid_id=auth_exchange_payload["uuid_id"],
+            email=auth_exchange_payload["email"],
             nonce=self.generate_nonce(),
         )
 

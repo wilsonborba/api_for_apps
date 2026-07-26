@@ -7,6 +7,7 @@ from src.presentation.handler.exchange_auth_app_handler import (
     set_http_only_cookies_for_auth_sync,
     set_public_cookies_for_auth_sync,
 )
+from src.presentation.handler.auth_artifact_params import read_auth_exchange_token
 
 from ..handler.responses import ExchangeAuthError, MyResponseModel, MyResponse
 from src.core.logs import error
@@ -41,8 +42,8 @@ async def exchange_app(request: Request, response: Response):
             data=None,
         )
 
-    token = body.get("token") if body else None
-    if not token:
+    auth_exchange_token = read_auth_exchange_token(body)
+    if not auth_exchange_token:
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             message="Authentication is required",
@@ -52,7 +53,7 @@ async def exchange_app(request: Request, response: Response):
     adapter = get_redis_adapter(request)
 
     try:
-        user_cookie = exchange_auth_sync(token)
+        user_cookie = exchange_auth_sync(auth_exchange_token)
 
         # ✅ Set cookies/headers on the SAME object you will return
         resp = await set_http_only_cookies_for_auth_sync(adapter, request, resp, user_cookie)

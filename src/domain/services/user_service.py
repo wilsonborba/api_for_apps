@@ -66,8 +66,8 @@ class UserService:
 
         # 4) now let Pydantic do the JSON serialization
         json_bytes = db_user.model_dump_json().encode("utf-8")
-        token = self.cryptography_service.encrypt(json_bytes)
-        return token.decode("utf-8")
+        auth_exchange_token = self.cryptography_service.encrypt(json_bytes)
+        return auth_exchange_token.decode("utf-8")
 
     def log_in(self, raw_user_data):
         """
@@ -105,7 +105,7 @@ class UserService:
         # Set expiration time to 3 minutes from now
         dumped_db_user["exp"] = int(time.time()) + 180
 
-        # remove password before creating token
+        # remove password before creating the auth exchange token
         if "password" in dumped_db_user:
             del dumped_db_user["password"]
 
@@ -117,11 +117,11 @@ class UserService:
         json_str: str = json.dumps(dumped_db_user, default=str)
 
         # 2) Turn it into bytes and encrypt
-        encrypted_usr_as_cookie = self.cryptography_service.encrypt(
+        auth_exchange_token = self.cryptography_service.encrypt(
             json_str.encode("utf-8")
         )
 
-        return encrypted_usr_as_cookie.decode("utf-8")
+        return auth_exchange_token.decode("utf-8")
 
     def get_user_by_id(self, user_id):
         user = self.db_adapter.read_by_id(

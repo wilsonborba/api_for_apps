@@ -106,13 +106,16 @@ class ExchangeAuthService:
                 error(f"Token field {field} is None")
                 return False, f"There is a field with None value"
 
-        # check if user exist in firebase
-        frb_user = self.firebase_adapter.get_user_info(
-            auth_exchange_payload["firebase_id"]
-        )
+        # Tokens minted from the backend's Supabase session exchange are already
+        # provider-validated before encryption, so preserve compatibility here
+        # without forcing a Firebase lookup for non-Firebase identities.
+        if auth_exchange_payload.get("provider") != "supabase":
+            frb_user = self.firebase_adapter.get_user_info(
+                auth_exchange_payload["firebase_id"]
+            )
 
-        if frb_user is None:
-            return False, "User does not exist"
+            if frb_user is None:
+                return False, "User does not exist"
 
         # check if access level is valid need to be in [1, 2,]
 

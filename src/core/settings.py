@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     FIREBASE_SERVICE_ACCOUNT_PATH: str = (
         "./firebase.json"  # Path to Firebase service account JSON file
     )
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
 
     # private server key for fernet encryption/decryption

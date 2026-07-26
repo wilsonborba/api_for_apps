@@ -120,4 +120,7 @@ def log_in_user(raw_user_data):
     login_data = user_service.log_in(raw_user_data)  # This will handle user authentication
 
     return login_data  # Return the result of the login operation, which could be user data or an error message
-    
+
+
+def log_in_user_from_supabase(access_token: str):
+    return user_service.exchange_supabase_session(access_token)

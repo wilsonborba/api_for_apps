@@ -1,6 +1,7 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.params import Depends
+from pydantic import BaseModel
 
 from src.domain.models.user_model import FirebaseUserModel
 from src.presentation.handler.user_handler import get_all_user_info_from_db, get_fields_info_about_user, get_specific_user_info, modify_user_info, sign_up_user, log_in_user
@@ -17,6 +18,10 @@ from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 
 settings = app_settings()
+
+
+class SupabaseSessionRequest(BaseModel):
+    access_token: str
 
 
 user_info_v1 = APIRouter(prefix='/v1')
@@ -243,4 +248,34 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
             status_code=status.HTTP_401_UNAUTHORIZED,
             message="Authentication failed. Please check your credentials.",
             data=None
+        )
+
+
+@user_sync_v1.post(
+    "/supabase-session",
+    summary="Exchange Supabase session for auth exchange token",
+    description="This endpoint validates a frontend Supabase access token and returns the platform auth exchange token.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_supabase_session(
+    response: Response,
+    request: Request,
+    body: SupabaseSessionRequest,
+):
+    if not body.access_token:
+        raise HTTPException(status_code=400, detail="access_token is required")
+
+    try:
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Supabase session accepted.",
+            data=log_in_user_from_supabase(body.access_token),
+        )
+    except Exception as e:
+        error(str(e))
+        return MyResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            message="Supabase authentication failed.",
+            data=None,
         )

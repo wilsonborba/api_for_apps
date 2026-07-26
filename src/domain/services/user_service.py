@@ -1,5 +1,6 @@
 import json
 import re
+import secrets
 import time
 
 from argon2 import PasswordHasher
@@ -7,6 +8,7 @@ from argon2 import PasswordHasher
 from src.core.logs import debug, error
 from src.dal.local.db_adapter import DBAdapter
 from src.dal.remote.firebase_adapter import FirebaseAdapter
+from src.dal.remote.supabase_adapter import SupabaseAdapter
 from src.domain.models.user_model import FirebaseUserModel
 from src.domain.services.cryptography_service import CryptographyService
 
@@ -17,6 +19,7 @@ class UserService:
     def __init__(self):
         self.db_adapter = DBAdapter()
         self.firebase_adapter = FirebaseAdapter()
+        self.supabase_adapter = SupabaseAdapter()
         self.cryptography_service = CryptographyService()
         self._ph = PasswordHasher()
 
@@ -121,6 +124,74 @@ class UserService:
             json_str.encode("utf-8")
         )
 
+        return auth_exchange_token.decode("utf-8")
+
+    def exchange_supabase_session(self, access_token: str) -> str:
+        supabase_user = self.supabase_adapter.get_user_info(access_token)
+
+        email = supabase_user.get("email")
+        provider_user_id = supabase_user.get("id")
+        if not email or not provider_user_id:
+            raise ValueError("Supabase user payload is missing email or id")
+
+        db_user = self.db_adapter.read_by_id(
+            self._table_name, email, id_column="email"
+        )
+
+        now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        display_name = (
+            (supabase_user.get("user_metadata") or {}).get("display_name")
+            or (supabase_user.get("user_metadata") or {}).get("full_name")
+            or ""
+        ).strip()
+        first_name = display_name.split(" ")[0] if display_name else None
+        last_name = display_name.split(" ")[-1] if display_name and " " in display_name else None
+
+        if db_user is None:
+            insert_data = {
+                "uuid_id": secrets.token_hex(16),
+                "username": email.split("@")[0],
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
+                "password": self._hash_password(secrets.token_urlsafe(32)),
+                "access_level": 3,
+                "is_active": True,
+                "last_login": now,
+                "date_joined": now,
+                "phone_number": None,
+                "firebase_id": provider_user_id,
+            }
+            inserted = self.db_adapter.insert_row(self._table_name, insert_data)
+            db_user = self.db_adapter.read_by_id(
+                self._table_name, inserted[0], id_column="id"
+            )
+        else:
+            self.db_adapter.update_row(
+                self._table_name,
+                db_user["id"],
+                {
+                    "last_login": now,
+                    "firebase_id": provider_user_id,
+                    "first_name": db_user.get("first_name") or first_name,
+                    "last_name": db_user.get("last_name") or last_name,
+                },
+            )
+            db_user = self.db_adapter.read_by_id(
+                self._table_name, db_user["id"], id_column="id"
+            )
+
+        dumped_db_user = dict(db_user)
+        dumped_db_user["last_login"] = now
+        dumped_db_user["firebase_info"] = supabase_user
+        dumped_db_user["provider"] = "supabase"
+        dumped_db_user["exp"] = int(time.time()) + 180
+        dumped_db_user.pop("password", None)
+
+        json_str = json.dumps(dumped_db_user, default=str)
+        auth_exchange_token = self.cryptography_service.encrypt(
+            json_str.encode("utf-8")
+        )
         return auth_exchange_token.decode("utf-8")
 
     def get_user_by_id(self, user_id):

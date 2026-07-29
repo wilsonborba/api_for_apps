@@ -86,11 +86,7 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
         # IMPORTANT: copy headers set by dependencies (e.g., NEXT_AUTH_NONCE) onto the proxied response
         # (they would otherwise be dropped because StreamingResponse bypasses the injected Response)
         for k, v in response.headers.items():
-            # don't clobber upstream headers unless it's your own nonce header
-            if (
-                k.lower() == settings.NEXT_AUTH_NONCE_HEADER_KEY_NAME.lower()
-                or k not in proxied.headers
-            ):
+            if k not in proxied.headers:
                 proxied.headers[k] = v
 
         # remove back for security the x-uuid header

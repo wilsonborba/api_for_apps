@@ -9,7 +9,7 @@ from pythonbible import (
     get_verse_text,
 
 )
-from pythonbible.errors import VersionMissingVerseError
+from pythonbible.errors import InvalidVerseError
 
 
 
@@ -44,7 +44,7 @@ def get_random_verse(
         # try to fetch text; if missing, loop again
         try:
             text = get_verse_text(vid, version=version)
-        except VersionMissingVerseError:
+        except InvalidVerseError:
             continue
 
         # manually build a human‐readable reference

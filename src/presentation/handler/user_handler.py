@@ -120,4 +120,33 @@ def log_in_user(raw_user_data):
     login_data = user_service.log_in(raw_user_data)  # This will handle user authentication
 
     return login_data  # Return the result of the login operation, which could be user data or an error message
-    
+
+
+def log_in_user_from_auth_session(access_token: str):
+    return user_service.exchange_authenticated_session(access_token)
+
+
+def sign_up_user_from_auth_session(access_token: str):
+    return user_service.exchange_authenticated_session(access_token)
+
+
+def sign_up_user_with_active_provider(
+    email: str, password: str, display_name: str | None = None
+):
+    return user_service.sign_up_with_active_provider(email, password, display_name)
+
+
+def log_in_user_with_active_provider(email: str, password: str):
+    return user_service.log_in_with_active_provider(email, password)
+
+
+def send_password_recovery_email(email: str):
+    return user_service.send_password_recovery(email)
+
+
+def update_password_with_recovery_token(access_token: str, new_password: str):
+    return user_service.update_password_with_recovery_token(access_token, new_password)
+
+
+def resend_signup_confirmation_email(email: str):
+    return user_service.resend_signup_confirmation(email)

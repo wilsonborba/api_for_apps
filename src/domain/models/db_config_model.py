@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from urllib.parse import quote
 
 @dataclass
 class DatabaseConfig:
@@ -14,7 +15,11 @@ class DatabaseConfig:
         if self.dialect == "sqlite":
             return f"sqlite:///{self.database}"
 
-        base = f"{self.dialect}://{self.username}:{self.password}@{self.host}:{self.port}/{self.database}"
+        username = quote(self.username, safe="")
+        password = quote(self.password, safe="")
+        host = self.host
+        database = quote(self.database, safe="")
+        base = f"{self.dialect}://{username}:{password}@{host}:{self.port}/{database}"
 
         if self.options:
             query = "&".join(f"{key}={value}" for key, value in self.options.items())

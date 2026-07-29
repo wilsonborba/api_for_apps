@@ -1,9 +1,27 @@
 import asyncio
+import secrets
+import time
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.params import Depends
+from pydantic import BaseModel
 
+from src.dal.remote.supabase_auth_adapter import SupabaseAuthAdapter
 from src.domain.models.user_model import FirebaseUserModel
-from src.presentation.handler.user_handler import get_all_user_info_from_db, get_fields_info_about_user, get_specific_user_info, modify_user_info, sign_up_user, log_in_user
+from src.presentation.handler.user_handler import (
+    get_all_user_info_from_db,
+    get_fields_info_about_user,
+    get_specific_user_info,
+    modify_user_info,
+    sign_up_user,
+    log_in_user,
+    log_in_user_from_auth_session,
+    sign_up_user_from_auth_session,
+    sign_up_user_with_active_provider,
+    log_in_user_with_active_provider,
+    send_password_recovery_email,
+    update_password_with_recovery_token,
+    resend_signup_confirmation_email,
+)
 from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error, debug
 from src.presentation.handler.auth import verify_auth
@@ -17,6 +35,69 @@ from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 
 settings = app_settings()
+supabase_auth_adapter = SupabaseAuthAdapter()
+
+
+class AuthRequestModel(BaseModel):
+    uid: str | None = None
+    email: str | None = None
+    password: str | None = None
+    display_name: str | None = None
+    phone_number: str | None = None
+    access_token: str | None = None
+
+
+class PasswordRecoveryRequestModel(BaseModel):
+    email: str
+
+
+class EmailConfirmationResendRequestModel(BaseModel):
+    email: str
+
+
+class PasswordResetRequestModel(BaseModel):
+    access_token: str
+    new_password: str
+
+
+class OAuthStartRequestModel(BaseModel):
+    provider: str
+    intent: str | None = None
+
+
+class OAuthCallbackRequestModel(BaseModel):
+    code: str | None = None
+    state: str | None = None
+    error: str | None = None
+    error_description: str | None = None
+
+
+def _build_legacy_user_model(raw_user_data: AuthRequestModel) -> FirebaseUserModel:
+    if not raw_user_data.uid and not raw_user_data.access_token:
+        raise ValueError("uid is required when access_token is not provided")
+
+    return FirebaseUserModel(
+        uid=raw_user_data.uid or "provider-session",
+        email=raw_user_data.email,
+        password=raw_user_data.password,
+        displayName=raw_user_data.display_name,
+        phoneNumber=raw_user_data.phone_number,
+    )
+
+
+def _normalize_oauth_provider(provider: str) -> str:
+    normalized = provider.strip().lower()
+    if normalized == "microsoft":
+        return "azure"
+    if normalized not in settings.OAUTH_PROVIDERS:
+        raise ValueError("Unsupported OAuth provider")
+    return normalized
+
+
+def _oauth_scopes(provider: str) -> str | None:
+    if provider == "azure":
+        return "email"
+    return None
 
 
 user_info_v1 = APIRouter(prefix='/v1')
@@ -169,7 +250,7 @@ async def update_user_info(response: Response, api_key_secret: str = Depends(ver
              status_code=status.HTTP_201_CREATED,
 
              )
-async def post_sign_up_user(response: Response, request: Request, raw_user_data: FirebaseUserModel):
+async def post_sign_up_user(response: Response, request: Request, raw_user_data: AuthRequestModel):
     """
     Sign up a new user.
     This endpoint handles the creation of a new user in both the database and Firebase.
@@ -177,8 +258,24 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
     """
     adapter = get_redis_adapter(request)
 
+    if raw_user_data.access_token:
+        await enforce_ip_rate(adapter, request=request, action="signup", limits=((5, 60), (30, 3600)))
+        try:
+            return MyResponse(
+                status_code=status.HTTP_201_CREATED,
+                message="User signed up successfully.",
+                data=sign_up_user_from_auth_session(raw_user_data.access_token),
+            )
+        except Exception as e:
+            error(str(e))
+            return MyResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                message="User sign-up failed. Please check the provided data.",
+                data=None,
+            )
+
         # Basic validation (ensure we can key by email)
-    if not getattr(raw_user_data, "email", None):
+    if not raw_user_data.email:
         raise HTTPException(status_code=400, detail="email is required")
     
     await enforce_ip_rate(adapter, request=request, action="signup", limits=((5, 60), (30, 3600)))
@@ -187,20 +284,38 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
     delay_ms = await progressive_backoff_delay_ms(adapter, request=request, user_email=raw_user_data.email)
     await asyncio.sleep(delay_ms / 1000.0)
 
-
     try:
-        debug(str(raw_user_data))
+        if settings.AUTH_PROVIDER.lower() == "supabase":
+            auth_exchange_token = sign_up_user_with_active_provider(
+                raw_user_data.email,
+                raw_user_data.password or "",
+                raw_user_data.display_name,
+            )
+            if auth_exchange_token is None:
+                return MyResponse(
+                    status_code=status.HTTP_201_CREATED,
+                    message="User signed up successfully. Email confirmation is required before sign in can continue.",
+                    data=None,
+                )
+            return MyResponse(
+                status_code=status.HTTP_201_CREATED,
+                message="User signed up successfully.",
+                data=auth_exchange_token,
+            )
+
+        legacy_user_data = _build_legacy_user_model(raw_user_data)
+        debug(str(legacy_user_data))
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
             message="User signed up successfully.",
-            data=sign_up_user(raw_user_data)
+            data=sign_up_user(legacy_user_data)
         )
     except Exception as e:
         error(str(e))
         
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            message="User sign-up failed. Please check the provided data.",
+            message=str(e) or "User sign-up failed. Please check the provided data.",
             data=None
         )
 
@@ -209,15 +324,31 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
              description="This endpoint handles user authentication and returns user data if successful.",
              response_model=MyResponseModel,
              status_code=status.HTTP_200_OK)
-async def post_log_in_user(response: Response, request: Request, raw_user_data: FirebaseUserModel):
+async def post_log_in_user(response: Response, request: Request, raw_user_data: AuthRequestModel):
     """
     Log in a user.
     This endpoint handles user authentication and returns user data if successful.
     """
     adapter = get_redis_adapter(request)
 
+    if raw_user_data.access_token:
+        await enforce_ip_rate(adapter, request=request, action="login", limits=((5, 60), (20, 3600)))
+        try:
+            return MyResponse(
+                status_code=status.HTTP_200_OK,
+                message="User logged in successfully.",
+                data=log_in_user_from_auth_session(raw_user_data.access_token),
+            )
+        except Exception as e:
+            error(str(e))
+            return MyResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                message=str(e) or "Authentication failed. Please check your credentials.",
+                data=None,
+            )
 
-    if not getattr(raw_user_data, "email", None):
+
+    if not raw_user_data.email:
         raise HTTPException(status_code=400, detail="email is required")
 
     # 1) Rate-limit by IP and by email
@@ -229,11 +360,20 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     await asyncio.sleep(delay_ms / 1000.0)
 
     try:
+        if settings.AUTH_PROVIDER.lower() == "supabase":
+            return MyResponse(
+                status_code=status.HTTP_200_OK,
+                message="User logged in successfully.",
+                data=log_in_user_with_active_provider(
+                    raw_user_data.email,
+                    raw_user_data.password or "",
+                ),
+            )
         
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="User logged in successfully.",
-            data=log_in_user(raw_user_data)
+            data=log_in_user(_build_legacy_user_model(raw_user_data))
         )
     except Exception as e:
 
@@ -241,6 +381,202 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
        
         return MyResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            message="Authentication failed. Please check your credentials.",
+            message=str(e) or "Authentication failed. Please check your credentials.",
             data=None
+        )
+
+
+@user_sync_v1.post(
+    "/password-recovery",
+    summary="Send Password Recovery Email",
+    description="This endpoint sends a password recovery email using the active auth provider.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_password_recovery(
+    request: Request,
+    raw_request: PasswordRecoveryRequestModel,
+):
+    adapter = get_redis_adapter(request)
+    await enforce_ip_rate(adapter, request=request, action="password_recovery", limits=((5, 60), (20, 3600)))
+    await enforce_username_rate(adapter, action="password_recovery", user_email=raw_request.email, limits=((3, 60), (10, 600)))
+
+    try:
+        send_password_recovery_email(raw_request.email)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Password recovery email sent successfully.",
+            data=None,
+        )
+    except Exception as e:
+        error(str(e))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to send password recovery email.",
+            data=None,
+        )
+
+
+@user_sync_v1.post(
+    "/email-confirmation-resend",
+    summary="Resend Signup Confirmation Email",
+    description="This endpoint resends the signup confirmation email using the active auth provider.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_email_confirmation_resend(
+    request: Request,
+    raw_request: EmailConfirmationResendRequestModel,
+):
+    adapter = get_redis_adapter(request)
+    await enforce_ip_rate(adapter, request=request, action="email_confirmation_resend", limits=((5, 60), (20, 3600)))
+    await enforce_username_rate(adapter, action="email_confirmation_resend", user_email=raw_request.email, limits=((3, 60), (10, 600)))
+
+    try:
+        resend_signup_confirmation_email(raw_request.email)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Confirmation email sent successfully.",
+            data=None,
+        )
+    except Exception as e:
+        error(str(e))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to resend confirmation email.",
+            data=None,
+        )
+
+
+@user_sync_v1.post(
+    "/reset-password",
+    summary="Reset Password",
+    description="This endpoint updates a password using a recovery access token.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_reset_password(raw_request: PasswordResetRequestModel):
+    try:
+        update_password_with_recovery_token(
+            raw_request.access_token,
+            raw_request.new_password,
+        )
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Password updated successfully.",
+            data=None,
+        )
+    except Exception as e:
+        error(str(e))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to update password.",
+            data=None,
+        )
+
+
+@user_sync_v1.post(
+    "/oauth/start",
+    summary="Start OAuth flow",
+    description="This endpoint builds the backend-driven OAuth authorization URL.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_oauth_start(request: Request, raw_request: OAuthStartRequestModel):
+    adapter = get_redis_adapter(request)
+    try:
+        provider = _normalize_oauth_provider(raw_request.provider)
+    except ValueError as e:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=str(e),
+            data=None,
+        )
+
+    state = secrets.token_urlsafe(32)
+    code_verifier = supabase_auth_adapter.generate_pkce_verifier()
+    code_challenge = supabase_auth_adapter.generate_pkce_challenge(code_verifier)
+    scopes = _oauth_scopes(provider)
+
+    redis_key = adapter.k(settings.OAUTH_STATE_PREFIX, state)
+    await adapter.set(
+        key=redis_key,
+        value={
+            "provider": provider,
+            "intent": raw_request.intent or "login",
+            "code_verifier": code_verifier,
+            "created_at": int(time.time()),
+        },
+        ex=10 * 60,
+    )
+
+    authorization_url = supabase_auth_adapter.get_oauth_authorization_url(
+        provider=provider,
+        redirect_to=settings.auth_app_callback_url,
+        state=state,
+        code_challenge=code_challenge,
+        scopes=scopes,
+    )
+
+    return MyResponse(
+        status_code=status.HTTP_200_OK,
+        message="OAuth authorization URL created successfully.",
+        data={"authorization_url": authorization_url},
+    )
+
+
+@user_sync_v1.post(
+    "/oauth/callback",
+    summary="Complete OAuth callback",
+    description="This endpoint exchanges the PKCE code for a provider session and returns the auth exchange token.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def post_oauth_callback(request: Request, raw_request: OAuthCallbackRequestModel):
+    if raw_request.error:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=raw_request.error_description or raw_request.error,
+            data=None,
+        )
+
+    if not raw_request.code or not raw_request.state:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="OAuth callback is missing code or state.",
+            data=None,
+        )
+
+    adapter = get_redis_adapter(request)
+    redis_key = adapter.k(settings.OAUTH_STATE_PREFIX, raw_request.state)
+    oauth_state = await adapter.get(redis_key)
+    if not oauth_state:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="OAuth state is missing or expired.",
+            data=None,
+        )
+
+    try:
+        exchanged = supabase_auth_adapter.exchange_code_for_session(
+            raw_request.code,
+            oauth_state["code_verifier"],
+        )
+        access_token = ((exchanged.get("session") or {}).get("access_token"))
+        if not access_token:
+            raise ValueError("The auth provider did not return an authenticated session")
+
+        auth_exchange_token = log_in_user_from_auth_session(access_token)
+        await adapter.delete(redis_key)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="OAuth callback completed successfully.",
+            data=auth_exchange_token,
+        )
+    except Exception as e:
+        error(str(e))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to complete the OAuth callback.",
+            data=None,
         )

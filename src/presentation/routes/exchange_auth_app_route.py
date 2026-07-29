@@ -3,9 +3,8 @@ from fastapi import APIRouter, Request, Response, status
 from src.core.utils import get_redis_adapter
 from src.presentation.handler.exchange_auth_app_handler import (
     exchange_auth_sync,
-    generate_new_nonce_sync,
+    set_csrf_cookie_for_auth_sync,
     set_http_only_cookies_for_auth_sync,
-    set_public_cookies_for_auth_sync,
 )
 from src.presentation.handler.auth_artifact_params import read_auth_exchange_token
 
@@ -57,8 +56,7 @@ async def exchange_app(request: Request, response: Response):
 
         # ✅ Set cookies/headers on the SAME object you will return
         resp = await set_http_only_cookies_for_auth_sync(adapter, request, resp, user_cookie)
-        resp = await set_public_cookies_for_auth_sync(adapter, request, resp, user_cookie)
-        resp.headers[settings.NEXT_AUTH_NONCE_HEADER_KEY_NAME] = await generate_new_nonce_sync(adapter)
+        resp = await set_csrf_cookie_for_auth_sync(request, resp, user_cookie)
         
     except ExchangeAuthError as e:
         error(f"ExchangeAuthError occurred while exchanging auth token : {e}")

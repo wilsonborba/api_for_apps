@@ -29,21 +29,19 @@ class Settings(BaseSettings):
     FIREBASE_SERVICE_ACCOUNT_PATH: str = (
         "./firebase.json"  # Path to Firebase service account JSON file
     )
+    AUTH_PROVIDER: str = "firebase"
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
+    SUPABASE_PROJECT_REF: str = ""
+    SUPABASE_SECRET_KEY: str = ""
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
 
     # private server key for fernet encryption/decryption
     SERVER_FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded
 
-    # headers auth key name
-    NEXT_AUTH_NONCE_HEADER_KEY_NAME: str = "N-A-N"  # Example header key name
-    ACTUAL_AUTH_NONCE_HEADER_KEY_NAME: str = "A-A-N"  # Example header key name
-    TEMPORARY_AUTH_NONCE_HEADER_KEY_NAME: str = "T-A-N"  # Example header key name
-
     # cookies key name
     HTTP_ONLY_COOKIE_KEY_NAME: str = "sid"
-    PUBLIC_COOKIE_KEY_NAME: str = "hint"
+    CSRF_COOKIE_KEY_NAME: str = "csrf"
 
     # REDIS
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
@@ -51,15 +49,37 @@ class Settings(BaseSettings):
 
     # redis cache prefix
     CACHE_AUTH_PREFIX: str = "exchange_auth_app"
+    OAUTH_STATE_PREFIX: str = "oauth_state"
 
     # Development flag
     development_mode: bool = True
+    ASODYA_MAIN_DOMAIN: str = "asodya.com"
+    AUTH_APP_LOCAL_URL: str = "http://localhost:7000"
+    AUTH_APP_PROD_URL: str = "https://auth.asodya.com"
+    COOKIE_DOMAIN_PROD: str = ".asodya.com"
 
     # Public proxy routes (app -> list of path patterns)
     PUBLIC_PROXY_ROUTE_ALLOWLIST: Dict[str, List[str]] = {
         "certifications": ["/quiz/certifications/*"]
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
+    OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
+
+    @property
+    def auth_app_callback_url(self) -> str:
+        base_url = self.AUTH_APP_LOCAL_URL if self.development_mode else self.AUTH_APP_PROD_URL
+        return f"{base_url}/callback"
+
+    @property
+    def auth_app_reset_url(self) -> str:
+        base_url = self.AUTH_APP_LOCAL_URL if self.development_mode else self.AUTH_APP_PROD_URL
+        return f"{base_url}/reset-password"
+
+    @property
+    def cookie_domain(self) -> str | None:
+        if self.development_mode:
+            return None
+        return self.COOKIE_DOMAIN_PROD
 
     @property
     def default_db(self) -> DatabaseConfig:

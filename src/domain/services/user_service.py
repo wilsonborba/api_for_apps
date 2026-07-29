@@ -2,13 +2,16 @@ import json
 import re
 import secrets
 import time
+import httpx
 
 from argon2 import PasswordHasher
 
 from src.core.logs import debug, error
+from src.core.settings import app_settings
 from src.dal.local.db_adapter import DBAdapter
+from src.dal.remote.auth_provider_adapter import AuthProviderAdapter
 from src.dal.remote.firebase_adapter import FirebaseAdapter
-from src.dal.remote.supabase_adapter import SupabaseAdapter
+from src.dal.remote.supabase_auth_adapter import SupabaseAuthAdapter
 from src.domain.models.user_model import FirebaseUserModel
 from src.domain.services.cryptography_service import CryptographyService
 
@@ -17,11 +20,19 @@ class UserService:
     _table_name = "defaultdb_user"
 
     def __init__(self):
+        self.settings = app_settings()
         self.db_adapter = DBAdapter()
-        self.firebase_adapter = FirebaseAdapter()
-        self.supabase_adapter = SupabaseAdapter()
+        self._firebase_adapter: FirebaseAdapter | None = None
+        self.auth_provider_adapter = AuthProviderAdapter()
+        self.supabase_auth_adapter = SupabaseAuthAdapter()
         self.cryptography_service = CryptographyService()
         self._ph = PasswordHasher()
+
+    @property
+    def firebase_adapter(self) -> FirebaseAdapter:
+        if self._firebase_adapter is None:
+            self._firebase_adapter = FirebaseAdapter()
+        return self._firebase_adapter
 
     def fields(self):
         return self.db_adapter.get_fields(self._table_name)
@@ -126,13 +137,17 @@ class UserService:
 
         return auth_exchange_token.decode("utf-8")
 
-    def exchange_supabase_session(self, access_token: str) -> str:
-        supabase_user = self.supabase_adapter.get_user_info(access_token)
+    def exchange_authenticated_session(self, access_token: str) -> str:
+        provider_user = self.auth_provider_adapter.get_user_info(access_token)
 
-        email = supabase_user.get("email")
-        provider_user_id = supabase_user.get("id")
+        email = provider_user.get("email")
+        provider_user_id = (
+            provider_user.get("id")
+            or provider_user.get("uid")
+            or provider_user.get("user_id")
+        )
         if not email or not provider_user_id:
-            raise ValueError("Supabase user payload is missing email or id")
+            raise ValueError("Auth provider payload is missing email or id")
 
         db_user = self.db_adapter.read_by_id(
             self._table_name, email, id_column="email"
@@ -140,12 +155,17 @@ class UserService:
 
         now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         display_name = (
-            (supabase_user.get("user_metadata") or {}).get("display_name")
-            or (supabase_user.get("user_metadata") or {}).get("full_name")
+            (provider_user.get("user_metadata") or {}).get("display_name")
+            or (provider_user.get("user_metadata") or {}).get("full_name")
+            or provider_user.get("display_name")
             or ""
         ).strip()
         first_name = display_name.split(" ")[0] if display_name else None
-        last_name = display_name.split(" ")[-1] if display_name and " " in display_name else None
+        last_name = (
+            display_name.split(" ")[-1]
+            if display_name and " " in display_name
+            else None
+        )
 
         if db_user is None:
             insert_data = {
@@ -183,8 +203,8 @@ class UserService:
 
         dumped_db_user = dict(db_user)
         dumped_db_user["last_login"] = now
-        dumped_db_user["firebase_info"] = supabase_user
-        dumped_db_user["provider"] = "supabase"
+        dumped_db_user["firebase_info"] = provider_user
+        dumped_db_user["provider"] = self.settings.AUTH_PROVIDER.lower()
         dumped_db_user["exp"] = int(time.time()) + 180
         dumped_db_user.pop("password", None)
 
@@ -193,6 +213,103 @@ class UserService:
             json_str.encode("utf-8")
         )
         return auth_exchange_token.decode("utf-8")
+
+    def sign_up_with_active_provider(
+        self, email: str, password: str, display_name: str | None = None
+    ) -> str | None:
+        if self.settings.AUTH_PROVIDER.lower() != "supabase":
+            raise ValueError("The active auth provider does not support this sign-up flow")
+
+        try:
+            response = self.supabase_auth_adapter.sign_up(
+                email=email,
+                password=password,
+                display_name=display_name,
+                redirect_to=self.settings.auth_app_callback_url,
+            )
+        except httpx.HTTPStatusError as exc:
+            detail = ""
+            try:
+                payload = exc.response.json()
+                detail = (
+                    payload.get("msg")
+                    or payload.get("message")
+                    or payload.get("error_description")
+                    or payload.get("error")
+                    or ""
+                )
+            except Exception:
+                detail = str(exc)
+
+            lower_detail = detail.lower()
+            if "already registered" in lower_detail or "already been registered" in lower_detail:
+                raise ValueError(
+                    "This email is already registered. Check your inbox for the confirmation email or sign in if the account is already active."
+                )
+            raise
+        access_token = ((response.get("session") or {}).get("access_token"))
+        if not access_token:
+            return None
+        return self.exchange_authenticated_session(access_token)
+
+    def log_in_with_active_provider(self, email: str, password: str) -> str:
+        if self.settings.AUTH_PROVIDER.lower() != "supabase":
+            raise ValueError("The active auth provider does not support this log-in flow")
+
+        try:
+            response = self.supabase_auth_adapter.sign_in_with_password(
+                email=email,
+                password=password,
+            )
+        except httpx.HTTPStatusError as exc:
+            detail = ""
+            try:
+                payload = exc.response.json()
+                detail = (
+                    payload.get("msg")
+                    or payload.get("message")
+                    or payload.get("error_description")
+                    or payload.get("error")
+                    or ""
+                )
+            except Exception:
+                detail = str(exc)
+
+            lower_detail = detail.lower()
+            if "email not confirmed" in lower_detail or "email not verified" in lower_detail:
+                raise ValueError("Email not verified. Please confirm your email before signing in.")
+            raise
+
+        access_token = ((response.get("session") or {}).get("access_token"))
+        if not access_token:
+            raise ValueError("The auth provider did not return an authenticated session")
+        return self.exchange_authenticated_session(access_token)
+
+    def send_password_recovery(self, email: str) -> None:
+        if self.settings.AUTH_PROVIDER.lower() != "supabase":
+            raise ValueError("The active auth provider does not support password recovery")
+
+        self.supabase_auth_adapter.send_password_recovery(
+            email=email,
+            redirect_to=self.settings.auth_app_reset_url,
+        )
+
+    def resend_signup_confirmation(self, email: str) -> None:
+        if self.settings.AUTH_PROVIDER.lower() != "supabase":
+            raise ValueError("The active auth provider does not support email confirmation resend")
+
+        self.supabase_auth_adapter.resend_signup_confirmation(
+            email=email,
+            redirect_to=self.settings.auth_app_callback_url,
+        )
+
+    def update_password_with_recovery_token(
+        self, access_token: str, new_password: str
+    ) -> None:
+        if self.settings.AUTH_PROVIDER.lower() != "supabase":
+            raise ValueError("The active auth provider does not support password updates")
+
+        self.supabase_auth_adapter.update_password(access_token, new_password)
 
     def get_user_by_id(self, user_id):
         user = self.db_adapter.read_by_id(

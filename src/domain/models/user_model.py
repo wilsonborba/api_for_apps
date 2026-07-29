@@ -87,7 +87,7 @@ class UserCookieModel:
     user_id: int
     user_uuid_id: str
     email: str
-    nonce: str
+    csrf_token: str
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -97,5 +97,5 @@ class UserCookieModel:
             "user_id": self.user_id,
             "user_uuid_id": self.user_uuid_id,
             "email": self.email,
-            "nonce": self.nonce
+            "csrf_token": self.csrf_token
         }

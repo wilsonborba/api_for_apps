@@ -41,6 +41,8 @@ app.add_middleware(
     "http://127.0.0.1:1165",
     "http://localhost:7000",
     "http://127.0.0.1:7000",
+    "http://192.168.1.103:1165",
+    "http://192.168.1.103:7000",
 
     # Local network / hotspot IPs (example ports — adjust if needed)
     "http://172.20.10.4:1165",
@@ -55,13 +57,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=[
         "Content-Type",
-        # your custom request headers:
-        "A-A-N",     # settings.ACTUAL_AUTH_NONCE_HEADER_KEY_NAME
-        "T-A-N",     # settings.TEMPORARY_AUTH_NONCE_HEADER_KEY_NAME
-    ],
-    expose_headers=[
-        # headers you want the browser to be able to read:
-        "n-a-n",     # settings.NEXT_AUTH_NONCE_HEADER_KEY_NAME
+        "X-CSRF-Token",
     ],
 )
 
@@ -94,6 +90,12 @@ app.include_router(
     schemas_from_apps.routes.exchange_app_route_v1, 
     prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
     tags=[schemas_from_apps.tag]
+)
+
+app.include_router(
+    schemas_from_apps.routes.client_error_report_v1,
+    prefix=f"{schemas_from_apps.path_segment}",
+    tags=[schemas_from_apps.tag],
 )
 
 app.include_router(

@@ -19,14 +19,16 @@ class ExchangeAuthService:
         self.server_private_crypto_service = CryptographyService(
             key=settings.SERVER_FERNET_KEY_SECRET.encode("utf-8")
         )
-        self.firebase_adapter = FirebaseAdapter()
+        self._firebase_adapter: FirebaseAdapter | None = None
+
+    @property
+    def firebase_adapter(self) -> FirebaseAdapter:
+        if self._firebase_adapter is None:
+            self._firebase_adapter = FirebaseAdapter()
+        return self._firebase_adapter
 
     def now_in_seconds(self) -> int:
         return int(time.time())
-
-    def encrypt_new_nonce(self, nonce: str) -> str:
-        encrypted_nonce = self.cryptography_service.encrypt(nonce.encode("utf-8"))
-        return encrypted_nonce.decode("utf-8")
 
     def decrypt_auth_exchange_token(self, auth_exchange_token: str) -> dict:
         """
@@ -130,7 +132,7 @@ class ExchangeAuthService:
     def generate_sid(self) -> str:
         return secrets.token_urlsafe(32)
 
-    def generate_nonce(self) -> str:
+    def generate_csrf_token(self) -> str:
         return secrets.token_urlsafe(24)
 
     def build_user_cookie(self, auth_exchange_payload: dict) -> UserCookieModel:
@@ -141,7 +143,7 @@ class ExchangeAuthService:
             user_id=auth_exchange_payload["id"],
             user_uuid_id=auth_exchange_payload["uuid_id"],
             email=auth_exchange_payload["email"],
-            nonce=self.generate_nonce(),
+            csrf_token=self.generate_csrf_token(),
         )
 
     def encrypt_user_cookie(self, user_cookie: UserCookieModel) -> str:

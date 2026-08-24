@@ -53,8 +53,8 @@ app.add_middleware(
     "http://172.17.0.1:8102",
 
     # Auth domain
-    "https://auth.asodya.com:8100",
-    "https://certifications.asodya.com:8102",
+    "https://auth.asodya.com",
+    "https://certifications.asodya.com",
     ],
 
     allow_credentials=True,

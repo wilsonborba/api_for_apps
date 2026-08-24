@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     ASODYA_MAIN_DOMAIN: str = "asodya.com"
     AUTH_APP_LOCAL_URL: str = "http://192.168.1.103:8100"
-    AUTH_APP_PROD_URL: str = "https://auth.asodya.com:8100"
+    AUTH_APP_PROD_URL: str = "https://auth.asodya.com"
     COOKIE_DOMAIN_PROD: str = ".asodya.com"
 
     # Public proxy routes (app -> list of path patterns)

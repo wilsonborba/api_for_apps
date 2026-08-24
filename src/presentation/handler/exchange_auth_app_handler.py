@@ -9,7 +9,10 @@ exchange_auth_service = ExchangeAuthService()
 settings = app_settings()
 
 
-def exchange_auth_sync(auth_exchange_token: str) -> UserCookieModel:
+async def register_auth_exchange_artifact(
+    adapter: RedisAdapter, auth_exchange_token: str
+) -> None:
+    """Record a freshly issued artifact so only this API can redeem it once."""
     auth_exchange_payload = exchange_auth_service.decrypt_auth_exchange_token(
         auth_exchange_token
     )
@@ -19,6 +22,38 @@ def exchange_auth_sync(auth_exchange_token: str) -> UserCookieModel:
 
     if not is_valid:
         raise ExchangeAuthError(error_message)
+
+    key = adapter.k(settings.EXCHANGE_ARTIFACT_PREFIX, auth_exchange_payload["jti"])
+    stored = await adapter.set(
+        key,
+        {"app": auth_exchange_payload["app"]},
+        ex=settings.EXCHANGE_ARTIFACT_TTL_SECONDS,
+        nx=True,
+    )
+    if not stored:
+        raise ExchangeAuthError("Could not issue exchange artifact")
+
+
+async def exchange_auth_sync(
+    adapter: RedisAdapter, auth_exchange_token: str, expected_app: str | None = None
+) -> UserCookieModel:
+    auth_exchange_payload = exchange_auth_service.decrypt_auth_exchange_token(
+        auth_exchange_token
+    )
+    is_valid, error_message = exchange_auth_service.validate_auth_exchange_payload(
+        auth_exchange_payload
+    )
+    if not is_valid:
+        raise ExchangeAuthError(error_message)
+
+    app = auth_exchange_payload["app"]
+    if expected_app and app != expected_app:
+        raise ExchangeAuthError("Exchange artifact is for a different application")
+
+    key = adapter.k(settings.EXCHANGE_ARTIFACT_PREFIX, auth_exchange_payload["jti"])
+    artifact = await adapter.getdel(key)
+    if artifact is None or artifact.get("app") != app:
+        raise ExchangeAuthError("Exchange artifact is invalid, expired, or already used")
 
     user_cookie = exchange_auth_service.build_user_cookie(auth_exchange_payload)
     return user_cookie
@@ -54,7 +89,7 @@ async def set_http_only_cookies_for_auth_sync(
         httponly=True,
         secure=True if https_external else False,
         samesite=same_site,
-        max_age=1 * 24 * 60 * 60 + 1 * 60 * 60,  # 1 day + 1 hour
+        max_age=settings.SESSION_TTL_SECONDS,
         path="/",
         domain=settings.cookie_domain,
     )
@@ -64,7 +99,7 @@ async def set_http_only_cookies_for_auth_sync(
     await adapter.set(
         key=key,
         value=user_cookie.to_dict(),
-        ex=1 * 24 * 60 * 60 + 1 * 60 * 60,
+        ex=settings.SESSION_TTL_SECONDS,
     )
 
     return response
@@ -78,7 +113,7 @@ async def set_csrf_cookie_for_auth_sync(request: Request, response, user_cookie:
         httponly=False,
         secure=True if https_external else False,
         samesite="lax",
-        max_age=1 * 24 * 60 * 60,
+        max_age=settings.CSRF_TTL_SECONDS,
         path="/",
         domain=settings.cookie_domain,
     )

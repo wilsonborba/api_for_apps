@@ -1,15 +1,12 @@
 # src/core/settings.py
 
 
-from pydantic import Field
-from pydantic_settings import BaseSettings
 from typing import Dict, List, Tuple
 from functools import lru_cache
-from typing import Dict, List, Tuple
 
 from dotenv import load_dotenv
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.domain.models.db_config_model import DatabaseConfig
 
@@ -17,6 +14,10 @@ load_dotenv()  # Loads .env file
 
 
 class Settings(BaseSettings):
+    # Existing local .env files can contain retired Firebase/development keys;
+    # ignore those rather than turning a non-secret compatibility setting into
+    # a startup failure.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     # API
     API_ADMIN_KEY_NAME: str = "Authorization"
     API_KEY_SECRET: str  # Will be loaded from .env
@@ -26,10 +27,10 @@ class Settings(BaseSettings):
     DEFAULT_DB_PASSWORD: str
     DEFAULT_DB_NAME: str
     DEFAULT_DB_SSLMODE: str = "require"  # Default SSL mode for PostgreSQL
-    FIREBASE_SERVICE_ACCOUNT_PATH: str = (
-        "./firebase.json"  # Path to Firebase service account JSON file
-    )
-    AUTH_PROVIDER: str = "firebase"
+    # Supabase is the only runtime identity provider.  The Firebase fields in
+    # older database rows remain a schema compatibility concern, not an auth
+    # integration.
+    AUTH_PROVIDER: str = "supabase"
     SUPABASE_URL: str = ""
     SUPABASE_ANON_KEY: str = ""
     SUPABASE_PROJECT_REF: str = ""
@@ -49,7 +50,13 @@ class Settings(BaseSettings):
 
     # redis cache prefix
     CACHE_AUTH_PREFIX: str = "exchange_auth_app"
+    EXCHANGE_ARTIFACT_PREFIX: str = "exchange_artifact"
     OAUTH_STATE_PREFIX: str = "oauth_state"
+    SESSION_TTL_SECONDS: int = 60 * 60 * 25
+    CSRF_TTL_SECONDS: int = 60 * 60 * 24
+    EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
+    DEFAULT_EXCHANGE_APP: str = "certifications"
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications",)
 
     # Runtime mode is selected by the development/production launch script.
     environment: str = "development"
@@ -96,9 +103,6 @@ class Settings(BaseSettings):
             database=self.DEFAULT_DB_NAME,
             options={"sslmode": self.DEFAULT_DB_SSLMODE},
         )
-
-    class Config:
-        env_file = ".env"  # Optional with load_dotenv, but good for pydantic to know
 
     # Schema related settings
 

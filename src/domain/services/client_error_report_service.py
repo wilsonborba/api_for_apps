@@ -9,7 +9,7 @@ class ClientErrorReportService:
 
     def __init__(self):
         self.db_adapter = DBAdapter()
-        self._ensure_table()
+        self._table_ready = False
 
     def _ensure_table(self) -> None:
         create_sql = text(
@@ -44,6 +44,9 @@ class ClientErrorReportService:
         details: dict | None,
         user_agent: str | None,
     ) -> int | None:
+        if not self._table_ready:
+            self._ensure_table()
+            self._table_ready = True
         inserted = self.db_adapter.insert_row(
             self._table_name,
             {

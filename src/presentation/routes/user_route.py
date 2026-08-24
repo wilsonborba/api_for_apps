@@ -6,14 +6,11 @@ from fastapi.params import Depends
 from pydantic import BaseModel
 
 from src.dal.remote.supabase_auth_adapter import SupabaseAuthAdapter
-from src.domain.models.user_model import FirebaseUserModel
 from src.presentation.handler.user_handler import (
     get_all_user_info_from_db,
     get_fields_info_about_user,
     get_specific_user_info,
     modify_user_info,
-    sign_up_user,
-    log_in_user,
     log_in_user_from_auth_session,
     sign_up_user_from_auth_session,
     sign_up_user_with_active_provider,
@@ -22,6 +19,7 @@ from src.presentation.handler.user_handler import (
     update_password_with_recovery_token,
     resend_signup_confirmation_email,
 )
+from src.presentation.handler.exchange_auth_app_handler import register_auth_exchange_artifact
 from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error, debug
 from src.presentation.handler.auth import verify_auth
@@ -45,6 +43,7 @@ class AuthRequestModel(BaseModel):
     display_name: str | None = None
     phone_number: str | None = None
     access_token: str | None = None
+    app: str | None = None
 
 
 class PasswordRecoveryRequestModel(BaseModel):
@@ -70,19 +69,6 @@ class OAuthCallbackRequestModel(BaseModel):
     state: str | None = None
     error: str | None = None
     error_description: str | None = None
-
-
-def _build_legacy_user_model(raw_user_data: AuthRequestModel) -> FirebaseUserModel:
-    if not raw_user_data.uid and not raw_user_data.access_token:
-        raise ValueError("uid is required when access_token is not provided")
-
-    return FirebaseUserModel(
-        uid=raw_user_data.uid or "provider-session",
-        email=raw_user_data.email,
-        password=raw_user_data.password,
-        displayName=raw_user_data.display_name,
-        phoneNumber=raw_user_data.phone_number,
-    )
 
 
 def _normalize_oauth_provider(provider: str) -> str:
@@ -240,12 +226,29 @@ async def update_user_info(response: Response, api_key_secret: str = Depends(ver
             message="Failed to update user information.",
             data=None
         )
+
        
+
+@user_sync_v1.post(
+    "/log-out",
+    summary="Log out user",
+    description="Revokes the opaque api_for_apps session and clears its cookies.",
+    response_model=MyResponseModel,
+)
+async def post_log_out_user(request: Request, response: Response, _auth: str = Depends(verify_auth)):
+    adapter = get_redis_adapter(request)
+    sid = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+    if sid:
+        await adapter.delete(adapter.k(settings.CACHE_AUTH_PREFIX, sid))
+    resp = MyResponse(status_code=status.HTTP_200_OK, message="Logged out successfully.", data=None)
+    resp.delete_cookie(settings.HTTP_ONLY_COOKIE_KEY_NAME, path="/", domain=settings.cookie_domain)
+    resp.delete_cookie(settings.CSRF_COOKIE_KEY_NAME, path="/", domain=settings.cookie_domain)
+    return resp
 
 
 @user_sync_v1.post(f"/sign-up",
              summary="Sign Up User", 
-             description="This endpoint handles the creation of a new user in both the database and Firebase.",
+             description="This endpoint creates a Supabase account and returns a short-lived app exchange artifact when a session exists.",
              response_model=MyResponseModel,
              status_code=status.HTTP_201_CREATED,
 
@@ -253,7 +256,7 @@ async def update_user_info(response: Response, api_key_secret: str = Depends(ver
 async def post_sign_up_user(response: Response, request: Request, raw_user_data: AuthRequestModel):
     """
     Sign up a new user.
-    This endpoint handles the creation of a new user in both the database and Firebase.
+    This endpoint delegates identity creation to Supabase.
 
     """
     adapter = get_redis_adapter(request)
@@ -261,10 +264,14 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
     if raw_user_data.access_token:
         await enforce_ip_rate(adapter, request=request, action="signup", limits=((5, 60), (30, 3600)))
         try:
+            auth_exchange_token = sign_up_user_from_auth_session(
+                raw_user_data.access_token, raw_user_data.app
+            )
+            await register_auth_exchange_artifact(adapter, auth_exchange_token)
             return MyResponse(
                 status_code=status.HTTP_201_CREATED,
                 message="User signed up successfully.",
-                data=sign_up_user_from_auth_session(raw_user_data.access_token),
+                data=auth_exchange_token,
             )
         except Exception as e:
             error(str(e))
@@ -285,30 +292,20 @@ async def post_sign_up_user(response: Response, request: Request, raw_user_data:
     await asyncio.sleep(delay_ms / 1000.0)
 
     try:
-        if settings.AUTH_PROVIDER.lower() == "supabase":
-            auth_exchange_token = sign_up_user_with_active_provider(
-                raw_user_data.email,
-                raw_user_data.password or "",
-                raw_user_data.display_name,
-            )
-            if auth_exchange_token is None:
-                return MyResponse(
-                    status_code=status.HTTP_201_CREATED,
-                    message="User signed up successfully. Email confirmation is required before sign in can continue.",
-                    data=None,
-                )
+        auth_exchange_token = sign_up_user_with_active_provider(
+            raw_user_data.email, raw_user_data.password or "", raw_user_data.display_name, raw_user_data.app,
+        )
+        if auth_exchange_token is None:
             return MyResponse(
                 status_code=status.HTTP_201_CREATED,
-                message="User signed up successfully.",
-                data=auth_exchange_token,
+                message="User signed up successfully. Email confirmation is required before sign in can continue.",
+                data=None,
             )
-
-        legacy_user_data = _build_legacy_user_model(raw_user_data)
-        debug(str(legacy_user_data))
+        await register_auth_exchange_artifact(adapter, auth_exchange_token)
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
             message="User signed up successfully.",
-            data=sign_up_user(legacy_user_data)
+            data=auth_exchange_token,
         )
     except Exception as e:
         error(str(e))
@@ -334,10 +331,14 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     if raw_user_data.access_token:
         await enforce_ip_rate(adapter, request=request, action="login", limits=((5, 60), (20, 3600)))
         try:
+            auth_exchange_token = log_in_user_from_auth_session(
+                raw_user_data.access_token, raw_user_data.app
+            )
+            await register_auth_exchange_artifact(adapter, auth_exchange_token)
             return MyResponse(
                 status_code=status.HTTP_200_OK,
                 message="User logged in successfully.",
-                data=log_in_user_from_auth_session(raw_user_data.access_token),
+                data=auth_exchange_token,
             )
         except Exception as e:
             error(str(e))
@@ -360,20 +361,14 @@ async def post_log_in_user(response: Response, request: Request, raw_user_data: 
     await asyncio.sleep(delay_ms / 1000.0)
 
     try:
-        if settings.AUTH_PROVIDER.lower() == "supabase":
-            return MyResponse(
-                status_code=status.HTTP_200_OK,
-                message="User logged in successfully.",
-                data=log_in_user_with_active_provider(
-                    raw_user_data.email,
-                    raw_user_data.password or "",
-                ),
-            )
-        
+        auth_exchange_token = log_in_user_with_active_provider(
+            raw_user_data.email, raw_user_data.password or "", raw_user_data.app,
+        )
+        await register_auth_exchange_artifact(adapter, auth_exchange_token)
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="User logged in successfully.",
-            data=log_in_user(_build_legacy_user_model(raw_user_data))
+            data=auth_exchange_token,
         )
     except Exception as e:
 
@@ -567,6 +562,7 @@ async def post_oauth_callback(request: Request, raw_request: OAuthCallbackReques
             raise ValueError("The auth provider did not return an authenticated session")
 
         auth_exchange_token = log_in_user_from_auth_session(access_token)
+        await register_auth_exchange_artifact(adapter, auth_exchange_token)
         await adapter.delete(redis_key)
         return MyResponse(
             status_code=status.HTTP_200_OK,

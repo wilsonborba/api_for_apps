@@ -90,6 +90,14 @@ class RedisAdapter:
         except Exception as e:
             raise RedisAdapterError(str(e)) from e
 
+    async def getdel(self, key: str) -> Any:
+        """Atomically read and consume a short-lived value."""
+        try:
+            val = await self.raw.getdel(key)
+            return self._maybe_decode(val)
+        except Exception as e:
+            raise RedisAdapterError(str(e)) from e
+
     async def delete(self, *keys: str) -> int:
         try:
             return int(await self.raw.delete(*keys))

@@ -1,15 +1,12 @@
 # src/routes/proxy_router.py
+from urllib.parse import urlunsplit
 from fastapi import APIRouter, Request, Response, status
 from fnmatch import fnmatchcase
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
-from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
-from src.core.utils import get_redis_adapter
 from src.domain.services.local_proxy_service import LocalProxyService
 from src.presentation.handler.auth import verify_auth
-from src.presentation.handler.exchange_auth_app_handler import (
-    get_user_info_from_redis_sync,
-)
+from src.core.logs import error, warning
 from src.presentation.handler.responses import MyResponse
 
 apps_proxy_v1 = APIRouter(prefix="/{app}/v1")
@@ -63,6 +60,7 @@ def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
 @apps_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response):
     try:
+        internal_headers = None
         if not _is_public_proxy_request(app, path, request.method):
             await verify_auth(request=request, response=response)
             user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
@@ -70,17 +68,12 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
             adapter = get_redis_adapter(request)
 
             user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=user_session_id)
-
-            response.headers["x-uuid"] = user_info.get("user_uuid_id", "")
-
-            user_info = await get_user_info_from_redis_sync(
-                adapter=adapter, session_id=user_session_id
-            )
-
-            response.headers["x-uuid"] = user_info.get("user_uuid_id", "")
+            if not user_info or not user_info.get("user_uuid_id"):
+                raise ValueError("Authenticated session is missing identity")
+            internal_headers = {"x-uuid": user_info["user_uuid_id"]}
 
         proxied = await proxy_service.forward_request(
-            app, f"/{path}", request, response
+            app, f"/{path}", request, response, internal_headers=internal_headers
         )
 
         # IMPORTANT: copy headers set by dependencies (e.g., NEXT_AUTH_NONCE) onto the proxied response

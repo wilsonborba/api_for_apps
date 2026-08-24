@@ -33,12 +33,10 @@ class SupabaseAuthAdapter:
         payload = {"email": email, "password": password}
         if display_name:
             payload["data"] = {"display_name": display_name}
-        if redirect_to:
-            payload["options"] = {"email_redirect_to": redirect_to}
-
         response = httpx.post(
             f"{self.settings.SUPABASE_URL}/auth/v1/signup",
             headers=self._default_headers(),
+            params={"redirect_to": redirect_to} if redirect_to else None,
             json=payload,
             timeout=20.0,
         )
@@ -62,10 +60,8 @@ class SupabaseAuthAdapter:
             json={
                 "type": "signup",
                 "email": email,
-                "options": {
-                    "email_redirect_to": redirect_to,
-                },
             },
+            params={"redirect_to": redirect_to},
             timeout=20.0,
         )
         response.raise_for_status()

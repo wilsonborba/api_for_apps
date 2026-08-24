@@ -6,7 +6,6 @@ python-dotenv
 pythonbible
 SQLAlchemy
 psycopg2-binary
-firebase-admin
 colorlog
 cryptography
 gunicorn
@@ -16,4 +15,3 @@ argon2-cffi
 httpx
 starlette
 pyparsing
-

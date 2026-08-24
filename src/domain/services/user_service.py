@@ -66,8 +66,6 @@ class UserService:
         db_user = self.db_adapter.read_by_id(self._table_name, email, id_column="email")
 
         if db_user is None:
-            # `firebase_id` is a legacy physical column; it now stores only the
-            # Supabase subject until a separate database migration can rename it.
             inserted = self.db_adapter.insert_row(self._table_name, {
                 "uuid_id": secrets.token_hex(16),
                 "username": email.split("@", 1)[0],
@@ -80,13 +78,13 @@ class UserService:
                 "last_login": now,
                 "date_joined": now,
                 "phone_number": None,
-                "firebase_id": provider_user_id,
+                "supabase_user_id": provider_user_id,
             })
             db_user = self.db_adapter.read_by_id(self._table_name, inserted[0], id_column="id")
         else:
             self.db_adapter.update_row(self._table_name, db_user["id"], {
                 "last_login": now,
-                "firebase_id": provider_user_id,
+                "supabase_user_id": provider_user_id,
                 "first_name": db_user.get("first_name") or first_name,
                 "last_name": db_user.get("last_name") or last_name,
             })

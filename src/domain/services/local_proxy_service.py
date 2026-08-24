@@ -35,13 +35,8 @@ class LocalProxyService:
             "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
             "te", "trailers", "transfer-encoding", "upgrade"
         ]
-        return {k: v for k, v in headers.items() if k.lower() not in hop_by_hop_headers and k.lower() != "host"}
-    
-    def adjust_response_headers(self, headers: dict) -> dict:
-        hop_by_hop_headers = [
-            "x-uuid", "x-test"
-        ]
-        return {k: v for k, v in headers.items() if k.lower()  in hop_by_hop_headers and k.lower() != "host"}
+        blocked = {*hop_by_hop_headers, "host", "x-uuid"}
+        return {k: v for k, v in headers.items() if k.lower() not in blocked}
 
     async def _retry_request(self, client: httpx.AsyncClient, **kwargs) -> httpx.Response:
         for attempt in range(3):
@@ -58,7 +53,8 @@ class LocalProxyService:
         app: str,
         path: str,
         request: Request,
-        response: Response
+        response: Response,
+        internal_headers: dict[str, str] | None = None,
     ) -> StreamingResponse:
         """
         Forward the request to the target app while preserving the original
@@ -95,9 +91,10 @@ class LocalProxyService:
         # ---- 2) Prepare body and headers ----
         body = await request.body()
 
-        request_headers  = self.adjust_request_headers(dict(request.headers))
-        response_headers = self.adjust_response_headers(dict(response.headers))
-        headers = {**request_headers, **response_headers}
+        headers = self.adjust_request_headers(dict(request.headers))
+        # Identity headers are created only after gateway session validation;
+        # never forward a client-supplied identity value.
+        headers.update(internal_headers or {})
 
         if request.client:
             headers["x-forwarded-for"] = request.client.host

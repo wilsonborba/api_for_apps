@@ -50,9 +50,20 @@ async def exchange_app(request: Request, response: Response):
         )
 
     adapter = get_redis_adapter(request)
+    # Existing Accredit clients omit app and therefore use the historical
+    # certifications default. New app frontends must state their own app id.
+    expected_app = (body.get("app") or settings.DEFAULT_EXCHANGE_APP).strip().lower()
+    if expected_app not in settings.EXCHANGE_ALLOWED_APPS:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Unsupported application",
+            data=None,
+        )
 
     try:
-        user_cookie = exchange_auth_sync(auth_exchange_token)
+        user_cookie = await exchange_auth_sync(
+            adapter, auth_exchange_token, expected_app=expected_app
+        )
 
         # ✅ Set cookies/headers on the SAME object you will return
         resp = await set_http_only_cookies_for_auth_sync(adapter, request, resp, user_cookie)

@@ -32,9 +32,9 @@ class Settings(BaseSettings):
     # integration.
     AUTH_PROVIDER: str = "supabase"
     SUPABASE_URL: str = ""
-    SUPABASE_ANON_KEY: str = ""
     SUPABASE_PROJECT_REF: str = ""
-    SUPABASE_SECRET_KEY: str = ""
+    # Server-only credential. Frontends never communicate with Supabase.
+    SUPABASE_SECRET_KEY: str
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
 
     # private server key for fernet encryption/decryption

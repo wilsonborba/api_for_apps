@@ -17,9 +17,7 @@ class DatabaseUserModel(BaseModel):
     last_login: Optional[str] = None
     date_joined: str
     phone_number: Optional[str] = None
-    # Physical legacy column. Runtime stores the Supabase subject here until a
-    # separate database migration can rename the column safely.
-    firebase_id: Optional[str] = None
+    supabase_user_id: Optional[str] = None
     exp: Optional[int] = None
 
 

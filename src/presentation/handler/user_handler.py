@@ -32,16 +32,6 @@ async def get_specific_user_info(request: Request, sid: str):
 
     user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=sid)
     
-    # {
-    #     'session_id': 'UFAOWP2XLrJQe4JU-uR1sr1_OgtheU91qQLqhehms_I', 
-    #     'firebase_id': 'fB68zTp1JFaOHWbrTuHav3o03vk2', 
-    #     'access_level': 1, 
-    #     'user_id': 1, 
-    #     'user_uuid_id': 'b7e96850-7be3-4d8e-8bb7-3f2716e29917', 
-    #     'email': 'wilsonmatheuslimaborba@gmail.com', 
-    #     'nonce': 'OJygrObablG-T3-3gV1Y4M91npaqoaaI'
-    # }
-
     debug(f"User Info: {user_info}")
 
     user_id = user_info.get("user_id")
@@ -60,16 +50,6 @@ async def modify_user_info(request: Request,  sid: str, first_name: str = None, 
     adapter = get_redis_adapter(request)
 
     user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=sid)
-    # {
-    #     'session_id': 'UFAOWP2XLrJQe4JU-uR1sr1_OgtheU91qQLqhehms_I', 
-    #     'firebase_id': 'fB68zTp1JFaOHWbrTuHav3o03vk2', 
-    #     'access_level': 1, 
-    #     'user_id': 1, 
-    #     'user_uuid_id': 'b7e96850-7be3-4d8e-8bb7-3f2716e29917', 
-    #     'email': 'wilsonmatheuslimaborba@gmail.com', 
-    #     'nonce': 'OJygrObablG-T3-3gV1Y4M91npaqoaaI'
-    # }
-
     user_id = user_info.get("user_id")
 
     user_data = {

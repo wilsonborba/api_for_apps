@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "api-for-apps"
+version = "0.1.0"
+description = "Central authentication and private-application gateway for Asodya"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic",
+    "argon2-cffi",
+    "colorlog",
+    "cryptography",
+    "fastapi",
+    "gunicorn",
+    "httpx",
+    "msgpack-python",
+    "psycopg2-binary",
+    "pydantic",
+    "pydantic-settings",
+    "pyparsing",
+    "python-dotenv",
+    "pythonbible",
+    "redis",
+    "SQLAlchemy",
+    "starlette",
+    "uvicorn",
+]
+
+[tool.setuptools.packages.find]
+include = ["src*"]

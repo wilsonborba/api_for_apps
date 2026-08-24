@@ -16,7 +16,7 @@ class LocalProxyService:
 
     def get_port(self, app_name: str) -> int:
         app_ports = {
-            self._parse_app_name(self.available_apps.certifications): 8001,
+            self._parse_app_name(self.available_apps.certifications): 8103,
         }
         if app_name not in app_ports:
             raise AppNotFoundError(f"App '{app_name}' not found.")

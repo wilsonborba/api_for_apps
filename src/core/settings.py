@@ -51,11 +51,11 @@ class Settings(BaseSettings):
     CACHE_AUTH_PREFIX: str = "exchange_auth_app"
     OAUTH_STATE_PREFIX: str = "oauth_state"
 
-    # Development flag
-    development_mode: bool = True
+    # Runtime mode is selected by the development/production launch script.
+    environment: str = "development"
     ASODYA_MAIN_DOMAIN: str = "asodya.com"
-    AUTH_APP_LOCAL_URL: str = "http://localhost:7000"
-    AUTH_APP_PROD_URL: str = "https://auth.asodya.com"
+    AUTH_APP_LOCAL_URL: str = "http://192.168.1.103:8100"
+    AUTH_APP_PROD_URL: str = "https://auth.asodya.com:8100"
     COOKIE_DOMAIN_PROD: str = ".asodya.com"
 
     # Public proxy routes (app -> list of path patterns)
@@ -80,6 +80,10 @@ class Settings(BaseSettings):
         if self.development_mode:
             return None
         return self.COOKIE_DOMAIN_PROD
+
+    @property
+    def development_mode(self) -> bool:
+        return self.environment.lower() in {"development", "dev", "local"}
 
     @property
     def default_db(self) -> DatabaseConfig:

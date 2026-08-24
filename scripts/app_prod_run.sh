@@ -7,8 +7,9 @@ cd "$SCRIPT_DIR/.."
 source .venv/bin/activate
 export PYTHONPATH="$(pwd)"
 
-HOST=${HOST:-0.0.0.0}
-PORT=${PORT:-8000}
+export ENVIRONMENT=production
+HOST=0.0.0.0
+PORT=8101
 WORKERS=${WORKERS:-4}
 
 echo "Starting Gunicorn + Uvicorn workers on ${HOST}:${PORT} with ${WORKERS} workers…"
@@ -22,4 +23,3 @@ exec gunicorn \
   --access-logfile - \
   --error-logfile - \
   --forwarded-allow-ips="*"
-

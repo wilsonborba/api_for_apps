@@ -130,7 +130,7 @@ class SupabaseAuthAdapter:
         return base64.urlsafe_b64encode(digest).decode("utf-8").rstrip("=")
 
     def _default_headers(self) -> dict[str, str]:
-        headers = {"Content-Type": "application/json"}
-        if self.settings.SUPABASE_ANON_KEY:
-            headers["apikey"] = self.settings.SUPABASE_ANON_KEY
-        return headers
+        return {
+            "Content-Type": "application/json",
+            "apikey": self.settings.SUPABASE_SECRET_KEY,
+        }

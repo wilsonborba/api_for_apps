@@ -120,7 +120,7 @@ class UserService:
             response = self.supabase_auth_adapter.sign_up(email, password, display_name, self.settings.auth_app_callback_url)
         except httpx.HTTPStatusError as exc:
             raise self._provider_error(exc) from exc
-        access_token = (response.get("session") or {}).get("access_token")
+        access_token = response.get("access_token")
         return self.exchange_authenticated_session(access_token, app) if access_token else None
 
     def log_in_with_active_provider(self, email: str, password: str, app: str | None = None) -> str:
@@ -130,7 +130,7 @@ class UserService:
             response = self.supabase_auth_adapter.sign_in_with_password(email, password)
         except httpx.HTTPStatusError as exc:
             raise self._provider_error(exc) from exc
-        access_token = (response.get("session") or {}).get("access_token")
+        access_token = response.get("access_token")
         if not access_token:
             raise ValueError("Supabase did not return an authenticated session")
         return self.exchange_authenticated_session(access_token, app)

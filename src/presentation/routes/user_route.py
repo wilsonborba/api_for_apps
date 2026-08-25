@@ -481,7 +481,7 @@ async def post_reset_password(raw_request: PasswordResetRequestModel):
         error(f"Password reset rejected by provider: {detail}")
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            message=detail,
+            message="Failed to update password.",
             data=None,
         )
 

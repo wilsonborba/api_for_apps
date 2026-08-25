@@ -1,6 +1,7 @@
 import asyncio
 import secrets
 import time
+import httpx
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from fastapi.params import Depends
 from pydantic import BaseModel
@@ -470,10 +471,17 @@ async def post_reset_password(raw_request: PasswordResetRequestModel):
             data=None,
         )
     except Exception as e:
-        error(str(e))
+        detail = str(e)
+        if isinstance(e, httpx.HTTPStatusError):
+            try:
+                payload = e.response.json()
+                detail = payload.get("msg") or payload.get("message") or payload.get("error_description") or payload.get("error") or detail
+            except Exception:
+                pass
+        error(f"Password reset rejected by provider: {detail}")
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            message="Failed to update password.",
+            message=detail,
             data=None,
         )
 

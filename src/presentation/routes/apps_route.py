@@ -3,6 +3,7 @@ from urllib.parse import urlunsplit
 from fastapi import APIRouter, Request, Response, status
 from fnmatch import fnmatchcase
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
+from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 from src.domain.services.local_proxy_service import LocalProxyService
 from src.presentation.handler.auth import verify_auth

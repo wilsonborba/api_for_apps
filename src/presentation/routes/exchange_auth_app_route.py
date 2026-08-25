@@ -16,6 +16,15 @@ settings = app_settings()
 
 exchange_app_route_v1 = APIRouter(prefix="/v1")
 
+
+def _app_for_exchange_origin(origin: str | None) -> str | None:
+    if not origin:
+        return None
+    for app, origins in settings.APP_EXCHANGE_ORIGINS.items():
+        if origin in origins:
+            return app
+    return None
+
 @exchange_app_route_v1.post(
     "/exchange",
     summary="Exchange Endpoint for Apps get authentication",
@@ -50,13 +59,18 @@ async def exchange_app(request: Request, response: Response):
         )
 
     adapter = get_redis_adapter(request)
-    # Existing Accredit clients omit app and therefore use the historical
-    # certifications default. New app frontends must state their own app id.
-    expected_app = (body.get("app") or settings.DEFAULT_EXCHANGE_APP).strip().lower()
-    if expected_app not in settings.EXCHANGE_ALLOWED_APPS:
+    expected_app = _app_for_exchange_origin(request.headers.get("origin"))
+    if expected_app is None:
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            message="Unsupported application",
+            message="Exchange origin is not registered for an application",
+            data=None,
+        )
+    requested_app = body.get("app")
+    if requested_app and requested_app.strip().lower() != expected_app:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Exchange application does not match its registered origin",
             data=None,
         )
 

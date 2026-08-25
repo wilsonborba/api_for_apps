@@ -57,6 +57,19 @@ class Settings(BaseSettings):
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
     EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications",)
+    # Browser origins permitted to redeem an app's short-lived exchange
+    # artifact. This is a server-owned allowlist, not frontend context.
+    APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
+        "certifications": (
+            "http://localhost:8102",
+            "http://127.0.0.1:8102",
+            "http://192.168.1.103:8102",
+            "http://172.20.10.4:8102",
+            "http://100.93.16.79:8102",
+            "http://172.17.0.1:8102",
+            "https://certifications.asodya.com",
+        ),
+    }
 
     # Runtime mode is selected by the development/production launch script.
     environment: str = "development"

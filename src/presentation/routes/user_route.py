@@ -61,6 +61,7 @@ class PasswordResetRequestModel(BaseModel):
 
 class OAuthStartRequestModel(BaseModel):
     provider: str
+    app: str
     intent: str | None = None
 
 
@@ -77,6 +78,13 @@ def _normalize_oauth_provider(provider: str) -> str:
         return "azure"
     if normalized not in settings.OAUTH_PROVIDERS:
         raise ValueError("Unsupported OAuth provider")
+    return normalized
+
+
+def _normalize_initiating_app(app: str) -> str:
+    normalized = app.strip().lower()
+    if not normalized or normalized not in settings.EXCHANGE_ALLOWED_APPS:
+        raise ValueError("Unsupported initiating application")
     return normalized
 
 
@@ -481,6 +489,7 @@ async def post_oauth_start(request: Request, raw_request: OAuthStartRequestModel
     adapter = get_redis_adapter(request)
     try:
         provider = _normalize_oauth_provider(raw_request.provider)
+        app = _normalize_initiating_app(raw_request.app)
     except ValueError as e:
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -498,6 +507,7 @@ async def post_oauth_start(request: Request, raw_request: OAuthStartRequestModel
         key=redis_key,
         value={
             "provider": provider,
+            "app": app,
             "intent": raw_request.intent or "login",
             "code_verifier": code_verifier,
             "created_at": int(time.time()),
@@ -553,6 +563,16 @@ async def post_oauth_callback(request: Request, raw_request: OAuthCallbackReques
         )
 
     try:
+        app = _normalize_initiating_app(oauth_state["app"])
+    except (KeyError, TypeError, ValueError):
+        await adapter.delete(redis_key)
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="OAuth state has no valid initiating application.",
+            data=None,
+        )
+
+    try:
         exchanged = supabase_auth_adapter.exchange_code_for_session(
             raw_request.code,
             oauth_state["code_verifier"],
@@ -561,7 +581,7 @@ async def post_oauth_callback(request: Request, raw_request: OAuthCallbackReques
         if not access_token:
             raise ValueError("The auth provider did not return an authenticated session")
 
-        auth_exchange_token = log_in_user_from_auth_session(access_token)
+        auth_exchange_token = log_in_user_from_auth_session(access_token, app)
         await register_auth_exchange_artifact(adapter, auth_exchange_token)
         await adapter.delete(redis_key)
         return MyResponse(

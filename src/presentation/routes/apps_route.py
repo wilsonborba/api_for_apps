@@ -1,6 +1,6 @@
 # src/routes/proxy_router.py
 from urllib.parse import urlunsplit
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, HTTPException, Request, Response, status
 from fnmatch import fnmatchcase
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
 from src.core.utils import get_redis_adapter
@@ -14,7 +14,6 @@ apps_proxy_v1 = APIRouter(prefix="/{app}/v1")
 proxy_service = LocalProxyService()
 
 settings = app_settings()
-
 
 @apps_proxy_v1.options("/{path:path}", include_in_schema=False)
 async def proxy_preflight(app: str, path: str, request: Request):
@@ -36,7 +35,7 @@ async def proxy_preflight(app: str, path: str, request: Request):
         acrm or "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
     )
     resp.headers["Access-Control-Allow-Headers"] = (
-        acrh or "Authorization,Content-Type,Accept"
+        acrh or "Authorization,Content-Type,Accept,X-CSRF-Token,X-CSRFToken"
     )
     resp.headers["Access-Control-Allow-Credentials"] = "true"
     resp.headers["Access-Control-Max-Age"] = "600"
@@ -86,6 +85,9 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
             del proxied.headers["x-uuid"]
 
         return proxied
+    except HTTPException as e:
+        error(f"HTTPException in proxying request: {e.detail}")
+        return MyResponse(status_code=e.status_code, message=str(e.detail), data=None)
     except Exception as e:
         error(f"Error in proxying request: {e}")
         return MyResponse(status_code=400, message="Bad request", data=None)

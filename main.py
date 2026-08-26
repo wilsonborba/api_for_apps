@@ -35,35 +35,21 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    #allow_origins=["*"],
     allow_origins=[
-    # Localhost (Flutter web / local tools)
-    "http://localhost:8100",
-    "http://127.0.0.1:8100",
-    "http://localhost:8102",
-    "http://127.0.0.1:8102",
-    "http://192.168.1.103:8100",
-    "http://192.168.1.103:8102",
+        # Localhost (Flutter web / local tools)
+        "http://localhost:8100",
+        "http://127.0.0.1:8100",
+        "http://localhost:8102",
+        "http://127.0.0.1:8102",
 
-    # Local network / hotspot IPs (example ports — adjust if needed)
-    "http://172.20.10.4:8100",
-    "http://172.20.10.4:8102",
-    "http://100.93.16.79:8100",
-    "http://100.93.16.79:8102",
-    "http://172.17.0.1:8100",
-    "http://172.17.0.1:8102",
-
-    # Auth domain
-    "https://auth.asodya.com",
-    "https://certifications.asodya.com",
+        # Auth & Certifications domain
+        "https://auth.asodya.com",
+        "https://certifications.asodya.com",
     ],
-
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
-    allow_headers=[
-        "Content-Type",
-        "X-CSRF-Token",
-    ],
+    allow_headers=["*"],
 )
 
 

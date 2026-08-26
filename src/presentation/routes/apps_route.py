@@ -47,14 +47,10 @@ async def proxy_preflight(app: str, path: str, request: Request):
     return resp
 
 def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
-    allowed_methods = settings.PUBLIC_PROXY_ALLOWED_METHODS
-    if method.upper() not in allowed_methods:
-        return False
-
     normalized_app = app.strip().lower().replace("/", "")
     normalized_path = f"/{path.lstrip('/')}"
-
-    allowlist = settings.PUBLIC_PROXY_ROUTE_ALLOWLIST.get(normalized_app, [])
+    method_patterns = settings.PUBLIC_PROXY_ROUTES.get(normalized_app, {})
+    allowlist = method_patterns.get(method.upper(), [])
     return any(fnmatchcase(normalized_path, pattern) for pattern in allowlist)
 
 

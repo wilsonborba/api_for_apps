@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.dal.local.redis_adapter import RedisAdapter
 from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
+from src.presentation.routes.waitlist_route import waitlist_router
 from src.core.settings import app_settings
 
 
@@ -100,6 +101,11 @@ app.include_router(
     schemas_from_apps.routes.client_error_report_v1,
     prefix=f"{schemas_from_apps.path_segment}",
     tags=[schemas_from_apps.tag],
+)
+
+app.include_router(
+    waitlist_router,
+    tags=["waitlist"],
 )
 
 app.include_router(

@@ -35,7 +35,13 @@ class LocalProxyService:
             "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
             "te", "trailers", "transfer-encoding", "upgrade"
         ]
-        blocked = {*hop_by_hop_headers, "host", "x-uuid"}
+        blocked = {
+            *hop_by_hop_headers,
+            "host",
+            "x-uuid",
+            "x-certifications-service-key",
+            "x-certifications-waitlist-registered",
+        }
         return {k: v for k, v in headers.items() if k.lower() not in blocked}
 
     async def _retry_request(self, client: httpx.AsyncClient, **kwargs) -> httpx.Response:

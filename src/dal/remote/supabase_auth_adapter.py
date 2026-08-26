@@ -91,6 +91,29 @@ class SupabaseAuthAdapter:
         response.raise_for_status()
         return response.json()
 
+    def user_exists_by_email(self, email: str) -> bool:
+        """Check Auth users server-side using GoTrue's paginated admin API."""
+        normalized_email = email.strip().lower()
+        page = 1
+        per_page = 1000
+        while True:
+            response = httpx.get(
+                f"{self.settings.SUPABASE_URL}/auth/v1/admin/users",
+                headers=self._default_headers(),
+                params={"page": page, "per_page": per_page},
+                timeout=20.0,
+            )
+            response.raise_for_status()
+            users = response.json().get("users", [])
+            if any(
+                str(user.get("email") or "").strip().lower() == normalized_email
+                for user in users
+            ):
+                return True
+            if len(users) < per_page:
+                return False
+            page += 1
+
     def get_oauth_authorization_url(
         self,
         provider: str,

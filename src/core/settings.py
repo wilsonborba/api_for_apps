@@ -35,6 +35,8 @@ class Settings(BaseSettings):
     SUPABASE_PROJECT_REF: str = ""
     # Server-only credential. Frontends never communicate with Supabase.
     SUPABASE_SECRET_KEY: str
+    # Service credential used only for gateway -> Certifications API calls.
+    CERTIFICATIONS_SERVICE_KEY: str
     FERNET_KEY_SECRET: str  # Secret key for Fernet encryption, loaded from .env
 
     # private server key for fernet encryption/decryption
@@ -78,9 +80,15 @@ class Settings(BaseSettings):
     AUTH_APP_PROD_URL: str = "https://auth.asodya.com"
     COOKIE_DOMAIN_PROD: str = ".asodya.com"
 
-    # Public proxy routes (app -> list of path patterns)
-    PUBLIC_PROXY_ROUTE_ALLOWLIST: Dict[str, List[str]] = {
-        "certifications": ["/quiz/certifications/*"]
+    # Public proxy routes (app -> method -> path patterns). Adding another
+    # app/route here does not weaken the authenticated generic proxy.
+    PUBLIC_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
+        "certifications": {
+            "GET": ["/quiz/certifications/*"],
+            "HEAD": ["/quiz/certifications/*"],
+            "OPTIONS": ["/quiz/certifications/*"],
+            "POST": ["/waitlist"],
+        },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")

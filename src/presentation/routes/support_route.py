@@ -19,13 +19,16 @@ from src.presentation.handler.responses import MyResponse, MyResponseModel
 settings = app_settings()
 support_ticket_service = SupportTicketService()
 
-# Top-level path, not the /apps/{app}/v1 per-app proxy prefix: support data
-# lives centrally in api_for_apps itself, shared by every app's frontend.
-support_v1 = APIRouter(prefix="/support/v1")
+# Mounted under the same /apps/{app}/v1 shape every other app-facing route
+# uses (see apps_route.py's apps_proxy_v1), registered ahead of that generic
+# proxy so this specific sub-path is handled here instead of being forwarded.
+# The ticket data itself still lives centrally in api_for_apps, shared by
+# every app; {app} in the URL is the trusted source of source_app (it comes
+# from the route the Gateway itself controls, never from client input).
+support_v1 = APIRouter(prefix="/{app}/v1/support")
 
 
 class CreateSupportTicketRequestModel(BaseModel):
-    source_app: str = Field(min_length=2, max_length=64)
     subject: str | None = Field(default=None, max_length=200)
     body: str = Field(min_length=1, max_length=8000)
     attachment_reference: str | None = Field(default=None, max_length=2000)
@@ -59,6 +62,7 @@ async def _require_identity(request: Request) -> str:
     status_code=status.HTTP_201_CREATED,
 )
 async def post_create_ticket(
+    app: str,
     payload: CreateSupportTicketRequestModel,
     request: Request,
     response: Response,
@@ -68,7 +72,7 @@ async def post_create_ticket(
     try:
         ticket = support_ticket_service.create_ticket(
             user_id=user_id,
-            source_app=payload.source_app.strip().lower(),
+            source_app=app.strip().lower(),
             subject=payload.subject.strip() if payload.subject else None,
             body=payload.body.strip(),
             attachment_reference=payload.attachment_reference,
@@ -90,14 +94,14 @@ async def post_create_ticket(
 @support_v1.get(
     "/tickets",
     summary="List the caller's support tickets",
-    description="Lists the authenticated user's own tickets, filterable by source_app and status.",
+    description="Lists the authenticated user's own tickets for this app, optionally filtered by status.",
     response_model=MyResponseModel,
     status_code=status.HTTP_200_OK,
 )
 async def get_list_tickets(
+    app: str,
     request: Request,
     response: Response,
-    source_app: str | None = Query(default=None, max_length=64),
     status_filter: str | None = Query(default=None, alias="status", max_length=32),
     _auth: bool = Depends(verify_auth),
 ):
@@ -111,7 +115,7 @@ async def get_list_tickets(
     try:
         tickets = support_ticket_service.list_tickets(
             user_id=user_id,
-            source_app=source_app.strip().lower() if source_app else None,
+            source_app=app.strip().lower(),
             status=status_filter,
         )
         return MyResponse(
@@ -135,6 +139,7 @@ async def get_list_tickets(
     status_code=status.HTTP_200_OK,
 )
 async def get_ticket(
+    app: str,
     ticket_id: str,
     request: Request,
     response: Response,
@@ -171,6 +176,7 @@ async def get_ticket(
     status_code=status.HTTP_201_CREATED,
 )
 async def post_message(
+    app: str,
     ticket_id: str,
     payload: PostSupportMessageRequestModel,
     request: Request,
@@ -212,6 +218,7 @@ async def post_message(
     status_code=status.HTTP_200_OK,
 )
 async def patch_mark_ticket_read(
+    app: str,
     ticket_id: str,
     request: Request,
     response: Response,
@@ -247,6 +254,7 @@ async def patch_mark_ticket_read(
     status_code=status.HTTP_200_OK,
 )
 async def patch_mark_message_read(
+    app: str,
     ticket_id: str,
     message_id: str,
     request: Request,

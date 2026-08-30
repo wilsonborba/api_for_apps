@@ -56,11 +56,13 @@ class PostSupportMessageRequestModel(BaseModel):
     attachment_reference: str | None = Field(default=None, max_length=2000)
 
 
-async def _require_identity(request: Request) -> str:
+async def _require_identity(request: Request) -> tuple[str, int]:
     """Support tickets are never anonymous: even a valid admin API key
     (see verify_auth) is not enough on its own, a real authenticated user
     session is always required, the same identity apps_route.py injects
-    downstream as the x-uuid header."""
+    downstream as the x-uuid header. Returns (user_uuid_id, access_level):
+    access_level already rides along on every session (see UserCookieModel /
+    exchange_auth_app_service.py), so no new lookup is needed for _is_admin."""
     session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
     user_info = None
     if session_id:
@@ -68,15 +70,22 @@ async def _require_identity(request: Request) -> str:
         user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=session_id)
     if not user_info or not user_info.get("user_uuid_id"):
         raise HTTPException(status_code=403, detail="Support tickets require an authenticated user session")
-    return user_info["user_uuid_id"]
+    return user_info["user_uuid_id"], int(user_info.get("access_level") or 3)
 
 
-def _is_admin(user_id: str) -> bool:
-    """Extension point for the admin authorization mechanism tracked in
-    #18, not built yet. Every caller is treated as a regular, non-admin
-    user until that lands: this always returns False today, on purpose,
-    so behavior is unchanged until the real mechanism replaces this."""
-    return False
+# Admin authorization (#18), resolved as Option A from that issue's
+# discussion (a role signal on the user record) without any new migration:
+# access_level already exists on the users table and already flows through
+# the whole session pipeline (UserCookieModel -> Redis -> here). Lazy
+# provisioning always assigns new users access_level=3 (see
+# user_service.py); level 1 is never auto-assigned, so it is reserved here
+# as the admin level, granted today only by editing a user's row directly,
+# same as issue #18 anticipated. Level 2 is left unused/reserved.
+ADMIN_ACCESS_LEVEL = 1
+
+
+def _is_admin(access_level: int) -> bool:
+    return access_level == ADMIN_ACCESS_LEVEL
 
 
 @support_v1.post(
@@ -96,7 +105,7 @@ async def post_upload_attachment(
     file: UploadFile = File(...),
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, _access_level = await _require_identity(request)
     body = await file.read()
     if len(body) > SUPPORT_ATTACHMENT_MAX_BYTES:
         return MyResponse(
@@ -145,7 +154,7 @@ async def post_create_ticket(
     response: Response,
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, _access_level = await _require_identity(request)
     try:
         ticket = support_ticket_service.create_ticket(
             user_id=user_id,
@@ -182,7 +191,7 @@ async def get_list_tickets(
     status_filter: str | None = Query(default=None, alias="status", max_length=32),
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, access_level = await _require_identity(request)
     if status_filter and status_filter not in SUPPORT_TICKET_STATUSES:
         return MyResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -194,7 +203,7 @@ async def get_list_tickets(
             user_id=user_id,
             source_app=source_app.strip().lower() if source_app else None,
             status=status_filter,
-            is_admin=_is_admin(user_id),
+            is_admin=_is_admin(access_level),
         )
         return MyResponse(
             status_code=status.HTTP_200_OK,
@@ -222,10 +231,10 @@ async def get_ticket(
     response: Response,
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, access_level = await _require_identity(request)
     try:
         ticket = support_ticket_service.get_ticket(
-            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(user_id)
+            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(access_level)
         )
         return MyResponse(
             status_code=status.HTTP_200_OK,
@@ -261,14 +270,14 @@ async def post_message(
     response: Response,
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, access_level = await _require_identity(request)
     try:
         message = support_ticket_service.post_message(
             ticket_id=ticket_id,
             user_id=user_id,
             body=payload.body.strip(),
             attachment_reference=payload.attachment_reference,
-            is_admin=_is_admin(user_id),
+            is_admin=_is_admin(access_level),
         )
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
@@ -302,10 +311,10 @@ async def patch_mark_ticket_read(
     response: Response,
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, access_level = await _require_identity(request)
     try:
         changed = support_ticket_service.mark_ticket_read(
-            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(user_id)
+            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(access_level)
         )
         return MyResponse(
             status_code=status.HTTP_200_OK,
@@ -340,10 +349,10 @@ async def patch_mark_message_read(
     response: Response,
     _auth: bool = Depends(verify_auth),
 ):
-    user_id = await _require_identity(request)
+    user_id, access_level = await _require_identity(request)
     try:
         found = support_ticket_service.mark_message_read(
-            ticket_id=ticket_id, user_id=user_id, message_id=message_id, is_admin=_is_admin(user_id)
+            ticket_id=ticket_id, user_id=user_id, message_id=message_id, is_admin=_is_admin(access_level)
         )
         if not found:
             return MyResponse(

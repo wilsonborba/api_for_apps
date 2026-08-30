@@ -67,7 +67,19 @@ class RequireIdentityTests(unittest.TestCase):
             with self.assertRaises(HTTPException):
                 asyncio.run(support_route._require_identity(_Request(cookies={"sid": "abc"})))
 
-    def test_valid_session_returns_the_user_uuid_id(self):
+    def test_valid_session_returns_the_user_uuid_id_and_access_level(self):
+        with (
+            patch.object(support_route, "get_redis_adapter", return_value=object()),
+            patch.object(
+                support_route,
+                "get_user_info_from_redis_sync",
+                new=AsyncMock(return_value={"user_uuid_id": "user-uuid-123", "access_level": 1}),
+            ),
+        ):
+            identity = asyncio.run(support_route._require_identity(_Request(cookies={"sid": "abc"})))
+        self.assertEqual(identity, ("user-uuid-123", 1))
+
+    def test_missing_access_level_defaults_to_the_regular_user_level(self):
         with (
             patch.object(support_route, "get_redis_adapter", return_value=object()),
             patch.object(
@@ -77,12 +89,23 @@ class RequireIdentityTests(unittest.TestCase):
             ),
         ):
             identity = asyncio.run(support_route._require_identity(_Request(cookies={"sid": "abc"})))
-        self.assertEqual(identity, "user-uuid-123")
+        self.assertEqual(identity, ("user-uuid-123", 3))
+
+
+class IsAdminTests(unittest.TestCase):
+    def test_access_level_one_is_admin(self):
+        self.assertTrue(support_route._is_admin(1))
+
+    def test_access_level_two_and_three_are_not_admin(self):
+        self.assertFalse(support_route._is_admin(2))
+        self.assertFalse(support_route._is_admin(3))
 
 
 class SupportRouteHandlerTests(unittest.TestCase):
-    def _patched_identity(self, user_uuid_id="user-uuid-123"):
-        return patch.object(support_route, "_require_identity", new=AsyncMock(return_value=user_uuid_id))
+    def _patched_identity(self, user_uuid_id="user-uuid-123", access_level=3):
+        return patch.object(
+            support_route, "_require_identity", new=AsyncMock(return_value=(user_uuid_id, access_level))
+        )
 
     def test_upload_attachment_returns_the_fsm_reference(self):
         fake_adapter = MagicMock()
@@ -188,6 +211,21 @@ class SupportRouteHandlerTests(unittest.TestCase):
 
         list_mock.assert_called_once_with(
             user_id="user-uuid-123", source_app=None, status=None, is_admin=False
+        )
+
+    def test_list_tickets_passes_is_admin_true_for_an_access_level_one_caller(self):
+        with (
+            self._patched_identity(access_level=1),
+            patch.object(support_route.support_ticket_service, "list_tickets", return_value=[]) as list_mock,
+        ):
+            asyncio.run(
+                get_list_tickets(
+                    _Request(cookies={"sid": "abc"}), Response(), source_app=None, status_filter=None
+                )
+            )
+
+        list_mock.assert_called_once_with(
+            user_id="user-uuid-123", source_app=None, status=None, is_admin=True
         )
 
     def test_list_tickets_rejects_an_unknown_status_filter(self):

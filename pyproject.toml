@@ -22,6 +22,7 @@ dependencies = [
     "pydantic-settings",
     "pyparsing",
     "python-dotenv",
+    "python-multipart",
     "pythonbible",
     "redis",
     "SQLAlchemy",

@@ -60,6 +60,15 @@ class Settings(BaseSettings):
     SUPPORT_COUCHDB_PASSWORD: str = ""
     SUPPORT_COUCHDB_DATABASE: str = "support_tickets"
 
+    # FSM's Media API uses a private per-application bearer key, same
+    # protocol certifications_api already uses for study-source uploads
+    # (see FsmMediaAdapter). This is api_for_apps's own app registration
+    # ("api_for_apps"), used only for support-ticket attachments. Loaded only
+    # from `.env`; no frontend is ever given the credential.
+    FSM_MEDIA_ENDPOINT: str = "http://192.168.1.106:8484"
+    FSM_APP_NAME: str = "api_for_apps"
+    FSM_APP_KEY: str | None = None
+
     # redis cache prefix
     CACHE_AUTH_PREFIX: str = "exchange_auth_app"
     EXCHANGE_ARTIFACT_PREFIX: str = "exchange_artifact"

@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi import HTTPException, Response
 
+from src.dal.remote.fsm_media_adapter import FsmConfigurationError, FsmStorageError
 from src.presentation.routes import support_route
 from src.presentation.routes.support_route import (
     CreateSupportTicketRequestModel,
@@ -16,6 +17,7 @@ from src.presentation.routes.support_route import (
     patch_mark_ticket_read,
     post_create_ticket,
     post_message,
+    post_upload_attachment,
 )
 from src.domain.services.support_ticket_service import SupportTicketNotFoundError
 
@@ -23,6 +25,18 @@ from src.domain.services.support_ticket_service import SupportTicketNotFoundErro
 class _Request:
     def __init__(self, cookies=None):
         self.cookies = cookies or {}
+
+
+class _UploadFile:
+    """Stand-in for fastapi.UploadFile; only what the route reads."""
+
+    def __init__(self, content: bytes, filename: str = "photo.png", content_type: str = "image/png"):
+        self._content = content
+        self.filename = filename
+        self.content_type = content_type
+
+    async def read(self) -> bytes:
+        return self._content
 
 
 class RequireIdentityTests(unittest.TestCase):
@@ -69,6 +83,69 @@ class RequireIdentityTests(unittest.TestCase):
 class SupportRouteHandlerTests(unittest.TestCase):
     def _patched_identity(self, user_uuid_id="user-uuid-123"):
         return patch.object(support_route, "_require_identity", new=AsyncMock(return_value=user_uuid_id))
+
+    def test_upload_attachment_returns_the_fsm_reference(self):
+        fake_adapter = MagicMock()
+        fake_adapter.upload = AsyncMock(return_value="support/user-uuid-123/abc123.png")
+        with (
+            self._patched_identity(),
+            patch.object(support_route, "_fsm_adapter", return_value=fake_adapter),
+        ):
+            result = asyncio.run(
+                post_upload_attachment(
+                    _Request(cookies={"sid": "abc"}),
+                    Response(),
+                    file=_UploadFile(b"binary-data"),
+                )
+            )
+
+        fake_adapter.upload.assert_called_once_with(
+            album="support-user-uuid-123",
+            filename="photo.png",
+            body=b"binary-data",
+            content_type="image/png",
+        )
+        self.assertEqual(result.status_code, 201)
+
+    def test_upload_attachment_rejects_a_file_over_the_size_cap(self):
+        oversized = b"x" * (support_route.SUPPORT_ATTACHMENT_MAX_BYTES + 1)
+        with self._patched_identity():
+            result = asyncio.run(
+                post_upload_attachment(
+                    _Request(cookies={"sid": "abc"}),
+                    Response(),
+                    file=_UploadFile(oversized),
+                )
+            )
+        self.assertEqual(result.status_code, 400)
+
+    def test_upload_attachment_maps_missing_fsm_configuration_to_503(self):
+        fake_adapter = MagicMock()
+        fake_adapter.upload = AsyncMock(side_effect=FsmConfigurationError("not configured"))
+        with (
+            self._patched_identity(),
+            patch.object(support_route, "_fsm_adapter", return_value=fake_adapter),
+        ):
+            result = asyncio.run(
+                post_upload_attachment(
+                    _Request(cookies={"sid": "abc"}), Response(), file=_UploadFile(b"data")
+                )
+            )
+        self.assertEqual(result.status_code, 503)
+
+    def test_upload_attachment_maps_fsm_storage_failure_to_502(self):
+        fake_adapter = MagicMock()
+        fake_adapter.upload = AsyncMock(side_effect=FsmStorageError("rejected"))
+        with (
+            self._patched_identity(),
+            patch.object(support_route, "_fsm_adapter", return_value=fake_adapter),
+        ):
+            result = asyncio.run(
+                post_upload_attachment(
+                    _Request(cookies={"sid": "abc"}), Response(), file=_UploadFile(b"data")
+                )
+            )
+        self.assertEqual(result.status_code, 502)
 
     def test_create_ticket_uses_the_caller_identity_and_normalizes_source_app(self):
         created = {"id": "ticket-1", "status": "open"}

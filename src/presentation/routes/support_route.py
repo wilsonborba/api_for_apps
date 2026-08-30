@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, File, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.params import Depends
 from pydantic import BaseModel, Field
 
 from src.core.logs import error
 from src.core.settings import app_settings
 from src.core.utils import get_redis_adapter
+from src.dal.remote.fsm_media_adapter import FsmConfigurationError, FsmMediaAdapter, FsmStorageError
 from src.domain.models.support_ticket_model import SUPPORT_TICKET_STATUSES
 from src.domain.services.support_ticket_service import (
     SupportTicketNotFoundError,
@@ -18,6 +19,16 @@ from src.presentation.handler.responses import MyResponse, MyResponseModel
 
 settings = app_settings()
 support_ticket_service = SupportTicketService()
+
+
+def _fsm_adapter() -> FsmMediaAdapter:
+    return FsmMediaAdapter(
+        endpoint=settings.FSM_MEDIA_ENDPOINT, app=settings.FSM_APP_NAME, app_key=settings.FSM_APP_KEY
+    )
+
+
+# Per-file cap for a support attachment, well under FSM's own upload limit.
+SUPPORT_ATTACHMENT_MAX_BYTES = 15 * 1024 * 1024
 
 # Support is an application in its own right, even though it has no
 # dedicated backend service of its own (unlike certifications, hippocampus,
@@ -66,6 +77,59 @@ def _is_admin(user_id: str) -> bool:
     user until that lands: this always returns False today, on purpose,
     so behavior is unchanged until the real mechanism replaces this."""
     return False
+
+
+@support_v1.post(
+    "/attachments",
+    summary="Upload a support ticket attachment",
+    description=(
+        "Uploads a file to FSM's media storage and returns its reference. "
+        "Pass the returned attachment_reference when creating a ticket or "
+        "posting a message; this endpoint never touches a ticket itself."
+    ),
+    response_model=MyResponseModel,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_upload_attachment(
+    request: Request,
+    response: Response,
+    file: UploadFile = File(...),
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    body = await file.read()
+    if len(body) > SUPPORT_ATTACHMENT_MAX_BYTES:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Attachment exceeds the maximum allowed size.",
+            data=None,
+        )
+    try:
+        key = await _fsm_adapter().upload(
+            album=f"support-{user_id}",
+            filename=file.filename or "attachment",
+            body=body,
+            content_type=file.content_type or "application/octet-stream",
+        )
+        return MyResponse(
+            status_code=status.HTTP_201_CREATED,
+            message="Attachment uploaded successfully.",
+            data={"attachment_reference": key},
+        )
+    except FsmConfigurationError as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            message="Attachment storage is not configured.",
+            data=None,
+        )
+    except FsmStorageError as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            message="Failed to upload the attachment.",
+            data=None,
+        )
 
 
 @support_v1.post(

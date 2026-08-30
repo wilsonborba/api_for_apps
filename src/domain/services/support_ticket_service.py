@@ -63,9 +63,9 @@ class SupportTicketService:
     def _touch_updated_at(self, ticket_id: str) -> None:
         self.db_adapter.update_row(self._table_name, ticket_id, {"updated_at": _utc_now()})
 
-    def _require_ticket(self, ticket_id: str, user_id: str) -> Dict[str, Any]:
+    def _require_ticket(self, ticket_id: str, user_id: str, *, is_admin: bool = False) -> Dict[str, Any]:
         ticket = self.db_adapter.read_by_id(self._table_name, ticket_id)
-        if not ticket or ticket.get("user_id") != user_id:
+        if not ticket or (not is_admin and ticket.get("user_id") != user_id):
             raise SupportTicketNotFoundError("Support ticket not found")
         return ticket
 
@@ -125,14 +125,17 @@ class SupportTicketService:
         user_id: str,
         source_app: Optional[str] = None,
         status: Optional[str] = None,
+        is_admin: bool = False,
     ) -> List[Dict[str, Any]]:
-        """Tickets belonging to `user_id`, optionally filtered by source_app
-        and status. Scoped to the caller: this repo has no admin/role
-        authorization primitive yet, so a future cross-user admin view
-        (explicitly out of scope for issue #17) will need one before it can
-        widen this query past a single user's own tickets."""
+        """Tickets visible to the caller, optionally filtered by source_app
+        and status. A regular caller only ever sees their own tickets
+        (`user_id` is always enforced, regardless of what is asked for).
+        An admin caller (see #18 for the authorization mechanism itself,
+        not built yet, callers pass is_admin=True only once that exists)
+        sees every user's tickets instead."""
         tickets = self.db_adapter.read_all(self._table_name)
-        tickets = [t for t in tickets if t.get("user_id") == user_id]
+        if not is_admin:
+            tickets = [t for t in tickets if t.get("user_id") == user_id]
         if source_app:
             tickets = [t for t in tickets if t.get("source_app") == source_app]
         if status:
@@ -140,8 +143,8 @@ class SupportTicketService:
         tickets.sort(key=lambda t: t.get("updated_at") or "", reverse=True)
         return tickets
 
-    def get_ticket(self, *, ticket_id: str, user_id: str) -> Dict[str, Any]:
-        ticket = self._require_ticket(ticket_id, user_id)
+    def get_ticket(self, *, ticket_id: str, user_id: str, is_admin: bool = False) -> Dict[str, Any]:
+        ticket = self._require_ticket(ticket_id, user_id, is_admin=is_admin)
         document = self.document_store.get(ticket_id) or {}
         return {
             **ticket,
@@ -158,15 +161,17 @@ class SupportTicketService:
         user_id: str,
         body: str,
         attachment_reference: Optional[str] = None,
+        is_admin: bool = False,
     ) -> Dict[str, Any]:
-        self._require_ticket(ticket_id, user_id)
+        self._require_ticket(ticket_id, user_id, is_admin=is_admin)
         document = self.document_store.get(ticket_id) or {
             "ticket_id": ticket_id,
             "subject": None,
             "messages": [],
             "extra": {},
         }
-        message = self._new_message(sender="user", body=body, attachment_reference=attachment_reference)
+        sender = "admin" if is_admin else "user"
+        message = self._new_message(sender=sender, body=body, attachment_reference=attachment_reference)
         document.setdefault("messages", []).append(message)
         stored = self.document_store.put(ticket_id, document)
         self._touch_updated_at(ticket_id)
@@ -174,8 +179,8 @@ class SupportTicketService:
             raise SupportTicketError("Support ticket message could not be stored")
         return message
 
-    def mark_ticket_read(self, *, ticket_id: str, user_id: str) -> int:
-        self._require_ticket(ticket_id, user_id)
+    def mark_ticket_read(self, *, ticket_id: str, user_id: str, is_admin: bool = False) -> int:
+        self._require_ticket(ticket_id, user_id, is_admin=is_admin)
         document = self.document_store.get(ticket_id)
         if document is None:
             return 0
@@ -189,8 +194,10 @@ class SupportTicketService:
             self._touch_updated_at(ticket_id)
         return changed
 
-    def mark_message_read(self, *, ticket_id: str, user_id: str, message_id: str) -> bool:
-        self._require_ticket(ticket_id, user_id)
+    def mark_message_read(
+        self, *, ticket_id: str, user_id: str, message_id: str, is_admin: bool = False
+    ) -> bool:
+        self._require_ticket(ticket_id, user_id, is_admin=is_admin)
         document = self.document_store.get(ticket_id)
         if document is None:
             return False

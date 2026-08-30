@@ -98,6 +98,26 @@ class SupportTicketServiceTests(unittest.TestCase):
         with self.assertRaises(SupportTicketNotFoundError):
             self.service.get_ticket(ticket_id="does-not-exist", user_id="user-1")
 
+    def test_list_tickets_as_admin_sees_every_users_tickets(self):
+        self.service.create_ticket(user_id="user-1", source_app="certifications", subject=None, body="a")
+        self.service.create_ticket(user_id="user-2", source_app="hippocampus", subject=None, body="b")
+
+        self.assertEqual(len(self.service.list_tickets(user_id="someone-else", is_admin=True)), 2)
+        # still scoped for a non-admin, even one of the ticket owners themselves
+        self.assertEqual(len(self.service.list_tickets(user_id="user-1", is_admin=False)), 1)
+
+    def test_get_ticket_as_admin_bypasses_ownership(self):
+        ticket = self.service.create_ticket(user_id="user-1", source_app="certifications", subject=None, body="a")
+        result = self.service.get_ticket(ticket_id=ticket["id"], user_id="an-admin", is_admin=True)
+        self.assertEqual(result["id"], ticket["id"])
+
+    def test_post_message_as_admin_is_tagged_with_the_admin_sender(self):
+        ticket = self.service.create_ticket(user_id="user-1", source_app="certifications", subject=None, body="a")
+        message = self.service.post_message(
+            ticket_id=ticket["id"], user_id="an-admin", body="we're on it", is_admin=True
+        )
+        self.assertEqual(message["sender"], "admin")
+
     def test_post_message_appends_to_the_thread(self):
         ticket = self.service.create_ticket(user_id="user-1", source_app="certifications", subject=None, body="a")
         self.service.post_message(ticket_id=ticket["id"], user_id="user-1", body="follow up")

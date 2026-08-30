@@ -6,6 +6,7 @@ from src.dal.local.redis_adapter import RedisAdapter
 from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
 from src.presentation.routes.waitlist_route import waitlist_router
+from src.presentation.routes.support_route import support_v1
 from src.core.settings import app_settings
 
 
@@ -92,6 +93,11 @@ app.include_router(
 app.include_router(
     waitlist_router,
     tags=["waitlist"],
+)
+
+app.include_router(
+    support_v1,
+    tags=["support"],
 )
 
 app.include_router(

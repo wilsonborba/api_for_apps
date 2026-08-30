@@ -78,8 +78,9 @@ class SupportRouteHandlerTests(unittest.TestCase):
         ):
             result = asyncio.run(
                 post_create_ticket(
-                    "Certifications",
-                    CreateSupportTicketRequestModel(subject=" Help ", body=" Something broke "),
+                    CreateSupportTicketRequestModel(
+                        source_app=" Certifications ", subject=" Help ", body=" Something broke "
+                    ),
                     _Request(cookies={"sid": "abc"}),
                     Response(),
                 )
@@ -95,27 +96,27 @@ class SupportRouteHandlerTests(unittest.TestCase):
         self.assertEqual(result.status_code, 201)
 
     def test_list_tickets_is_scoped_to_the_caller_identity(self):
-        # status_filter is declared with fastapi.Query(...) defaults, only
-        # resolved to a real value by FastAPI's own request handling; called
-        # directly here, it must be passed explicitly.
+        # source_app/status_filter are declared with fastapi.Query(...)
+        # defaults, only resolved to real values by FastAPI's own request
+        # handling; called directly here, they must be passed explicitly.
         with (
             self._patched_identity(),
             patch.object(support_route.support_ticket_service, "list_tickets", return_value=[]) as list_mock,
         ):
             asyncio.run(
                 get_list_tickets(
-                    "certifications", _Request(cookies={"sid": "abc"}), Response(), status_filter=None
+                    _Request(cookies={"sid": "abc"}), Response(), source_app=None, status_filter=None
                 )
             )
 
-        list_mock.assert_called_once_with(user_id="user-uuid-123", source_app="certifications", status=None)
+        list_mock.assert_called_once_with(
+            user_id="user-uuid-123", source_app=None, status=None, is_admin=False
+        )
 
     def test_list_tickets_rejects_an_unknown_status_filter(self):
         with self._patched_identity():
             result = asyncio.run(
-                get_list_tickets(
-                    "certifications", _Request(cookies={"sid": "abc"}), Response(), status_filter="not-a-real-status"
-                )
+                get_list_tickets(_Request(cookies={"sid": "abc"}), Response(), status_filter="not-a-real-status")
             )
         self.assertEqual(result.status_code, 400)
 
@@ -128,9 +129,7 @@ class SupportRouteHandlerTests(unittest.TestCase):
                 side_effect=SupportTicketNotFoundError(),
             ),
         ):
-            result = asyncio.run(
-                get_ticket("certifications", "missing-id", _Request(cookies={"sid": "abc"}), Response())
-            )
+            result = asyncio.run(get_ticket("missing-id", _Request(cookies={"sid": "abc"}), Response()))
         self.assertEqual(result.status_code, 404)
 
     def test_post_message_forwards_the_attachment_reference(self):
@@ -142,7 +141,6 @@ class SupportRouteHandlerTests(unittest.TestCase):
         ):
             result = asyncio.run(
                 post_message(
-                    "certifications",
                     "ticket-1",
                     PostSupportMessageRequestModel(body="hi", attachment_reference="fsm://bucket/key.png"),
                     _Request(cookies={"sid": "abc"}),
@@ -151,7 +149,11 @@ class SupportRouteHandlerTests(unittest.TestCase):
             )
 
         post_mock.assert_called_once_with(
-            ticket_id="ticket-1", user_id="user-uuid-123", body="hi", attachment_reference="fsm://bucket/key.png"
+            ticket_id="ticket-1",
+            user_id="user-uuid-123",
+            body="hi",
+            attachment_reference="fsm://bucket/key.png",
+            is_admin=False,
         )
         self.assertEqual(result.status_code, 201)
 
@@ -164,9 +166,7 @@ class SupportRouteHandlerTests(unittest.TestCase):
                 side_effect=SupportTicketNotFoundError(),
             ),
         ):
-            result = asyncio.run(
-                patch_mark_ticket_read("certifications", "ticket-1", _Request(cookies={"sid": "abc"}), Response())
-            )
+            result = asyncio.run(patch_mark_ticket_read("ticket-1", _Request(cookies={"sid": "abc"}), Response()))
         self.assertEqual(result.status_code, 404)
 
     def test_mark_message_read_returns_404_when_message_is_not_found(self):
@@ -176,7 +176,7 @@ class SupportRouteHandlerTests(unittest.TestCase):
         ):
             result = asyncio.run(
                 patch_mark_message_read(
-                    "certifications", "ticket-1", "message-1", _Request(cookies={"sid": "abc"}), Response()
+                    "ticket-1", "message-1", _Request(cookies={"sid": "abc"}), Response()
                 )
             )
         self.assertEqual(result.status_code, 404)
@@ -188,7 +188,7 @@ class SupportRouteHandlerTests(unittest.TestCase):
         ):
             result = asyncio.run(
                 patch_mark_message_read(
-                    "certifications", "ticket-1", "message-1", _Request(cookies={"sid": "abc"}), Response()
+                    "ticket-1", "message-1", _Request(cookies={"sid": "abc"}), Response()
                 )
             )
         self.assertEqual(result.status_code, 200)

@@ -97,7 +97,7 @@ app.include_router(
 
 app.include_router(
     support_v1,
-    prefix=f"{schemas_from_apps.path_segment}",
+    prefix=f"{schemas_from_apps.path_segment}/support/v1",
     tags=["support"],
 )
 

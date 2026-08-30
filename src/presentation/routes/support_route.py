@@ -19,16 +19,22 @@ from src.presentation.handler.responses import MyResponse, MyResponseModel
 settings = app_settings()
 support_ticket_service = SupportTicketService()
 
-# Mounted under the same /apps/{app}/v1 shape every other app-facing route
-# uses (see apps_route.py's apps_proxy_v1), registered ahead of that generic
-# proxy so this specific sub-path is handled here instead of being forwarded.
-# The ticket data itself still lives centrally in api_for_apps, shared by
-# every app; {app} in the URL is the trusted source of source_app (it comes
-# from the route the Gateway itself controls, never from client input).
-support_v1 = APIRouter(prefix="/{app}/v1/support")
+# Support is an application in its own right, even though it has no
+# dedicated backend service of its own (unlike certifications, hippocampus,
+# etc, which each have one behind the /apps/{app}/v1 proxy). It is mounted
+# at /apps/support/v1, the same URL shape as every other app, with "support"
+# itself filling the {app} slot, registered ahead of the generic proxy so
+# this specific path is handled here instead of being forwarded there.
+# One single set of endpoints serves every caller, regular users and admins
+# alike: which app a ticket belongs to (source_app) is a normal request
+# parameter, same as any other field, not something derived from the route.
+# What the caller is allowed to see is decided inside each handler based on
+# who they are (see _is_admin), never by a different URL.
+support_v1 = APIRouter()
 
 
 class CreateSupportTicketRequestModel(BaseModel):
+    source_app: str = Field(min_length=2, max_length=64)
     subject: str | None = Field(default=None, max_length=200)
     body: str = Field(min_length=1, max_length=8000)
     attachment_reference: str | None = Field(default=None, max_length=2000)
@@ -54,6 +60,14 @@ async def _require_identity(request: Request) -> str:
     return user_info["user_uuid_id"]
 
 
+def _is_admin(user_id: str) -> bool:
+    """Extension point for the admin authorization mechanism tracked in
+    #18, not built yet. Every caller is treated as a regular, non-admin
+    user until that lands: this always returns False today, on purpose,
+    so behavior is unchanged until the real mechanism replaces this."""
+    return False
+
+
 @support_v1.post(
     "/tickets",
     summary="Create a support ticket",
@@ -62,7 +76,6 @@ async def _require_identity(request: Request) -> str:
     status_code=status.HTTP_201_CREATED,
 )
 async def post_create_ticket(
-    app: str,
     payload: CreateSupportTicketRequestModel,
     request: Request,
     response: Response,
@@ -72,7 +85,7 @@ async def post_create_ticket(
     try:
         ticket = support_ticket_service.create_ticket(
             user_id=user_id,
-            source_app=app.strip().lower(),
+            source_app=payload.source_app.strip().lower(),
             subject=payload.subject.strip() if payload.subject else None,
             body=payload.body.strip(),
             attachment_reference=payload.attachment_reference,
@@ -94,14 +107,14 @@ async def post_create_ticket(
 @support_v1.get(
     "/tickets",
     summary="List the caller's support tickets",
-    description="Lists the authenticated user's own tickets for this app, optionally filtered by status.",
+    description="Lists the authenticated caller's tickets (every user's, if the caller is an admin), optionally filtered by source_app and status.",
     response_model=MyResponseModel,
     status_code=status.HTTP_200_OK,
 )
 async def get_list_tickets(
-    app: str,
     request: Request,
     response: Response,
+    source_app: str | None = Query(default=None, max_length=64),
     status_filter: str | None = Query(default=None, alias="status", max_length=32),
     _auth: bool = Depends(verify_auth),
 ):
@@ -115,8 +128,9 @@ async def get_list_tickets(
     try:
         tickets = support_ticket_service.list_tickets(
             user_id=user_id,
-            source_app=app.strip().lower(),
+            source_app=source_app.strip().lower() if source_app else None,
             status=status_filter,
+            is_admin=_is_admin(user_id),
         )
         return MyResponse(
             status_code=status.HTTP_200_OK,
@@ -139,7 +153,6 @@ async def get_list_tickets(
     status_code=status.HTTP_200_OK,
 )
 async def get_ticket(
-    app: str,
     ticket_id: str,
     request: Request,
     response: Response,
@@ -147,7 +160,9 @@ async def get_ticket(
 ):
     user_id = await _require_identity(request)
     try:
-        ticket = support_ticket_service.get_ticket(ticket_id=ticket_id, user_id=user_id)
+        ticket = support_ticket_service.get_ticket(
+            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(user_id)
+        )
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="Support ticket retrieved successfully.",
@@ -176,7 +191,6 @@ async def get_ticket(
     status_code=status.HTTP_201_CREATED,
 )
 async def post_message(
-    app: str,
     ticket_id: str,
     payload: PostSupportMessageRequestModel,
     request: Request,
@@ -190,6 +204,7 @@ async def post_message(
             user_id=user_id,
             body=payload.body.strip(),
             attachment_reference=payload.attachment_reference,
+            is_admin=_is_admin(user_id),
         )
         return MyResponse(
             status_code=status.HTTP_201_CREATED,
@@ -218,7 +233,6 @@ async def post_message(
     status_code=status.HTTP_200_OK,
 )
 async def patch_mark_ticket_read(
-    app: str,
     ticket_id: str,
     request: Request,
     response: Response,
@@ -226,7 +240,9 @@ async def patch_mark_ticket_read(
 ):
     user_id = await _require_identity(request)
     try:
-        changed = support_ticket_service.mark_ticket_read(ticket_id=ticket_id, user_id=user_id)
+        changed = support_ticket_service.mark_ticket_read(
+            ticket_id=ticket_id, user_id=user_id, is_admin=_is_admin(user_id)
+        )
         return MyResponse(
             status_code=status.HTTP_200_OK,
             message="Support ticket marked as read.",
@@ -254,7 +270,6 @@ async def patch_mark_ticket_read(
     status_code=status.HTTP_200_OK,
 )
 async def patch_mark_message_read(
-    app: str,
     ticket_id: str,
     message_id: str,
     request: Request,
@@ -264,7 +279,7 @@ async def patch_mark_message_read(
     user_id = await _require_identity(request)
     try:
         found = support_ticket_service.mark_message_read(
-            ticket_id=ticket_id, user_id=user_id, message_id=message_id
+            ticket_id=ticket_id, user_id=user_id, message_id=message_id, is_admin=_is_admin(user_id)
         )
         if not found:
             return MyResponse(

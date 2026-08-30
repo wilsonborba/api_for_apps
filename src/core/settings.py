@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
     REDIS_NAMESPACE: str = "api_for_apps:"
 
+    # Support tickets document store. Reuses hippocampus's own CouchDB server
+    # (see hippocampus's HIPPOCAMPUS_COUCHDB_* settings) in a database
+    # dedicated to tickets, never hippocampus's own memories database.
+    # Left blank, the document store degrades to an in-memory fallback:
+    # PostgreSQL's support_tickets index remains authoritative either way.
+    SUPPORT_COUCHDB_URL: str = ""
+    SUPPORT_COUCHDB_USERNAME: str = ""
+    SUPPORT_COUCHDB_PASSWORD: str = ""
+    SUPPORT_COUCHDB_DATABASE: str = "support_tickets"
+
     # redis cache prefix
     CACHE_AUTH_PREFIX: str = "exchange_auth_app"
     EXCHANGE_ARTIFACT_PREFIX: str = "exchange_artifact"

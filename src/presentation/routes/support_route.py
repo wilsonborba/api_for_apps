@@ -1,0 +1,284 @@
+from __future__ import annotations
+
+from fastapi import APIRouter, HTTPException, Query, Request, Response, status
+from fastapi.params import Depends
+from pydantic import BaseModel, Field
+
+from src.core.logs import error
+from src.core.settings import app_settings
+from src.core.utils import get_redis_adapter
+from src.domain.models.support_ticket_model import SUPPORT_TICKET_STATUSES
+from src.domain.services.support_ticket_service import (
+    SupportTicketNotFoundError,
+    SupportTicketService,
+)
+from src.presentation.handler.auth import verify_auth
+from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
+from src.presentation.handler.responses import MyResponse, MyResponseModel
+
+settings = app_settings()
+support_ticket_service = SupportTicketService()
+
+# Top-level path, not the /apps/{app}/v1 per-app proxy prefix: support data
+# lives centrally in api_for_apps itself, shared by every app's frontend.
+support_v1 = APIRouter(prefix="/support/v1")
+
+
+class CreateSupportTicketRequestModel(BaseModel):
+    source_app: str = Field(min_length=2, max_length=64)
+    subject: str | None = Field(default=None, max_length=200)
+    body: str = Field(min_length=1, max_length=8000)
+    attachment_reference: str | None = Field(default=None, max_length=2000)
+
+
+class PostSupportMessageRequestModel(BaseModel):
+    body: str = Field(min_length=1, max_length=8000)
+    attachment_reference: str | None = Field(default=None, max_length=2000)
+
+
+async def _require_identity(request: Request) -> str:
+    """Support tickets are never anonymous: even a valid admin API key
+    (see verify_auth) is not enough on its own, a real authenticated user
+    session is always required, the same identity apps_route.py injects
+    downstream as the x-uuid header."""
+    session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+    user_info = None
+    if session_id:
+        adapter = get_redis_adapter(request)
+        user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=session_id)
+    if not user_info or not user_info.get("user_uuid_id"):
+        raise HTTPException(status_code=403, detail="Support tickets require an authenticated user session")
+    return user_info["user_uuid_id"]
+
+
+@support_v1.post(
+    "/tickets",
+    summary="Create a support ticket",
+    description="Opens a new cross-app support ticket with its first message.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_create_ticket(
+    payload: CreateSupportTicketRequestModel,
+    request: Request,
+    response: Response,
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    try:
+        ticket = support_ticket_service.create_ticket(
+            user_id=user_id,
+            source_app=payload.source_app.strip().lower(),
+            subject=payload.subject.strip() if payload.subject else None,
+            body=payload.body.strip(),
+            attachment_reference=payload.attachment_reference,
+        )
+        return MyResponse(
+            status_code=status.HTTP_201_CREATED,
+            message="Support ticket created successfully.",
+            data=ticket,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to create the support ticket.",
+            data=None,
+        )
+
+
+@support_v1.get(
+    "/tickets",
+    summary="List the caller's support tickets",
+    description="Lists the authenticated user's own tickets, filterable by source_app and status.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def get_list_tickets(
+    request: Request,
+    response: Response,
+    source_app: str | None = Query(default=None, max_length=64),
+    status_filter: str | None = Query(default=None, alias="status", max_length=32),
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    if status_filter and status_filter not in SUPPORT_TICKET_STATUSES:
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message=f"Invalid status filter. Expected one of {SUPPORT_TICKET_STATUSES}.",
+            data=None,
+        )
+    try:
+        tickets = support_ticket_service.list_tickets(
+            user_id=user_id,
+            source_app=source_app.strip().lower() if source_app else None,
+            status=status_filter,
+        )
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Support tickets retrieved successfully.",
+            data=tickets,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to retrieve support tickets.",
+            data=None,
+        )
+
+
+@support_v1.get(
+    "/tickets/{ticket_id}",
+    summary="Get a support ticket with its full thread",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def get_ticket(
+    ticket_id: str,
+    request: Request,
+    response: Response,
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    try:
+        ticket = support_ticket_service.get_ticket(ticket_id=ticket_id, user_id=user_id)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Support ticket retrieved successfully.",
+            data=ticket,
+        )
+    except SupportTicketNotFoundError:
+        return MyResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            message="Support ticket not found.",
+            data=None,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to retrieve the support ticket.",
+            data=None,
+        )
+
+
+@support_v1.post(
+    "/tickets/{ticket_id}/messages",
+    summary="Post a message onto a support ticket",
+    description="Appends a message, with an optional attachment reference, to the ticket's thread.",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_message(
+    ticket_id: str,
+    payload: PostSupportMessageRequestModel,
+    request: Request,
+    response: Response,
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    try:
+        message = support_ticket_service.post_message(
+            ticket_id=ticket_id,
+            user_id=user_id,
+            body=payload.body.strip(),
+            attachment_reference=payload.attachment_reference,
+        )
+        return MyResponse(
+            status_code=status.HTTP_201_CREATED,
+            message="Message posted successfully.",
+            data=message,
+        )
+    except SupportTicketNotFoundError:
+        return MyResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            message="Support ticket not found.",
+            data=None,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to post the message.",
+            data=None,
+        )
+
+
+@support_v1.patch(
+    "/tickets/{ticket_id}/read",
+    summary="Mark every message on a ticket as read",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def patch_mark_ticket_read(
+    ticket_id: str,
+    request: Request,
+    response: Response,
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    try:
+        changed = support_ticket_service.mark_ticket_read(ticket_id=ticket_id, user_id=user_id)
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Support ticket marked as read.",
+            data={"messages_marked_read": changed},
+        )
+    except SupportTicketNotFoundError:
+        return MyResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            message="Support ticket not found.",
+            data=None,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to mark the support ticket as read.",
+            data=None,
+        )
+
+
+@support_v1.patch(
+    "/tickets/{ticket_id}/messages/{message_id}/read",
+    summary="Mark a single message as read",
+    response_model=MyResponseModel,
+    status_code=status.HTTP_200_OK,
+)
+async def patch_mark_message_read(
+    ticket_id: str,
+    message_id: str,
+    request: Request,
+    response: Response,
+    _auth: bool = Depends(verify_auth),
+):
+    user_id = await _require_identity(request)
+    try:
+        found = support_ticket_service.mark_message_read(
+            ticket_id=ticket_id, user_id=user_id, message_id=message_id
+        )
+        if not found:
+            return MyResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                message="Message not found on this support ticket.",
+                data=None,
+            )
+        return MyResponse(
+            status_code=status.HTTP_200_OK,
+            message="Message marked as read.",
+            data=None,
+        )
+    except SupportTicketNotFoundError:
+        return MyResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            message="Support ticket not found.",
+            data=None,
+        )
+    except Exception as exc:
+        error(str(exc))
+        return MyResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            message="Failed to mark the message as read.",
+            data=None,
+        )

@@ -17,6 +17,7 @@ class LocalProxyService:
     def get_port(self, app_name: str) -> int:
         app_ports = {
             self._parse_app_name(self.available_apps.certifications): 8103,
+            "cortex": settings().CORTEX_API_PORT,
         }
         if app_name not in app_ports:
             raise AppNotFoundError(f"App '{app_name}' not found.")
@@ -61,10 +62,15 @@ class LocalProxyService:
         request: Request,
         response: Response,
         internal_headers: dict[str, str] | None = None,
+        body_override: bytes | None = None,
     ) -> StreamingResponse:
         """
         Forward the request to the target app while preserving the original
         percent-encoded path. Works with mount prefixes like '/apps/{app}/v1/...'.
+
+        `body_override`, when provided, replaces the raw request body sent
+        upstream (used by the cortex proxy to hard-lock tier/model fields
+        server-side before forwarding).
         """
 
         # ---- 1) Build upstream URL using RAW (percent-encoded) path ----
@@ -95,7 +101,7 @@ class LocalProxyService:
             target_url += f"?{request.url.query}"
 
         # ---- 2) Prepare body and headers ----
-        body = await request.body()
+        body = body_override if body_override is not None else await request.body()
 
         headers = self.adjust_request_headers(dict(request.headers))
         # Identity headers are created only after gateway session validation;

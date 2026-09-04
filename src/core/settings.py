@@ -112,6 +112,20 @@ class Settings(BaseSettings):
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
 
+    # cortex_api proxy (see src/presentation/routes/cortex_route.py). Serves
+    # anonymous/guest chat requests, so it deliberately sits outside the
+    # session-based verify_auth check used by the generic apps proxy.
+    CORTEX_API_HOST: str = "localhost"
+    CORTEX_API_PORT: int = 8003
+    # Shared HMAC secret used to validate the official Web App's
+    # X-Asodya-App-Proof header. Loaded only from `.env`; never hardcode a
+    # real value here.
+    CORTEX_PROOF_SECRET: str = ""
+    CORTEX_APP_ID: str = "cortex_web_app"
+    # Requests without a valid X-Asodya-App-Proof are capped at this many
+    # per calendar day, per client IP (see enforce_daily_quota).
+    CORTEX_DAILY_TEST_LIMIT: int = 5
+
     @property
     def auth_app_callback_url(self) -> str:
         base_url = self.AUTH_APP_LOCAL_URL if self.development_mode else self.AUTH_APP_PROD_URL

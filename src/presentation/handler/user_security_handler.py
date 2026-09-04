@@ -1,9 +1,12 @@
 from __future__ import annotations
+from datetime import datetime, timezone
 from typing import Iterable, Tuple, Optional
 from fastapi import Request, HTTPException
 
 from src.dal.local.redis_adapter import RedisAdapter
 from src.core.logs import warning
+
+SECONDS_PER_DAY = 24 * 60 * 60
 
 
 # ---------------------------
@@ -89,6 +92,41 @@ async def enforce_username_rate(
                 status_code=429,
                 detail=f"Too many {action} attempts for this user_email. Try again later.",
             )
+
+
+# ---------------------------
+# Rate limiting: strict calendar-day cap
+# ---------------------------
+
+async def enforce_daily_quota(
+    adapter: RedisAdapter,
+    *,
+    request: Request,
+    action: str,
+    limit: int,
+    namespace: str = "rl:daily",
+) -> None:
+    """
+    Caps an action at `limit` requests per UTC calendar day, per client IP.
+    Used by the cortex proxy to strictly limit unattested (external
+    script/cURL) traffic while a valid X-Asodya-App-Proof bypasses this
+    check entirely. Raises HTTP 429 on the (limit + 1)th request of the day.
+    """
+    ip = get_client_ip(request)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    key = adapter.k(namespace, action, f"ip:{ip}", today)
+    current = await _incr_with_ttl(adapter, key, SECONDS_PER_DAY)
+    if current > limit:
+        warning(f"Daily quota exceeded: {key} ({current} > {limit})")
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                f"Daily test limit of {limit} requests reached for direct "
+                "script access. Use the official Web App for unlimited "
+                "usage, or try again after the daily window resets."
+            ),
+            headers={"Retry-After": str(SECONDS_PER_DAY)},
+        )
 
 
 # ---------------------------

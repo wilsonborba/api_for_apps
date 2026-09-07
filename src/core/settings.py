@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from src.domain.models.db_config_model import DatabaseConfig
@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications",)
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -90,7 +90,32 @@ class Settings(BaseSettings):
             "http://172.17.0.1:8102",
             "https://certifications.asodya.com",
         ),
+        # certifications' web build always serves from a fixed LAN port
+        # (8102), so its dev origins can be hardcoded above. Cortex's web
+        # build (`flutter run -d chrome`) has no fixed dev port unless one
+        # is pinned with `--web-port`, so its local origin cannot be
+        # guessed here: it is loaded from CORTEX_WEB_LOCAL_ORIGIN (see
+        # below) and merged in by `_add_cortex_local_exchange_origin`.
+        "cortex": (
+            "https://cortex.asodya.com",
+        ),
     }
+    # Browser origin the official Cortex Web App serves from in a local/dev
+    # environment for this deployment. Left blank, only the production
+    # origin above is accepted for the cortex exchange. Set per-deployment
+    # via `.env`, never hardcoded, since Flutter's dev web server does not
+    # have a fixed port.
+    CORTEX_WEB_LOCAL_ORIGIN: str = ""
+
+    @model_validator(mode="after")
+    def _add_cortex_local_exchange_origin(self) -> "Settings":
+        if self.CORTEX_WEB_LOCAL_ORIGIN:
+            cortex_origins = self.APP_EXCHANGE_ORIGINS.get("cortex", ())
+            if self.CORTEX_WEB_LOCAL_ORIGIN not in cortex_origins:
+                self.APP_EXCHANGE_ORIGINS["cortex"] = cortex_origins + (
+                    self.CORTEX_WEB_LOCAL_ORIGIN,
+                )
+        return self
 
     # Runtime mode is selected by the development/production launch script.
     environment: str = "development"
@@ -111,6 +136,20 @@ class Settings(BaseSettings):
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
+
+    # cortex_api proxy (see src/presentation/routes/cortex_route.py). Serves
+    # anonymous/guest chat requests, so it deliberately sits outside the
+    # session-based verify_auth check used by the generic apps proxy.
+    CORTEX_API_HOST: str = "localhost"
+    CORTEX_API_PORT: int = 8003
+    # Shared HMAC secret used to validate the official Web App's
+    # X-Asodya-App-Proof header. Loaded only from `.env`; never hardcode a
+    # real value here.
+    CORTEX_PROOF_SECRET: str = ""
+    CORTEX_APP_ID: str = "cortex_web_app"
+    # Requests without a valid X-Asodya-App-Proof are capped at this many
+    # per calendar day, per client IP (see enforce_daily_quota).
+    CORTEX_DAILY_TEST_LIMIT: int = 5
 
     @property
     def auth_app_callback_url(self) -> str:

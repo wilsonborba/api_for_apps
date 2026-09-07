@@ -25,13 +25,30 @@ async def lifespan(app: FastAPI):
     # Shutdown
     await adapter.close()
 
+from fastapi.responses import HTMLResponse
+from scalar_fastapi import get_scalar_api_reference, Layout, Theme
+
 app = FastAPI(
     lifespan=lifespan,
-    title="API for Asodya Apps", 
-    description="Backend API for mobile and web applications from Asodya Co.",
+    title="Asodya Apps Gateway API", 
+    description="Backend API Gateway for mobile and web applications across the Asodya ecosystem.",
     root_path="/", 
     root_path_in_servers=False, 
-    redirect_slashes=True
+    redirect_slashes=True,
+    docs_url=None,
+    redoc_url=None,
+)
+
+
+@app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
+@app.get("/scalar", response_class=HTMLResponse, include_in_schema=False)
+async def scalar_docs():
+    return get_scalar_api_reference(
+        openapi_url="/openapi.json",
+        title="Asodya Apps API Gateway Reference",
+        theme=Theme.PURPLE,
+        layout=Layout.MODERN,
+        hide_dark_mode_toggle=False,
     )
 
 

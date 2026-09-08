@@ -13,7 +13,7 @@ from src.domain.services.telemetry_service import TelemetryService
 from src.presentation.handler.auth import verify_admin_auth, verify_auth
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
 
-telemetry_router = APIRouter(prefix="/telemetry/v1")
+telemetry_router = APIRouter(prefix="/v1")
 telemetry_service = TelemetryService()
 settings = app_settings()
 
@@ -49,10 +49,17 @@ def _is_allowed_telemetry_origin(request: Request) -> bool:
 
 
 @telemetry_router.post(
-    "/client-errors",
+    "/client-error",
     summary="Ingest frontend client error reports",
     description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",
     status_code=status.HTTP_202_ACCEPTED,
+)
+@telemetry_router.post(
+    "/client-errors",
+    summary="Ingest frontend client error reports (alias)",
+    description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",
+    status_code=status.HTTP_202_ACCEPTED,
+    include_in_schema=False,
 )
 async def post_client_error(
     request: Request,
@@ -106,10 +113,17 @@ async def post_client_error(
 
 
 @telemetry_router.get(
-    "/client-errors",
+    "/client-error",
     summary="Query recent client errors (Admin only)",
     description="Lists recent client-side errors from CouchDB.",
     dependencies=[Depends(verify_admin_auth)],
+)
+@telemetry_router.get(
+    "/client-errors",
+    summary="Query recent client errors (Admin only alias)",
+    description="Lists recent client-side errors from CouchDB.",
+    dependencies=[Depends(verify_admin_auth)],
+    include_in_schema=False,
 )
 async def list_client_errors(
     limit: int = Query(default=50, ge=1, le=200),

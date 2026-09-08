@@ -104,19 +104,14 @@ app.include_router(
 )
 
 app.include_router(
-    schemas_from_apps.routes.client_error_report_v1,
-    prefix=f"{schemas_from_apps.path_segment}",
-    tags=[schemas_from_apps.tag],
+    telemetry_router,
+    prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
+    tags=["telemetry"],
 )
 
 app.include_router(
     waitlist_router,
     tags=["waitlist"],
-)
-
-app.include_router(
-    telemetry_router,
-    tags=["telemetry"],
 )
 
 app.include_router(

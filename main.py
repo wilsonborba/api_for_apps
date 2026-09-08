@@ -7,7 +7,6 @@ from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
 from src.presentation.routes.waitlist_route import waitlist_router
 from src.presentation.routes.support_route import support_v1
-from src.presentation.routes.cortex_route import cortex_proxy_v1
 from src.presentation.routes.telemetry_route import telemetry_router
 from src.core.settings import app_settings
 
@@ -124,9 +123,4 @@ app.include_router(
     schemas_from_apps.routes.apps_proxy_v1,
     prefix=f"{schemas_from_apps.path_segment}",
     tags=[schemas_from_apps.tag]
-)
-
-app.include_router(
-    cortex_proxy_v1,
-    tags=["cortex"],
 )

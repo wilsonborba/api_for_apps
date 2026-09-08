@@ -22,6 +22,7 @@ public-facing route.
 from __future__ import annotations
 
 import json
+from fnmatch import fnmatchcase
 from urllib.parse import urlunsplit
 
 from fastapi import APIRouter, HTTPException, Request, Response, status
@@ -30,6 +31,7 @@ from src.core.settings import app_settings
 from src.core.utils import get_redis_adapter
 from src.core.logs import error
 from src.domain.services.local_proxy_service import LocalProxyService
+from src.presentation.handler.auth import verify_admin_auth
 from src.presentation.handler.cortex_attestation_handler import CORTEX_PROOF_HEADER, verify_app_proof
 from src.presentation.handler.user_security_handler import enforce_daily_quota
 from src.presentation.handler.responses import MyResponse
@@ -38,6 +40,22 @@ cortex_proxy_v1 = APIRouter(prefix="/cortex/v1")
 proxy_service = LocalProxyService()
 
 settings = app_settings()
+
+DIAGNOSTIC_LOG_PATTERNS = [
+    "/logs*",
+    "*/logs*",
+    "/metrics*",
+    "*/metrics*",
+    "/diagnostics*",
+    "*/diagnostics*",
+    "/debug*",
+    "*/debug*",
+]
+
+
+def _is_diagnostic_or_log_route(path: str) -> bool:
+    normalized_path = f"/{path.lstrip('/')}"
+    return any(fnmatchcase(normalized_path, pattern) for pattern in DIAGNOSTIC_LOG_PATTERNS)
 
 # Hard-locked tier-0 fields. These overwrite whatever the client sent.
 TIER0_MODEL = "cortex-t0"
@@ -109,7 +127,9 @@ def sanitize_cortex_payload(path: str, body: bytes) -> bytes:
 @cortex_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def cortex_proxy_endpoint(path: str, request: Request, response: Response):
     try:
-        if not verify_app_proof(request):
+        if _is_diagnostic_or_log_route(path):
+            await verify_admin_auth(request=request, response=response)
+        elif not verify_app_proof(request):
             adapter = get_redis_adapter(request)
             await enforce_daily_quota(
                 adapter,

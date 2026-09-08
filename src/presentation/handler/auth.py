@@ -61,3 +61,43 @@ async def verify_auth(
             raise HTTPException(status_code=403, detail="Missing Authentications Parameters...")
 
     return True
+
+
+ADMIN_ACCESS_LEVEL = 1
+
+
+async def verify_admin_auth(
+    request: Request,
+    response: Response,
+    api_key_secret: str = Security(api_admin_key_header),
+):
+    """
+    Verify that the caller has administrative privileges.
+    Allows either:
+      - API Admin Key (settings.API_KEY_SECRET)
+      - User session with access_level == 1 (ADMIN_ACCESS_LEVEL)
+    """
+    # 1. API Admin key path (internal/operator access)
+    if api_key_secret and api_key_secret == settings.API_KEY_SECRET:
+        return True
+
+    # 2. Verify normal session authentication
+    await verify_auth(request=request, response=response, api_key_secret=api_key_secret)
+
+    # 3. Check access_level in session
+    adapter = get_redis_adapter(request)
+    http_only_cookie = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+    if not http_only_cookie:
+        raise HTTPException(status_code=403, detail="Forbidden: Admin access required.")
+
+    user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=http_only_cookie)
+    if not user_info:
+        raise HTTPException(status_code=403, detail="Forbidden: Admin access required.")
+
+    access_level = int(user_info.get("access_level") or 3)
+    if access_level != ADMIN_ACCESS_LEVEL:
+        warning(f"Non-admin access attempted by user {user_info.get('email')} (access_level={access_level})")
+        raise HTTPException(status_code=403, detail="Forbidden: Admin access required.")
+
+    return True
+

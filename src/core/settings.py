@@ -103,14 +103,16 @@ class Settings(BaseSettings):
         # guessed here: it is loaded from CORTEX_WEB_LOCAL_ORIGIN (see
         # below) and merged in by `_add_cortex_local_exchange_origin`.
         "cortex": (
+            "http://localhost:8105",
+            "http://127.0.0.1:8105",
+            "http://192.168.1.103:8105",
+            "http://172.20.10.4:8105",
+            "http://100.93.16.79:8105",
+            "http://172.17.0.1:8105",
             "https://cortex.asodya.com",
         ),
     }
-    # Browser origin the official Cortex Web App serves from in a local/dev
-    # environment for this deployment. Left blank, only the production
-    # origin above is accepted for the cortex exchange. Set per-deployment
-    # via `.env`, never hardcoded, since Flutter's dev web server does not
-    # have a fixed port.
+    # Optional override for custom Cortex Web App local dev origin.
     CORTEX_WEB_LOCAL_ORIGIN: str = ""
 
     @model_validator(mode="after")
@@ -194,6 +196,7 @@ class Settings(BaseSettings):
     class AvailableApps:
         api = "/api"
         certifications = "/certifications"
+        cortex = "/cortex"
 
     @property
     def available_apps(self) -> AvailableApps:

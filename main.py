@@ -8,6 +8,7 @@ from src.presentation.schema.user_schema import schemas_from_user
 from src.presentation.routes.waitlist_route import waitlist_router
 from src.presentation.routes.support_route import support_v1
 from src.presentation.routes.cortex_route import cortex_proxy_v1
+from src.presentation.routes.telemetry_route import telemetry_router
 from src.core.settings import app_settings
 
 
@@ -111,6 +112,11 @@ app.include_router(
 app.include_router(
     waitlist_router,
     tags=["waitlist"],
+)
+
+app.include_router(
+    telemetry_router,
+    tags=["telemetry"],
 )
 
 app.include_router(

@@ -106,17 +106,20 @@ app.include_router(
     telemetry_router,
     prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
     tags=["telemetry"],
+    include_in_schema=False,
 )
 
 app.include_router(
     waitlist_router,
     tags=["waitlist"],
+    include_in_schema=False,
 )
 
 app.include_router(
     support_v1,
     prefix=f"{schemas_from_apps.path_segment}/support/v1",
     tags=["support"],
+    include_in_schema=False,
 )
 
 app.include_router(

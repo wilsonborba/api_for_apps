@@ -41,21 +41,15 @@ proxy_service = LocalProxyService()
 
 settings = app_settings()
 
-DIAGNOSTIC_LOG_PATTERNS = [
+LOG_PROTECTED_PATTERNS = [
     "/logs*",
     "*/logs*",
-    "/metrics*",
-    "*/metrics*",
-    "/diagnostics*",
-    "*/diagnostics*",
-    "/debug*",
-    "*/debug*",
 ]
 
 
-def _is_diagnostic_or_log_route(path: str) -> bool:
+def _is_log_route(path: str) -> bool:
     normalized_path = f"/{path.lstrip('/')}"
-    return any(fnmatchcase(normalized_path, pattern) for pattern in DIAGNOSTIC_LOG_PATTERNS)
+    return any(fnmatchcase(normalized_path, pattern) for pattern in LOG_PROTECTED_PATTERNS)
 
 # Hard-locked tier-0 fields. These overwrite whatever the client sent.
 TIER0_MODEL = "cortex-t0"
@@ -127,7 +121,7 @@ def sanitize_cortex_payload(path: str, body: bytes) -> bytes:
 @cortex_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def cortex_proxy_endpoint(path: str, request: Request, response: Response):
     try:
-        if _is_diagnostic_or_log_route(path):
+        if _is_log_route(path):
             await verify_admin_auth(request=request, response=response)
         elif not verify_app_proof(request):
             adapter = get_redis_adapter(request)

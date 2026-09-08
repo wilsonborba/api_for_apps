@@ -15,21 +15,15 @@ proxy_service = LocalProxyService()
 
 settings = app_settings()
 
-DIAGNOSTIC_LOG_PATTERNS = [
+LOG_PROTECTED_PATTERNS = [
     "/logs*",
     "*/logs*",
-    "/metrics*",
-    "*/metrics*",
-    "/diagnostics*",
-    "*/diagnostics*",
-    "/debug*",
-    "*/debug*",
 ]
 
 
-def _is_diagnostic_or_log_route(path: str) -> bool:
+def _is_log_route(path: str) -> bool:
     normalized_path = f"/{path.lstrip('/')}"
-    return any(fnmatchcase(normalized_path, pattern) for pattern in DIAGNOSTIC_LOG_PATTERNS)
+    return any(fnmatchcase(normalized_path, pattern) for pattern in LOG_PROTECTED_PATTERNS)
 
 @apps_proxy_v1.options("/{path:path}", include_in_schema=False)
 async def proxy_preflight(app: str, path: str, request: Request):
@@ -73,7 +67,7 @@ def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response):
     try:
         internal_headers = None
-        if _is_diagnostic_or_log_route(path):
+        if _is_log_route(path):
             await verify_admin_auth(request=request, response=response)
         elif not _is_public_proxy_request(app, path, request.method):
             await verify_auth(request=request, response=response)

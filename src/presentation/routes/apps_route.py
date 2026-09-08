@@ -6,7 +6,7 @@ from src.presentation.handler.exchange_auth_app_handler import get_user_info_fro
 from src.core.utils import get_redis_adapter
 from src.core.settings import app_settings
 from src.domain.services.local_proxy_service import LocalProxyService
-from src.presentation.handler.auth import verify_auth
+from src.presentation.handler.auth import ADMIN_ACCESS_LEVEL, verify_admin_auth, verify_auth
 from src.core.logs import error, warning
 from src.presentation.handler.responses import MyResponse
 
@@ -14,6 +14,22 @@ apps_proxy_v1 = APIRouter(prefix="/{app}/v1")
 proxy_service = LocalProxyService()
 
 settings = app_settings()
+
+DIAGNOSTIC_LOG_PATTERNS = [
+    "/logs*",
+    "*/logs*",
+    "/metrics*",
+    "*/metrics*",
+    "/diagnostics*",
+    "*/diagnostics*",
+    "/debug*",
+    "*/debug*",
+]
+
+
+def _is_diagnostic_or_log_route(path: str) -> bool:
+    normalized_path = f"/{path.lstrip('/')}"
+    return any(fnmatchcase(normalized_path, pattern) for pattern in DIAGNOSTIC_LOG_PATTERNS)
 
 @apps_proxy_v1.options("/{path:path}", include_in_schema=False)
 async def proxy_preflight(app: str, path: str, request: Request):
@@ -57,7 +73,9 @@ def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response):
     try:
         internal_headers = None
-        if not _is_public_proxy_request(app, path, request.method):
+        if _is_diagnostic_or_log_route(path):
+            await verify_admin_auth(request=request, response=response)
+        elif not _is_public_proxy_request(app, path, request.method):
             await verify_auth(request=request, response=response)
             user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
 

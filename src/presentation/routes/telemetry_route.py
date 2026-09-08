@@ -10,7 +10,7 @@ from src.core.utils import get_redis_adapter
 from src.dal.local.redis_adapter import RedisAdapter
 from src.domain.models.telemetry_model import ClientErrorPayload
 from src.domain.services.telemetry_service import TelemetryService
-from src.presentation.handler.auth import verify_auth
+from src.presentation.handler.auth import verify_admin_auth, verify_auth
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
 
 telemetry_router = APIRouter(prefix="/telemetry/v1")
@@ -85,7 +85,7 @@ async def post_client_error(
     "/client-errors",
     summary="Query recent client errors (Admin only)",
     description="Lists recent client-side errors from CouchDB.",
-    dependencies=[Depends(verify_auth)],
+    dependencies=[Depends(verify_admin_auth)],
 )
 async def list_client_errors(
     limit: int = Query(default=50, ge=1, le=200),

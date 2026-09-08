@@ -60,6 +60,12 @@ class Settings(BaseSettings):
     SUPPORT_COUCHDB_PASSWORD: str = ""
     SUPPORT_COUCHDB_DATABASE: str = "support_tickets"
 
+    # Telemetry client errors document store.
+    TELEMETRY_COUCHDB_URL: str = ""
+    TELEMETRY_COUCHDB_USERNAME: str = ""
+    TELEMETRY_COUCHDB_PASSWORD: str = ""
+    TELEMETRY_COUCHDB_DATABASE: str = "client_errors"
+
     # FSM's Media API uses a private per-application bearer key, same
     # protocol certifications_api already uses for study-source uploads
     # (see FsmMediaAdapter). This is api_for_apps's own app registration

@@ -10,7 +10,7 @@ from src.core.utils import get_redis_adapter
 from src.dal.local.redis_adapter import RedisAdapter
 from src.domain.models.telemetry_model import ClientErrorPayload
 from src.domain.services.telemetry_service import TelemetryService
-from src.presentation.handler.auth import verify_auth
+from src.presentation.handler.auth import verify_admin_auth, verify_auth
 from src.presentation.handler.exchange_auth_app_handler import get_user_info_from_redis_sync
 
 telemetry_router = APIRouter(prefix="/telemetry/v1")
@@ -30,6 +30,24 @@ def _get_client_ip(request: Request) -> str:
     return "127.0.0.1"
 
 
+import re
+
+def _is_allowed_telemetry_origin(request: Request) -> bool:
+    origin = request.headers.get("origin") or request.headers.get("referer")
+    if not origin:
+        # Non-browser clients or direct internal calls without origin header
+        return True
+    
+    origin_lower = origin.lower()
+    # Allowed domains
+    if ".asodya.com" in origin_lower or origin_lower.startswith("https://asodya.com"):
+        return True
+    # Allowed localhost / local dev LAN regex
+    if re.search(r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?", origin_lower):
+        return True
+    return False
+
+
 @telemetry_router.post(
     "/client-errors",
     summary="Ingest frontend client error reports",
@@ -42,6 +60,12 @@ async def post_client_error(
     background_tasks: BackgroundTasks,
     redis: RedisAdapter = Depends(get_redis_adapter),
 ):
+    if not _is_allowed_telemetry_origin(request):
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={"message": "Forbidden origin.", "data": None},
+        )
+
     client_ip = _get_client_ip(request)
 
     # Redis rate-limiting (10 requests per minute per IP)
@@ -85,7 +109,7 @@ async def post_client_error(
     "/client-errors",
     summary="Query recent client errors (Admin only)",
     description="Lists recent client-side errors from CouchDB.",
-    dependencies=[Depends(verify_auth)],
+    dependencies=[Depends(verify_admin_auth)],
 )
 async def list_client_errors(
     limit: int = Query(default=50, ge=1, le=200),

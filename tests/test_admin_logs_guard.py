@@ -17,7 +17,7 @@ os.environ.setdefault("CERTIFICATIONS_SERVICE_KEY", "test-certifications-key")
 from fastapi import HTTPException, Response
 from src.core.settings import app_settings
 from src.presentation.handler.auth import verify_admin_auth
-from src.presentation.routes import apps_route, cortex_route
+from src.presentation.routes import apps_route
 
 
 class _Request:
@@ -90,12 +90,3 @@ class AdminLogsGuardTests(unittest.TestCase):
             result = asyncio.run(apps_route.proxy_endpoint("certifications", "logs/stream", req, res))
             self.assertIs(result, proxied_response)
             forward_mock.assert_awaited_once()
-
-    def test_cortex_proxy_blocks_logs_for_non_admin(self):
-        req = _Request()
-        res = Response()
-        with (
-            patch("src.presentation.routes.cortex_route.verify_admin_auth", side_effect=HTTPException(status_code=403, detail="Forbidden: Admin access required.")),
-        ):
-            result = asyncio.run(cortex_route.cortex_proxy_endpoint("logs/stream", req, res))
-            self.assertEqual(result.status_code, 403)

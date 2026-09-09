@@ -64,6 +64,7 @@ app.add_middleware(
         # Auth & Certifications domain
         "https://auth.asodya.com",
         "https://certifications.asodya.com",
+        "https://cortex.asodya.com",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?",
     allow_credentials=True,

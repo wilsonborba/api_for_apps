@@ -171,7 +171,8 @@ class Settings(BaseSettings):
     # public `/projects/*` prefix used for the project detail route.
     FORCE_AUTH_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
         "domain": {
-            "GET": ["/projects/*/files", "/projects/*/files/*"],
+            "GET": ["/projects/*/files", "/projects/*/files/*", "/legal/status"],
+            "POST": ["/legal/accept"],
         },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")

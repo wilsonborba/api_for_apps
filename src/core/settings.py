@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "domain", "asodya-domain")
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -115,7 +115,7 @@ class Settings(BaseSettings):
         # chosen to avoid colliding with the auth app's own :8100. In
         # production it is served from the apex asodya.com domain itself
         # (this ecosystem's root product), not a "domain." subdomain.
-        "domain": (
+        "asodya-domain": (
             "http://localhost:8106",
             "http://127.0.0.1:8106",
             "http://192.168.1.103:8106",

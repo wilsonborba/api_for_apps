@@ -177,6 +177,16 @@ class Settings(BaseSettings):
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
 
+    # Single source of truth for the current version of each legal document.
+    # Bumping a value here is how a content change forces re-acceptance:
+    # accept() always records this server-side version, never a
+    # client-supplied one, and status() only reports "accepted" when the
+    # stored version still matches the value configured here.
+    LEGAL_DOCUMENT_VERSIONS: Dict[str, str] = {
+        "terms_of_service": "2026-09-14",
+        "privacy_policy": "2026-09-14",
+    }
+
     # cortex_api proxy target.
     CORTEX_API_HOST: str = "localhost"
     CORTEX_API_PORT: int = 8003

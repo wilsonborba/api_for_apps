@@ -160,7 +160,7 @@ class Settings(BaseSettings):
         # domain_api's routes have no /v1 of their own (see domain_api
         # fix/strip-v1-prefix-gateway-routes), so neither do these patterns.
         "domain": {
-            "GET": ["/landing", "/projects", "/projects/*", "/search*"],
+            "GET": ["/landing", "/projects", "/projects/*", "/search*", "/system/health"],
         },
     }
 
@@ -189,7 +189,15 @@ class Settings(BaseSettings):
     # authenticated session. Checked before PUBLIC_PROXY_ROUTES.
     ADMIN_PROTECTED_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
         "domain": {
-            "POST": ["/projects", "/projects/*/files", "/projects/*/image", "/categories", "/flutter-icons"],
+            "POST": [
+                "/projects",
+                "/projects/*/files",
+                "/projects/*/image",
+                "/categories",
+                "/flutter-icons",
+                "/system/sync-stats",
+                "/system/sync-stats/*",
+            ],
             "PUT": ["/projects/*"],
             "PATCH": ["/projects/*"],
             "DELETE": ["/projects/*"],

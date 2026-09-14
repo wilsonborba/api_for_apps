@@ -49,6 +49,12 @@ def _is_allowed_telemetry_origin(request: Request) -> bool:
 
 
 @telemetry_router.post(
+    "/client-reports",
+    summary="Ingest frontend client error reports",
+    description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+@telemetry_router.post(
     "/client-error",
     summary="Ingest frontend client error reports",
     description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",

@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex")
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "domain")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -110,6 +110,20 @@ class Settings(BaseSettings):
             "http://100.93.16.79:8105",
             "http://172.17.0.1:8105",
             "https://cortex.asodya.com",
+        ),
+        # domain's web build always serves from a fixed LAN port (8106),
+        # chosen to avoid colliding with the auth app's own :8100. In
+        # production it is served from the apex asodya.com domain itself
+        # (this ecosystem's root product), not a "domain." subdomain.
+        "domain": (
+            "http://localhost:8106",
+            "http://127.0.0.1:8106",
+            "http://192.168.1.103:8106",
+            "http://172.20.10.4:8106",
+            "http://100.93.16.79:8106",
+            "http://172.17.0.1:8106",
+            "https://asodya.com",
+            "https://www.asodya.com",
         ),
     }
     # Optional override for custom Cortex Web App local dev origin.
@@ -141,6 +155,24 @@ class Settings(BaseSettings):
             "OPTIONS": ["/quiz/certifications/*"],
             "POST": ["/waitlist"],
         },
+        # NOTE: these patterns are matched (and forwarded upstream) against
+        # the path AFTER the gateway's own "/{app}/v1" anchor is stripped —
+        # domain_api's routes have no /v1 of their own (see domain_api
+        # fix/strip-v1-prefix-gateway-routes), so neither do these patterns.
+        "domain": {
+            "GET": ["/landing", "/projects", "/projects/*", "/search*"],
+        },
+    }
+
+    # Checked before PUBLIC_PROXY_ROUTES: a path matching here always
+    # requires a plain authenticated session (verify_auth), even if it
+    # would otherwise also match a public glob above. This is how
+    # `/projects/{slug}/files` stays protected despite living under the
+    # public `/projects/*` prefix used for the project detail route.
+    FORCE_AUTH_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
+        "domain": {
+            "GET": ["/projects/*/files"],
+        },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
@@ -148,6 +180,21 @@ class Settings(BaseSettings):
     # cortex_api proxy target.
     CORTEX_API_HOST: str = "localhost"
     CORTEX_API_PORT: int = 8003
+
+    # domain_api proxy target (issue #28).
+    DOMAIN_API_PORT: int = 8104
+
+    # Mutating routes (POST/PUT/PATCH/DELETE) that require an administrator
+    # (X-API-KEY or session access_level == 1) rather than just any
+    # authenticated session. Checked before PUBLIC_PROXY_ROUTES.
+    ADMIN_PROTECTED_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
+        "domain": {
+            "POST": ["/projects", "/projects/*/files", "/projects/*/image", "/categories", "/flutter-icons"],
+            "PUT": ["/projects/*"],
+            "PATCH": ["/projects/*"],
+            "DELETE": ["/projects/*"],
+        },
+    }
 
     @property
     def auth_app_callback_url(self) -> str:

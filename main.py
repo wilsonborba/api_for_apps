@@ -60,11 +60,17 @@ app.add_middleware(
         "http://127.0.0.1:8100",
         "http://localhost:8102",
         "http://127.0.0.1:8102",
+        "http://localhost:8106",
+        "http://127.0.0.1:8106",
 
         # Auth & Certifications domain
         "https://auth.asodya.com",
         "https://certifications.asodya.com",
         "https://cortex.asodya.com",
+        # domain (this ecosystem's root product) is served from the apex
+        # domain itself, not a "domain." subdomain.
+        "https://asodya.com",
+        "https://www.asodya.com",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?",
     allow_credentials=True,

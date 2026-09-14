@@ -54,13 +54,6 @@ def _is_allowed_telemetry_origin(request: Request) -> bool:
     description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",
     status_code=status.HTTP_202_ACCEPTED,
 )
-@telemetry_router.post(
-    "/client-errors",
-    summary="Ingest frontend client error reports (alias)",
-    description="Accepts client error telemetry, rate-limited per IP, stored in CouchDB.",
-    status_code=status.HTTP_202_ACCEPTED,
-    include_in_schema=False,
-)
 async def post_client_error(
     request: Request,
     payload: ClientErrorPayload,
@@ -117,13 +110,6 @@ async def post_client_error(
     summary="Query recent client errors (Admin only)",
     description="Lists recent client-side errors from CouchDB.",
     dependencies=[Depends(verify_admin_auth)],
-)
-@telemetry_router.get(
-    "/client-errors",
-    summary="Query recent client errors (Admin only alias)",
-    description="Lists recent client-side errors from CouchDB.",
-    dependencies=[Depends(verify_admin_auth)],
-    include_in_schema=False,
 )
 async def list_client_errors(
     limit: int = Query(default=50, ge=1, le=200),

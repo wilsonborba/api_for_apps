@@ -5,19 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-09-08
+## [unreleased]
 
 ### 🚀 Features
 
 - *(security)* Enforce admin authorization for diagnostic, metrics, and log streaming routes ([`0ed733d`](https://github.com/wilsonborba/api_for_apps/commit/0ed733d35e7753836134d4bde6ae6175c7fea264))
+- *(security)* Enforce server-only telemetry identity and browser origin validation ([`bd48f6b`](https://github.com/wilsonborba/api_for_apps/commit/bd48f6b96bbbc1c8ac5eda5fff2b6a78f7444fec))
+- *(settings)* Add cortex to available apps and register local exchange origins ([`6a30818`](https://github.com/wilsonborba/api_for_apps/commit/6a30818ffba6c17df4f1d0eb86719f4d056b8c09))
+- *(proxy)* Integrate domain_api backend and domain frontend into central gateway ([`835e693`](https://github.com/wilsonborba/api_for_apps/commit/835e69326a0d8e0c10b74f04614f90a91ec3c641))
+
+### 🐛 Bug Fixes
+
+- Per-request cookie domain, remove dead cortex anonymous-auth router ([`cc97afb`](https://github.com/wilsonborba/api_for_apps/commit/cc97afbe86ed2ed1a6aed328f7ced385101f6286))
+- Add cortex.asodya.com to the CORS allowlist ([`f04687e`](https://github.com/wilsonborba/api_for_apps/commit/f04687eb4f9510b50d0fbbc4d02959c4cfabade7))
 
 ### 💼 Other Changes
 
 - Feature/admin-logs-guard into feature/main ([`cd54fb9`](https://github.com/wilsonborba/api_for_apps/commit/cd54fb91ec8cb5abd08670488b39033ff2e3a690))
+- Feature/28-domain-gateway-integration into feature/main ([`ea37b1e`](https://github.com/wilsonborba/api_for_apps/commit/ea37b1e85b7c0653804f1032f934acc23d116c37))
+
+### 🚜 Refactor
+
+- *(security)* Restrict log protection rule strictly to /logs* paths ([`e1a43e5`](https://github.com/wilsonborba/api_for_apps/commit/e1a43e5ff502c791a7c8beed2f5b764986dbd82c))
+- *(telemetry)* Consolidate client-error route to /apps/api/v1/client-error and drop legacy db table ([`ecc2317`](https://github.com/wilsonborba/api_for_apps/commit/ecc2317ec21cea1610714b4ff7cc912dccc76e0b))
+- Standardize routes under /apps and remove legacy cortex/telemetry aliases ([`8185116`](https://github.com/wilsonborba/api_for_apps/commit/8185116792d4e15a3b6cea604a1c83fc22e1e78c))
+
+### 📚 Documentation
+
+- Exclude telemetry, waitlist, and support endpoints from OpenAPI documentation ([`b41a6fb`](https://github.com/wilsonborba/api_for_apps/commit/b41a6fb6549adcb7ac69ae6c8df3fe5f4e55c0b3))
 
 ### ⚙️ Miscellaneous Tasks
 
 - *(release)* Sync release/v1.0.0 back to feature/main ([`968f64c`](https://github.com/wilsonborba/api_for_apps/commit/968f64cce91bbbab0240629325550d5c7860304f))
+- *(release)* Prepare v1.1.0 release documentation and changelog ([`b48b373`](https://github.com/wilsonborba/api_for_apps/commit/b48b3731904f2107bf5804eb8feb96572b272f74))
+- *(release)* Sync release/v1.1.0 back to feature/main ([`ae9e454`](https://github.com/wilsonborba/api_for_apps/commit/ae9e4545d296f8eee8e7052f61251fb86901b18e))
 ## [1.0.0] - 2026-09-08
 
 ### 🚀 Features

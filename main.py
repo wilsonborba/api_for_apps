@@ -7,7 +7,6 @@ from src.presentation.schema.apps_schema import schemas_from_apps
 from src.presentation.schema.user_schema import schemas_from_user
 from src.presentation.routes.waitlist_route import waitlist_router
 from src.presentation.routes.support_route import support_v1
-from src.presentation.routes.cortex_route import cortex_proxy_v1
 from src.presentation.routes.telemetry_route import telemetry_router
 from src.core.settings import app_settings
 
@@ -61,10 +60,17 @@ app.add_middleware(
         "http://127.0.0.1:8100",
         "http://localhost:8102",
         "http://127.0.0.1:8102",
+        "http://localhost:8106",
+        "http://127.0.0.1:8106",
 
         # Auth & Certifications domain
         "https://auth.asodya.com",
         "https://certifications.asodya.com",
+        "https://cortex.asodya.com",
+        # domain (this ecosystem's root product) is served from the apex
+        # domain itself, not a "domain." subdomain.
+        "https://asodya.com",
+        "https://www.asodya.com",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?",
     allow_credentials=True,
@@ -107,26 +113,24 @@ app.include_router(
     telemetry_router,
     prefix=f"{schemas_from_apps.path_segment}{schemas_from_apps.available_apps.api}",
     tags=["telemetry"],
+    include_in_schema=False,
 )
 
 app.include_router(
     waitlist_router,
     tags=["waitlist"],
+    include_in_schema=False,
 )
 
 app.include_router(
     support_v1,
     prefix=f"{schemas_from_apps.path_segment}/support/v1",
     tags=["support"],
+    include_in_schema=False,
 )
 
 app.include_router(
     schemas_from_apps.routes.apps_proxy_v1,
     prefix=f"{schemas_from_apps.path_segment}",
     tags=[schemas_from_apps.tag]
-)
-
-app.include_router(
-    cortex_proxy_v1,
-    tags=["cortex"],
 )

@@ -55,22 +55,53 @@ async def proxy_preflight(app: str, path: str, request: Request):
 
     return resp
 
-def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
+def _matches_route_table(table: dict, app: str, path: str, method: str) -> bool:
     normalized_app = app.strip().lower().replace("/", "")
     normalized_path = f"/{path.lstrip('/')}"
-    method_patterns = settings.PUBLIC_PROXY_ROUTES.get(normalized_app, {})
+    method_patterns = table.get(normalized_app, {})
     allowlist = method_patterns.get(method.upper(), [])
     return any(fnmatchcase(normalized_path, pattern) for pattern in allowlist)
+
+
+def _is_public_proxy_request(app: str, path: str, method: str) -> bool:
+    return _matches_route_table(settings.PUBLIC_PROXY_ROUTES, app, path, method)
+
+
+def _is_admin_protected_request(app: str, path: str, method: str) -> bool:
+    return _matches_route_table(settings.ADMIN_PROTECTED_PROXY_ROUTES, app, path, method)
+
+
+def _is_force_auth_request(app: str, path: str, method: str) -> bool:
+    """Overrides a public-route match: forces a plain authenticated session
+    even for a path that also satisfies a broader public glob (e.g. a
+    protected sub-resource nested under an otherwise-public prefix)."""
+    return _matches_route_table(settings.FORCE_AUTH_PROXY_ROUTES, app, path, method)
 
 
 @apps_proxy_v1.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"])
 async def proxy_endpoint(app: str, path: str, request: Request, response: Response):
     try:
         internal_headers = None
+        # verify_admin_auth/verify_auth default their api_key_secret param
+        # to an unresolved `Security(...)` marker: FastAPI only fills it in
+        # when the function is itself wired as a route Depends(). Called
+        # directly here (proxy_endpoint decides which check applies per
+        # request, so it can't be a static Depends()), that default is
+        # never a real header value — so the X-API-KEY admin path silently
+        # never matched. Read it explicitly and pass it through instead.
+        api_key_secret = request.headers.get(settings.API_ADMIN_KEY_NAME)
         if _is_log_route(path):
-            await verify_admin_auth(request=request, response=response)
-        elif not _is_public_proxy_request(app, path, request.method):
-            await verify_auth(request=request, response=response)
+            await verify_admin_auth(request=request, response=response, api_key_secret=api_key_secret)
+        elif _is_admin_protected_request(app, path, request.method):
+            await verify_admin_auth(request=request, response=response, api_key_secret=api_key_secret)
+            user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
+            if user_session_id:
+                adapter = get_redis_adapter(request)
+                user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=user_session_id)
+                if user_info and user_info.get("user_uuid_id"):
+                    internal_headers = {"x-uuid": user_info["user_uuid_id"]}
+        elif _is_force_auth_request(app, path, request.method) or not _is_public_proxy_request(app, path, request.method):
+            await verify_auth(request=request, response=response, api_key_secret=api_key_secret)
             user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
 
             adapter = get_redis_adapter(request)

@@ -10,6 +10,7 @@ from src.presentation.routes import apps_route
 class _Request:
     method = "GET"
     cookies = {"sid": "session-id"}
+    headers = {}
 
 
 class AppsProxySessionLookupTests(unittest.TestCase):

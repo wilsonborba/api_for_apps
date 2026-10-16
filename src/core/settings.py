@@ -162,6 +162,32 @@ class Settings(BaseSettings):
         "domain": {
             "GET": ["/landing", "/projects", "/projects/*", "/search*", "/system/health"],
         },
+        "wilson_borba": {
+            "GET": [
+                "/content",
+                "/content*",
+                "/profile",
+                "/profile*",
+                "/experiences",
+                "/experiences/*",
+                "/educations",
+                "/educations/*",
+                "/skills",
+                "/skills/*",
+                "/projects",
+                "/projects/*",
+                "/certifications",
+                "/certifications/*",
+                "/documents",
+                "/documents/*",
+                "/media/*",
+                "/contact",
+                "/contact*",
+                "/system/health",
+            ],
+            "HEAD": ["/*"],
+            "OPTIONS": ["/*"],
+        },
     }
 
     # Checked before PUBLIC_PROXY_ROUTES: a path matching here always
@@ -185,6 +211,9 @@ class Settings(BaseSettings):
     # domain_api proxy target (issue #28).
     DOMAIN_API_PORT: int = 8104
 
+    # wilson_borba_api proxy target.
+    WILSON_BORBA_API_PORT: int = 8107
+
     # Mutating routes (POST/PUT/PATCH/DELETE) that require an administrator
     # (X-API-KEY or session access_level == 1) rather than just any
     # authenticated session. Checked before PUBLIC_PROXY_ROUTES.
@@ -202,6 +231,12 @@ class Settings(BaseSettings):
             "PUT": ["/projects/*"],
             "PATCH": ["/projects/*"],
             "DELETE": ["/projects/*"],
+        },
+        "wilson_borba": {
+            "POST": ["/*"],
+            "PUT": ["/*"],
+            "PATCH": ["/*"],
+            "DELETE": ["/*"],
         },
     }
 

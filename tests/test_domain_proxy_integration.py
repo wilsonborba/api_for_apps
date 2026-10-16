@@ -77,3 +77,22 @@ class ProxyEndpointApiKeyTests(unittest.TestCase):
         with patch("src.presentation.handler.auth.get_redis_adapter", return_value=object()):
             result = asyncio.run(apps_route.proxy_endpoint("domain", "projects", request, Response()))
         self.assertEqual(result.status_code, 403)
+
+
+class WilsonBorbaRouteMatchingTests(unittest.TestCase):
+    def test_get_routes_are_public(self):
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "content", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "profile", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "experiences", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "projects", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "certifications", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "documents/resume-en/download", "GET"))
+        self.assertTrue(apps_route._is_public_proxy_request("wilson_borba", "media/abc123", "GET"))
+
+    def test_all_mutating_routes_are_admin_protected(self):
+        self.assertTrue(apps_route._is_admin_protected_request("wilson_borba", "profile", "PUT"))
+        self.assertTrue(apps_route._is_admin_protected_request("wilson_borba", "experiences", "POST"))
+        self.assertTrue(apps_route._is_admin_protected_request("wilson_borba", "experiences/123", "PATCH"))
+        self.assertTrue(apps_route._is_admin_protected_request("wilson_borba", "experiences/123", "DELETE"))
+        self.assertTrue(apps_route._is_admin_protected_request("wilson_borba", "documents/upload", "POST"))
+

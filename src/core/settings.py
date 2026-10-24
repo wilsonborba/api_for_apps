@@ -189,8 +189,35 @@ class Settings(BaseSettings):
             "OPTIONS": ["/*"],
         },
         "reports": {
-            "GET": ["/health", "/ready", "/catalog", "/projects/*/theme", "/docs", "/openapi.json", "/scalar"],
-            "HEAD": ["/health", "/ready", "/catalog", "/projects/*/theme", "/docs", "/openapi.json", "/scalar"],
+            # Public landing/catalog reads. Report data, datasets, and admin
+            # routes remain protected by FORCE_AUTH_PROXY_ROUTES and
+            # ADMIN_PROTECTED_PROXY_ROUTES below.
+            "GET": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
+            "HEAD": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
             "OPTIONS": ["/*"],
         },
     }

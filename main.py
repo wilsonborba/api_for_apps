@@ -69,6 +69,7 @@ app.add_middleware(
         "https://auth.asodya.com",
         "https://certifications.asodya.com",
         "https://cortex.asodya.com",
+        "https://reports.asodya.com",
         "https://wilson.asodya.com",
         "https://wilsonborba.asodya.com",
         # domain (this ecosystem's root product) is served from the apex

@@ -100,6 +100,10 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
                 user_info = await get_user_info_from_redis_sync(adapter=adapter, session_id=user_session_id)
                 if user_info and user_info.get("user_uuid_id"):
                     internal_headers = {"x-uuid": user_info["user_uuid_id"]}
+                if user_info.get("access_level") is not None:
+                    internal_headers["x-access-level"] = str(user_info["access_level"])
+                if user_info.get("is_project_admin") is not None:
+                    internal_headers["x-project-admin"] = str(bool(user_info["is_project_admin"])).lower()
         elif _is_force_auth_request(app, path, request.method) or not _is_public_proxy_request(app, path, request.method):
             await verify_auth(request=request, response=response, api_key_secret=api_key_secret)
             user_session_id = request.cookies.get(settings.HTTP_ONLY_COOKIE_KEY_NAME)
@@ -110,6 +114,10 @@ async def proxy_endpoint(app: str, path: str, request: Request, response: Respon
             if not user_info or not user_info.get("user_uuid_id"):
                 raise ValueError("Authenticated session is missing identity")
             internal_headers = {"x-uuid": user_info["user_uuid_id"]}
+            if user_info.get("access_level") is not None:
+                internal_headers["x-access-level"] = str(user_info["access_level"])
+            if user_info.get("is_project_admin") is not None:
+                internal_headers["x-project-admin"] = str(bool(user_info["is_project_admin"])).lower()
 
         proxied = await proxy_service.forward_request(
             app, f"/{path}", request, response, internal_headers=internal_headers

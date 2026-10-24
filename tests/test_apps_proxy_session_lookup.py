@@ -14,6 +14,9 @@ class _Request:
 
 
 class AppsProxySessionLookupTests(unittest.TestCase):
+    def test_reports_routes_to_headless_engine(self):
+        self.assertEqual(apps_route.proxy_service.get_port("reports"), 8109)
+
     def test_protected_proxy_uses_redis_session_identity(self):
         proxied_response = Response(status_code=200)
         with (

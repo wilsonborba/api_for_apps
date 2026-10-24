@@ -188,6 +188,11 @@ class Settings(BaseSettings):
             "HEAD": ["/*"],
             "OPTIONS": ["/*"],
         },
+        "reports": {
+            "GET": ["/health", "/ready", "/catalog", "/projects/*/theme", "/docs", "/openapi.json", "/scalar"],
+            "HEAD": ["/health", "/ready", "/catalog", "/projects/*/theme", "/docs", "/openapi.json", "/scalar"],
+            "OPTIONS": ["/*"],
+        },
     }
 
     # Checked before PUBLIC_PROXY_ROUTES: a path matching here always
@@ -199,6 +204,9 @@ class Settings(BaseSettings):
         "domain": {
             "GET": ["/projects/*/files", "/projects/*/files/*", "/legal/status"],
             "POST": ["/legal/accept"],
+        },
+        "reports": {
+            "GET": ["/projects/*/reports/*", "/projects/*/datasets/*"],
         },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
@@ -213,6 +221,7 @@ class Settings(BaseSettings):
 
     # wilson_borba_api proxy target.
     WILSON_BORBA_API_PORT: int = 8107
+    REPORTS_API_PORT: int = 8109
 
     # Mutating routes (POST/PUT/PATCH/DELETE) that require an administrator
     # (X-API-KEY or session access_level == 1) rather than just any
@@ -237,6 +246,12 @@ class Settings(BaseSettings):
             "PUT": ["/*"],
             "PATCH": ["/*"],
             "DELETE": ["/*"],
+        },
+        "reports": {
+            "POST": ["/projects/*/admin/*"],
+            "PUT": ["/projects/*/admin/*"],
+            "PATCH": ["/projects/*/admin/*"],
+            "DELETE": ["/projects/*/admin/*"],
         },
     }
 
@@ -272,6 +287,7 @@ class Settings(BaseSettings):
         api = "/api"
         certifications = "/certifications"
         cortex = "/cortex"
+        reports = "/reports"
 
     @property
     def available_apps(self) -> AvailableApps:

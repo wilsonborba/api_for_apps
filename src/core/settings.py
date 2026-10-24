@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain")
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain", "reports")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -110,6 +110,17 @@ class Settings(BaseSettings):
             "http://100.93.16.79:8105",
             "http://172.17.0.1:8105",
             "https://cortex.asodya.com",
+        ),
+        # Reports' web build serves from a fixed LAN port (8110) in development;
+        # production is reports.asodya.com on Cloudflare Pages.
+        "reports": (
+            "http://localhost:8110",
+            "http://127.0.0.1:8110",
+            "http://192.168.1.103:8110",
+            "http://172.20.10.4:8110",
+            "http://100.93.16.79:8110",
+            "http://172.17.0.1:8110",
+            "https://reports.asodya.com",
         ),
         # asodya-domain's web build always serves from a fixed LAN port (8106),
         # chosen to avoid colliding with the auth app's own :8100. In

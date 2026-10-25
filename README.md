@@ -52,7 +52,7 @@ All gateway and downstream documentation content belongs to this repository. No 
 
 `tools/generate_docs.py` reads configured sibling service sources without importing or starting them. It builds detailed central contracts. English descriptions and reviewed exceptions live in `src/presentation/assets/`. Use `--check` to detect an outdated generated inventory.
 
-The running Rust API also checks available source registrations when `/openapi.json` is requested. It caches the result for ten seconds. New routes appear with explicit contract gaps until typed build-time inference or a central override supplies their details. Missing source repositories retain their last verified contracts and report their status. Source scanning never changes service code.
+The running Rust API also checks available source registrations when `/openapi.json` is requested. It caches the result for ten seconds. Source checksums flag changes to routes or imported models. New routes appear with explicit contract gaps until central generation or a reviewed override supplies their details. The running API reloads centrally generated contracts without a restart. Missing source repositories retain their last verified contracts and report their status. Source scanning never changes service code.
 
 Only `/docs` serves the gateway documentation UI. `/scalar` is not a gateway documentation page.
 

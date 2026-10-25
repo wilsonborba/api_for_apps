@@ -284,3 +284,18 @@ async fn support_auth_precedes_body_validation() {
     assert_eq!(status, 422);
     assert!(v["detail"].is_array());
 }
+
+#[test]
+fn runtime_settings_reject_missing_credentials() {
+    let settings = core::settings::Settings {
+        values: Arc::new(HashMap::new()),
+        defaults: Arc::new(serde_json::from_str(include_str!("core/defaults.json")).unwrap()),
+    };
+    assert!(
+        settings
+            .validate_runtime()
+            .unwrap_err()
+            .to_string()
+            .contains("API_KEY_SECRET")
+    );
+}

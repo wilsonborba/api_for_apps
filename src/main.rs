@@ -9,7 +9,13 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_ansi(false)
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                if settings.production() {
+                    "info".into()
+                } else {
+                    "debug".into()
+                }
+            }),
         )
         .with_writer(core::logs::LogWriter(logs.clone()))
         .init();

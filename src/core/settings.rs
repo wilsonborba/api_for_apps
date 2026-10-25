@@ -18,6 +18,41 @@ impl Settings {
             defaults: Arc::new(serde_json::from_str(include_str!("defaults.json")).unwrap()),
         }
     }
+    pub fn validate_runtime(&self) -> anyhow::Result<()> {
+        for key in [
+            "API_KEY_SECRET",
+            "SUPABASE_SECRET_KEY",
+            "CERTIFICATIONS_SERVICE_KEY",
+            "FERNET_KEY_SECRET",
+            "SERVER_FERNET_KEY_SECRET",
+        ] {
+            anyhow::ensure!(
+                self.values.contains_key(key),
+                "Missing required setting: {key}"
+            );
+        }
+        for key in ["FERNET_KEY_SECRET", "SERVER_FERNET_KEY_SECRET"] {
+            anyhow::ensure!(
+                fernet::Fernet::new(&self.get(key)).is_some(),
+                "Invalid Fernet configuration: {key}"
+            );
+        }
+        if self.get("TEST_SQLITE_PATH").is_empty() {
+            for key in [
+                "DEFAULT_DB_HOST",
+                "DEFAULT_DB_PORT",
+                "DEFAULT_DB_USER",
+                "DEFAULT_DB_PASSWORD",
+                "DEFAULT_DB_NAME",
+            ] {
+                anyhow::ensure!(
+                    self.values.contains_key(key),
+                    "Missing required setting: {key}"
+                );
+            }
+        }
+        Ok(())
+    }
     pub fn get(&self, k: &str) -> String {
         self.values
             .get(k)

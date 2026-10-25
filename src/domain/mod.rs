@@ -20,6 +20,7 @@ impl State {
         settings: Settings,
         logs: tokio::sync::broadcast::Sender<String>,
     ) -> anyhow::Result<Self> {
+        settings.validate_runtime()?;
         if !settings.get("TEST_SQLITE_PATH").is_empty() {
             for key in [
                 "SUPABASE_URL",

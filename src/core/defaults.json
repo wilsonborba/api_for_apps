@@ -1,0 +1,248 @@
+{
+  "API_ADMIN_KEY_NAME": "Authorization",
+  "DEFAULT_DB_SSLMODE": "require",
+  "AUTH_PROVIDER": "supabase",
+  "SUPABASE_URL": "",
+  "SUPABASE_PROJECT_REF": "",
+  "HTTP_ONLY_COOKIE_KEY_NAME": "sid",
+  "CSRF_COOKIE_KEY_NAME": "csrf",
+  "REDIS_URL": "redis://127.0.0.1:6379/0",
+  "REDIS_NAMESPACE": "api_for_apps:",
+  "SUPPORT_COUCHDB_URL": "",
+  "SUPPORT_COUCHDB_USERNAME": "",
+  "SUPPORT_COUCHDB_PASSWORD": "",
+  "SUPPORT_COUCHDB_DATABASE": "support_tickets",
+  "TELEMETRY_COUCHDB_URL": "",
+  "TELEMETRY_COUCHDB_USERNAME": "",
+  "TELEMETRY_COUCHDB_PASSWORD": "",
+  "TELEMETRY_COUCHDB_DATABASE": "client_errors",
+  "FSM_MEDIA_ENDPOINT": "http://192.168.1.106:8484",
+  "FSM_APP_NAME": "api_for_apps",
+  "FSM_APP_KEY": null,
+  "CACHE_AUTH_PREFIX": "exchange_auth_app",
+  "EXCHANGE_ARTIFACT_PREFIX": "exchange_artifact",
+  "OAUTH_STATE_PREFIX": "oauth_state",
+  "EXCHANGE_ARTIFACT_TTL_SECONDS": 60,
+  "DEFAULT_EXCHANGE_APP": "certifications",
+  "EXCHANGE_ALLOWED_APPS": [
+    "certifications",
+    "cortex",
+    "asodya-domain",
+    "reports"
+  ],
+  "APP_EXCHANGE_ORIGINS": {
+    "certifications": [
+      "http://localhost:8102",
+      "http://127.0.0.1:8102",
+      "http://192.168.1.103:8102",
+      "http://172.20.10.4:8102",
+      "http://100.93.16.79:8102",
+      "http://172.17.0.1:8102",
+      "https://certifications.asodya.com"
+    ],
+    "cortex": [
+      "http://localhost:8105",
+      "http://127.0.0.1:8105",
+      "http://192.168.1.103:8105",
+      "http://172.20.10.4:8105",
+      "http://100.93.16.79:8105",
+      "http://172.17.0.1:8105",
+      "https://cortex.asodya.com"
+    ],
+    "reports": [
+      "http://localhost:8110",
+      "http://127.0.0.1:8110",
+      "http://192.168.1.103:8110",
+      "http://172.20.10.4:8110",
+      "http://100.93.16.79:8110",
+      "http://172.17.0.1:8110",
+      "https://reports.asodya.com"
+    ],
+    "asodya-domain": [
+      "http://localhost:8106",
+      "http://127.0.0.1:8106",
+      "http://192.168.1.103:8106",
+      "http://172.20.10.4:8106",
+      "http://100.93.16.79:8106",
+      "http://172.17.0.1:8106",
+      "https://asodya.com",
+      "https://www.asodya.com"
+    ]
+  },
+  "CORTEX_WEB_LOCAL_ORIGIN": "",
+  "environment": "development",
+  "ASODYA_MAIN_DOMAIN": "asodya.com",
+  "AUTH_APP_LOCAL_URL": "http://192.168.1.103:8100",
+  "AUTH_APP_PROD_URL": "https://auth.asodya.com",
+  "COOKIE_DOMAIN_PROD": ".asodya.com",
+  "PUBLIC_PROXY_ROUTES": {
+    "certifications": {
+      "GET": [
+        "/quiz/certifications/*"
+      ],
+      "HEAD": [
+        "/quiz/certifications/*"
+      ],
+      "OPTIONS": [
+        "/quiz/certifications/*"
+      ],
+      "POST": [
+        "/waitlist"
+      ]
+    },
+    "domain": {
+      "GET": [
+        "/landing",
+        "/projects",
+        "/projects/*",
+        "/search*",
+        "/system/health"
+      ]
+    },
+    "wilson_borba": {
+      "GET": [
+        "/content",
+        "/content*",
+        "/profile",
+        "/profile*",
+        "/experiences",
+        "/experiences/*",
+        "/educations",
+        "/educations/*",
+        "/skills",
+        "/skills/*",
+        "/projects",
+        "/projects/*",
+        "/certifications",
+        "/certifications/*",
+        "/documents",
+        "/documents/*",
+        "/media/*",
+        "/contact",
+        "/contact*",
+        "/system/health"
+      ],
+      "HEAD": [
+        "/*"
+      ],
+      "OPTIONS": [
+        "/*"
+      ]
+    },
+    "reports": {
+      "GET": [
+        "/health",
+        "/ready",
+        "/catalog",
+        "/projects",
+        "/projects/*",
+        "/projects/*/theme",
+        "/site",
+        "/stats",
+        "/docs",
+        "/openapi.json",
+        "/scalar"
+      ],
+      "HEAD": [
+        "/health",
+        "/ready",
+        "/catalog",
+        "/projects",
+        "/projects/*",
+        "/projects/*/theme",
+        "/site",
+        "/stats",
+        "/docs",
+        "/openapi.json",
+        "/scalar"
+      ],
+      "OPTIONS": [
+        "/*"
+      ]
+    }
+  },
+  "FORCE_AUTH_PROXY_ROUTES": {
+    "domain": {
+      "GET": [
+        "/projects/*/files",
+        "/projects/*/files/*",
+        "/legal/status"
+      ],
+      "POST": [
+        "/legal/accept"
+      ]
+    },
+    "reports": {
+      "GET": [
+        "/projects/*/reports/*",
+        "/projects/*/datasets/*"
+      ]
+    }
+  },
+  "PUBLIC_PROXY_ALLOWED_METHODS": [
+    "GET",
+    "HEAD",
+    "OPTIONS"
+  ],
+  "OAUTH_PROVIDERS": [
+    "google",
+    "github",
+    "microsoft",
+    "azure"
+  ],
+  "CORTEX_API_HOST": "localhost",
+  "CORTEX_API_PORT": 8003,
+  "DOMAIN_API_PORT": 8104,
+  "WILSON_BORBA_API_PORT": 8107,
+  "REPORTS_API_PORT": 8109,
+  "ADMIN_PROTECTED_PROXY_ROUTES": {
+    "domain": {
+      "POST": [
+        "/projects",
+        "/projects/*/files",
+        "/projects/*/image",
+        "/categories",
+        "/flutter-icons",
+        "/system/sync-stats",
+        "/system/sync-stats/*"
+      ],
+      "PUT": [
+        "/projects/*"
+      ],
+      "PATCH": [
+        "/projects/*"
+      ],
+      "DELETE": [
+        "/projects/*"
+      ]
+    },
+    "wilson_borba": {
+      "POST": [
+        "/*"
+      ],
+      "PUT": [
+        "/*"
+      ],
+      "PATCH": [
+        "/*"
+      ],
+      "DELETE": [
+        "/*"
+      ]
+    },
+    "reports": {
+      "POST": [
+        "/projects/*/admin/*"
+      ],
+      "PUT": [
+        "/projects/*/admin/*"
+      ],
+      "PATCH": [
+        "/projects/*/admin/*"
+      ],
+      "DELETE": [
+        "/projects/*/admin/*"
+      ]
+    }
+  }
+}

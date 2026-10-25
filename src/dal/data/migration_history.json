@@ -1,0 +1,26 @@
+[
+  {
+    "revision": "20260824_01",
+    "down_revision": null,
+    "python_tag": "v1.1.0",
+    "original_path": "src/dal/migrations/versions/20260824_01_initial_asodya_schema.py",
+    "sha256": "38eb5fd18a291018cfa4670f15b423bccb15ac77d1521eb83e3413ab2a58b741",
+    "description": "Create the initial api_for_apps schema.\n\nRevision ID: 20260824_01\nRevises: None"
+  },
+  {
+    "revision": "20260830_01",
+    "down_revision": "20260824_01",
+    "python_tag": "v1.1.0",
+    "original_path": "src/dal/migrations/versions/20260830_01_support_tickets.py",
+    "sha256": "170caff6d3a8c10f65292131c1335fd469394c23cb17e97ddf7e3fcf22045c4c",
+    "description": "Create the support_tickets index table (issue #17).\n\nPostgres holds only the authoritative index (existence, ownership,\nsource_app, status). The full message thread lives in CouchDB, keyed by\nthis table's id, per the polyglot storage design agreed in issue #17.\n\nRevision ID: 20260830_01\nRevises: 20260824_01"
+  },
+  {
+    "revision": "20260909_01",
+    "down_revision": "20260830_01",
+    "python_tag": "v1.1.0",
+    "original_path": "src/dal/migrations/versions/20260909_01_drop_legacy_client_error_report.py",
+    "sha256": "132bf91cee8559ccdb4f1d80c3ca4869e03b545f4b79021f1b8e95a9a9598d0b",
+    "description": "Drop legacy defaultdb_client_error_report table.\n\nClient errors are now exclusively ingested into CouchDB via the\n/apps/api/v1/client-errors telemetry pipeline.\n\nRevision ID: 20260909_01\nRevises: 20260830_01"
+  }
+]

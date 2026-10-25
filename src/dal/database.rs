@@ -82,6 +82,28 @@ impl Database {
         }
     }
     pub async fn find(&self, table: &str, key: &str, v: &Value) -> Result<Option<Value>> {
+        if !matches!(table, "defaultdb_user" | "defaultdb_support_ticket")
+            || !matches!(key, "id" | "email")
+        {
+            bail!("Unsupported lookup")
+        }
+        if let Self::Pg(p) = self {
+            let typ = if table == "defaultdb_user" && key == "id" {
+                "integer"
+            } else {
+                "text"
+            };
+            let value = v
+                .as_str()
+                .map(str::to_owned)
+                .unwrap_or_else(|| v.to_string());
+            return Ok(sqlx::query_scalar::<_, Value>(&format!(
+                "SELECT to_jsonb(t) FROM {table} t WHERE \"{key}\"=CAST($1 AS {typ})"
+            ))
+            .bind(value)
+            .fetch_optional(p)
+            .await?);
+        }
         Ok(self.all(table).await?.into_iter().find(|r| &r[key] == v))
     }
     pub async fn fields(&self) -> Result<Value> {

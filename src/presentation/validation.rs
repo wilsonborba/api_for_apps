@@ -3,6 +3,12 @@ use super::*;
 static CONTRACT: std::sync::LazyLock<Value> = std::sync::LazyLock::new(|| {
     serde_json::from_str(include_str!("assets/gateway_contracts.json")).unwrap()
 });
+pub fn method_allowed(method: &str, path: &str) -> Option<bool> {
+    CONTRACT["paths"]
+        .get(path)
+        .and_then(Value::as_object)
+        .map(|m| m.contains_key(&method.to_lowercase()))
+}
 pub fn request(method: &str, path: &str, body: &Bytes) -> Option<Response> {
     let op = &CONTRACT["paths"][path][method.to_lowercase()];
     let sc = op.pointer("/requestBody/content/application~1json/schema")?;

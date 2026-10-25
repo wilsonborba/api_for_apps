@@ -28,6 +28,13 @@ pub async fn handle(
             url::form_urlencoded::parse(q.unwrap_or("").as_bytes())
                 .into_owned()
                 .collect();
+        if params
+            .get("source_app")
+            .is_some_and(|v| v.chars().count() > 64)
+            || params.get("status").is_some_and(|v| v.chars().count() > 32)
+        {
+            return detail(422, "Support filter exceeds maximum length");
+        }
         if let Some(status) = params.get("status")
             && !["open", "pending", "resolved", "closed"].contains(&status.as_str())
         {

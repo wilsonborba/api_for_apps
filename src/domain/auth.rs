@@ -125,10 +125,14 @@ pub async fn issue(s: &State, access: &str, app: &str) -> Result<String> {
         use argon2::{Argon2, PasswordHasher, password_hash::SaltString};
         let salt =
             SaltString::encode_b64(&rand::random::<[u8; 16]>()).map_err(|e| anyhow!("{e}"))?;
-        let hash = Argon2::default()
-            .hash_password(token(32).as_bytes(), &salt)
-            .map_err(|e| anyhow!("{e}"))?
-            .to_string();
+        let hash = Argon2::new(
+            argon2::Algorithm::Argon2id,
+            argon2::Version::V0x13,
+            argon2::Params::new(65536, 3, 4, None).expect("Argon2 parameters"),
+        )
+        .hash_password(token(32).as_bytes(), &salt)
+        .map_err(|e| anyhow!("{e}"))?
+        .to_string();
         s.db.insert("defaultdb_user",&json!({"uuid_id":uuid::Uuid::new_v4().simple().to_string(),"username":email.split('@').next(),"first_name":first,"last_name":last,"email":email,"password":hash,"access_level":3,"is_active":true,"last_login":ts,"date_joined":ts,"phone_number":null,"supabase_user_id":sub})).await?
     };
     if u["is_active"] != true {
@@ -211,7 +215,7 @@ pub async fn redeem(s: &State, t: &str, expected: &str) -> Result<Value> {
         bail!("Exchange artifact is invalid, expired, or already used")
     }
     let sid = token(32);
-    let u = json!({"session_id":sid,"provider_user_id":p["provider_user_id"],"access_level":p["access_level"],"user_id":p["id"],"user_uuid_id":p["uuid_id"],"email":p["email"],"csrf_token":token(32)});
+    let u = json!({"session_id":sid,"provider_user_id":p["provider_user_id"],"access_level":p["access_level"],"user_id":p["id"],"user_uuid_id":p["uuid_id"],"email":p["email"],"csrf_token":token(24)});
     s.cache
         .set(
             &format!("{}:{sid}", s.settings.get("CACHE_AUTH_PREFIX")),

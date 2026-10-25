@@ -128,9 +128,10 @@ pub async fn handle(
                 &e.to_string(),
             );
         }
+        let default_app = s.settings.get("DEFAULT_EXCHANGE_APP");
         let app = v["app"]
             .as_str()
-            .unwrap_or("certifications")
+            .unwrap_or(&default_app)
             .trim()
             .to_lowercase();
         let res: anyhow::Result<Option<String>> = async {
@@ -319,7 +320,12 @@ async fn oauth_start(s: &State, v: &Value) -> Response {
     }
     let p = text(v, "provider").trim().to_lowercase();
     let p = if p == "microsoft" { "azure" } else { &p };
-    if !["google", "github", "azure"].contains(&p) {
+    if !s
+        .settings
+        .value("OAUTH_PROVIDERS")
+        .as_array()
+        .is_some_and(|ps| ps.iter().any(|v| v == p))
+    {
         return response(400, "Unsupported OAuth provider", Value::Null);
     }
     let app = text(v, "app").trim().to_lowercase();

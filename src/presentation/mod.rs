@@ -163,6 +163,9 @@ async fn handle(
         };
         return (StatusCode::TEMPORARY_REDIRECT, [("location", target)]).into_response();
     }
+    if validation::method_allowed(m.as_str(), path) == Some(false) {
+        return detail(405, "Method Not Allowed");
+    }
     if let Some(r) = validation::request(m.as_str(), path, &b) {
         return r;
     }
@@ -187,6 +190,8 @@ async fn handle(
     if let Some(p) = path.strip_prefix("/apps/")
         && let Some((app, rest)) = p.split_once("/v1/")
     {
+        let normalized_app = app.trim().to_lowercase();
+        let app = normalized_app.as_str();
         if m == Method::OPTIONS {
             return StatusCode::NO_CONTENT.into_response();
         }
@@ -218,10 +223,14 @@ async fn handle(
             match auth::verify(s, h, m.as_str(), admin).await {
                 Ok(u) => {
                     if !admin {
+                        let u = match u {
+                            Some(u) => Some(u),
+                            None => auth::session(s, h).await.ok().flatten(),
+                        };
                         if let Some(u) = u {
                             identity(&mut extra, &u)
                         } else {
-                            return response(500, "Internal Server Error", Value::Null);
+                            return response(400, "Bad request", Value::Null);
                         }
                     } else if let Ok(Some(u)) = auth::session(s, h).await {
                         identity(&mut extra, &u)
@@ -283,6 +292,13 @@ async fn telemetry(
             url::form_urlencoded::parse(q.unwrap_or("").as_bytes())
                 .into_owned()
                 .collect();
+        for key in ["limit", "skip"] {
+            if let Some(value) = query.get(key)
+                && value.parse::<usize>().is_err()
+            {
+                return detail(422, "Invalid pagination parameter");
+            }
+        }
         let limit = query
             .get("limit")
             .and_then(|v| v.parse::<usize>().ok())
@@ -335,6 +351,30 @@ async fn telemetry(
         } else if !v[k].is_object() {
             return detail(422, "Invalid telemetry details");
         }
+    }
+    if let Some(obj) = v.as_object_mut() {
+        obj.retain(|k, _| {
+            [
+                "app_name",
+                "app_version",
+                "environment",
+                "route",
+                "error_title",
+                "error_message",
+                "error_code",
+                "stack_trace",
+                "request_id",
+                "user_id",
+                "session_id",
+                "ip_address",
+                "user_agent",
+                "client_timestamp",
+                "server_timestamp",
+                "details",
+                "extra",
+            ]
+            .contains(&k.as_str())
+        });
     }
     let origin = if h.contains_key("origin") {
         auth::header(h, "origin")

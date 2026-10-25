@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Matched local-only workloads. Individual requests and /proc resource samples in CSV."""
 import argparse,asyncio,csv,json,pathlib,time,statistics,random,os,platform,subprocess
-import httpx
+import httpx,hashlib
 p=argparse.ArgumentParser();p.add_argument('--url',required=True);p.add_argument('--implementation',required=True);p.add_argument('--pid',type=int,required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--requests',type=int,default=120);p.add_argument('--runs',type=int,default=3);p.add_argument('--extended',action='store_true');a=p.parse_args()
 if not a.url.startswith(('http://127.0.0.1:18','http://localhost:18')):raise SystemExit('Only isolated local 18xxx targets allowed')
 a.output.mkdir(parents=True,exist_ok=True)
@@ -28,7 +28,8 @@ async def main():
    for run in range(a.runs):
     for concurrency in [1,8,32]:
      for name,path in scenarios:
-      await client.get(path,headers={'Authorization':'fixture-admin'})
+      scenario_headers={'Authorization':'fixture-admin'} if name=='admin_proxy' else {'Cookie':'sid=fixture-admin-session'} if name=='admin_support_list' else {'Cookie':'sid=fixture-viewer-session'} if name in ('session_proxy','user_info','user_fields','support_list') else {}
+      await client.request('HEAD' if name=='head_transfer' else 'GET',path,headers=scenario_headers)
       sem=asyncio.Semaphore(concurrency)
       async def one(i):
        async with sem:
@@ -43,5 +44,5 @@ asyncio.run(main())
 for name,data in [('requests',rows),('resources',samples)]:
  with (a.output/(name+'.csv')).open('w') as f:
   w=csv.DictWriter(f,fieldnames=list(data[0]) if data else []);w.writeheader();w.writerows(data)
-meta={'implementation':a.implementation,'git_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'platform':platform.platform(),'cpus':os.cpu_count(),'url':a.url,'requests_per_scenario':a.requests,'runs':a.runs,'dependency':'local deterministic double','database':'SQLite fixture','cache':'loopback RESP2 test double' if a.extended else 'process-local memory fixture','clock':'perf_counter_ns','resource_sample_seconds':.1,'limitations':['Closed-loop clients; offered rate follows completion','No production PostgreSQL locking or driver write verification','Provider operations use doubles','CPU shared with host services; repeat matched trials','Protected-denied scenarios measure access rejection']}
+meta={'implementation':a.implementation,'harness_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'application_commit':subprocess.check_output(['git','-C',str(pathlib.Path('../api_for_apps-python-baseline') if a.implementation.startswith('python') else pathlib.Path('.')),'rev-parse','HEAD'],text=True).strip(),'binary_sha256':hashlib.sha256(pathlib.Path('target/release/api-for-apps').read_bytes()).hexdigest() if a.implementation.startswith('rust') else None,'workers':4,'worker_model':'4 Gunicorn UvicornWorker processes' if a.implementation.startswith('python') else '4 Tokio workers','platform':platform.platform(),'cpus':os.cpu_count(),'url':a.url,'requests_per_scenario':a.requests,'runs':a.runs,'dependency':'local deterministic double','database':'SQLite fixture','cache':'loopback Redis RESP2/RESP3 test double' if a.extended else 'process-local memory fixture','clock':'perf_counter_ns','resource_sample_seconds':.1,'limitations':['Closed-loop clients; offered rate follows completion','No production PostgreSQL locking or driver write verification','Provider operations use doubles','CPU shared with host services; repeat matched trials','Protected-denied scenarios measure access rejection']}
 (a.output/'metadata.json').write_text(json.dumps(meta,indent=2));print(len(rows),'requests',len(samples),'resource samples')

@@ -78,6 +78,10 @@ scripts/migration_status.sh
 
 Use designated isolated fixtures for mutation tests. The tools reject production benchmark targets. Real snapshots and measurements stay in the ignored local `docs/` directory. SQLite verification does not establish PostgreSQL locking or concurrency parity.
 
-## Python rollback
+## Historical Python baseline
 
-The complete previous runtime is retained in Git tag `v1.1.0`. A rollback restores that tagged checkout, its Python environment, and the tagged production launcher, then restarts `asodya-api.service`. Never discard local `.env` or measurement files when switching versions.
+The previous Python runtime remains recoverable from Git tag `v1.1.0`. Temporary migration worktrees and the old Python virtual environment were removed after the Rust cutover. Future application changes happen in the canonical `api_for_apps` Rust checkout. Recreate a separate checkout and development environment explicitly if you need to repeat the historical Python benchmarks. Preserve local `.env` and measurement files.
+
+Scalar 1.76.0 and Ubuntu fonts are bundled under `src/presentation/assets/vendor/`, with source/license notices. `/docs` loads its browser assets from this API, without CDN or external font requests. The Scalar script is gzip-compressed and cached. The page displays a readable error if its API description cannot load.
+
+Browser verification uses `tools/test_docs_browser.py` with an optional Playwright installation and an existing Chrome executable; it blocks external requests, checks rendered routes, captures a screenshot and verifies schema-load failure feedback.

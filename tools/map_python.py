@@ -4,7 +4,7 @@ import ast,json,pathlib,argparse
 p=argparse.ArgumentParser();p.add_argument('--source',type=pathlib.Path,required=True);p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
 r=[]
 for f in sorted(a.source.rglob('*.py')):
- if any(x.startswith('.') or x in ('docs','target') for x in f.relative_to(a.source).parts):continue
+ if any(x.startswith('.') or x in ('docs','target','build','dist') for x in f.relative_to(a.source).parts):continue
  t=ast.parse(f.read_text()); classes={}
  for node in ast.walk(t):
   if isinstance(node,ast.ClassDef):

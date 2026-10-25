@@ -18,7 +18,7 @@ try:
   tr=c.begin();c.execute(text('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY'))
   for table in ('defaultdb_user','defaultdb_support_ticket','alembic_version'):
    cols=inspect(c).get_columns(table); names=[x['name'] for x in cols];types={x['name']:str(x['type']) for x in cols}
-   db.execute('CREATE TABLE "'+table+'" ('+','.join('"'+x+'" '+('INTEGER PRIMARY KEY' if x=='id' and table=='defaultdb_user' else 'TEXT PRIMARY KEY' if x=='id' else 'INTEGER' if 'INT' in types[x] or 'BOOL' in types[x] else 'REAL' if any(y in types[x] for y in ('NUMERIC','DOUBLE','REAL')) else 'TEXT') for x in names)+')')
+   db.execute('CREATE TABLE "'+table+'" ('+','.join('"'+x+'" '+('INTEGER PRIMARY KEY' if x=='id' and table=='defaultdb_user' else 'TEXT PRIMARY KEY' if x=='id' else 'BOOLEAN' if 'BOOL' in types[x] else 'INTEGER' if 'INT' in types[x] else 'REAL' if any(y in types[x] for y in ('NUMERIC','DOUBLE','REAL')) else 'TEXT') for x in names)+')')
    rows=c.execute(text('SELECT * FROM "'+table+'"')).mappings();n=0
    for row in rows:
     values=[]

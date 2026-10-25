@@ -1,6 +1,6 @@
 [package]
 name = "api-for-apps"
-version = "1.2.0"
+version = "1.2.1"
 edition = "2024"
 
 [dependencies]
@@ -11,6 +11,7 @@ base64 = "0.22"
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
 fernet = "0.2"
+flate2 = "1"
 futures-util = "0.3"
 http = "1"
 multer = "3"

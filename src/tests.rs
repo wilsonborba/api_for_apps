@@ -25,7 +25,7 @@ async fn state() -> domain::State {
     };
     let client = reqwest::Client::new();
     let db = sqlx::SqlitePool::connect("sqlite::memory:").await.unwrap();
-    sqlx::query("CREATE TABLE defaultdb_user (id INTEGER PRIMARY KEY, uuid_id TEXT, email TEXT, access_level INTEGER, is_active INTEGER)").execute(&db).await.unwrap();
+    sqlx::query("CREATE TABLE defaultdb_user (id INTEGER PRIMARY KEY, uuid_id TEXT, email TEXT, access_level INTEGER, is_active INTEGER, username TEXT, first_name TEXT, last_name TEXT, password TEXT, last_login TEXT, date_joined TEXT, phone_number TEXT, supabase_user_id TEXT)").execute(&db).await.unwrap();
     sqlx::query("CREATE TABLE defaultdb_support_ticket(id TEXT PRIMARY KEY,user_id TEXT,source_app TEXT,status TEXT,created_at TEXT,updated_at TEXT)").execute(&db).await.unwrap();
     let (logs, _) = tokio::sync::broadcast::channel(256);
     domain::State {
@@ -297,5 +297,113 @@ fn runtime_settings_reject_missing_credentials() {
             .unwrap_err()
             .to_string()
             .contains("API_KEY_SECRET")
+    );
+}
+
+#[tokio::test]
+async fn hello_only_selects_available_kjv_verses() {
+    for _ in 0..1024 {
+        let r = presentation::docs::hello();
+        assert_eq!(r.status(), StatusCode::OK);
+        let body: Value =
+            serde_json::from_slice(&to_bytes(r.into_body(), 65536).await.unwrap()).unwrap();
+        assert!(!body["data"].is_null());
+    }
+}
+
+#[tokio::test]
+async fn oauth_callback_accepts_rest_tokens_and_rejects_missing_sessions() {
+    use axum::routing::{get, post};
+    let provider = axum::Router::new()
+        .route("/auth/v1/token", post(|axum::Json(body): axum::Json<Value>| async move {
+            axum::Json(match body["auth_code"].as_str().unwrap() {
+                "root" => json!({"access_token":"root-access", "token_type":"bearer"}),
+                "nested" => json!({"session":{"access_token":"nested-access"}}),
+                "empty" => json!({"access_token":"   "}),
+                _ => json!({}),
+            })
+        }))
+        .route("/auth/v1/user", get(|h: axum::http::HeaderMap| async move {
+            assert!(matches!(h.get("authorization").unwrap().to_str().unwrap(), "Bearer root-access" | "Bearer nested-access"));
+            axum::Json(json!({"id":"provider-fixture", "email":"oauth@example.test", "user_metadata":{}}))
+        }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move { axum::serve(listener, provider).await.unwrap() });
+    let mut s = state().await;
+    let mut values = (*s.settings.values).clone();
+    values.insert("SUPABASE_URL".into(), format!("http://{address}"));
+    values.insert("SUPABASE_SECRET_KEY".into(), "fixture".into());
+    s.settings.values = Arc::new(values);
+    for (code, expected) in [
+        ("root", 200),
+        ("nested", 200),
+        ("empty", 400),
+        ("missing", 400),
+    ] {
+        let key = format!("{}:{code}", s.settings.get("OAUTH_STATE_PREFIX"));
+        s.cache
+            .set(
+                &key,
+                json!({"app":"reports","code_verifier":"fixture-verifier"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        let body = json!({"code":code,"state":code});
+        let (status, response) = call(
+            s.clone(),
+            "POST",
+            "/user/sync/v1/oauth/callback",
+            body.clone(),
+            &[],
+        )
+        .await;
+        assert_eq!(status.as_u16(), expected, "{code}: {response}");
+        if expected == 200 {
+            let artifact = response["data"].as_str().unwrap();
+            let payload = fernet::Fernet::new(&s.settings.get("FERNET_KEY_SECRET"))
+                .unwrap()
+                .decrypt(artifact)
+                .unwrap();
+            let payload: Value = serde_json::from_slice(&payload).unwrap();
+            assert_eq!(payload["app"], "reports");
+            assert_eq!(
+                call(s.clone(), "POST", "/user/sync/v1/oauth/callback", body, &[])
+                    .await
+                    .0,
+                400
+            );
+        }
+    }
+    task.abort();
+}
+
+#[tokio::test]
+async fn documentation_assets_support_gzip_and_identity() {
+    let h = axum::http::HeaderMap::new();
+    let raw = presentation::docs::asset("/docs/assets/scalar-1.76.0.js", &h);
+    assert_eq!(raw.status(), StatusCode::OK);
+    assert!(!raw.headers().contains_key("content-encoding"));
+    let raw = to_bytes(raw.into_body(), 8 * 1024 * 1024).await.unwrap();
+    let mut h = h;
+    h.insert("accept-encoding", "br, gzip".parse().unwrap());
+    let compressed = presentation::docs::asset("/docs/assets/scalar-1.76.0.js", &h);
+    assert_eq!(compressed.headers()["content-encoding"], "gzip");
+    let compressed = to_bytes(compressed.into_body(), 8 * 1024 * 1024)
+        .await
+        .unwrap();
+    use std::io::Read;
+    let mut decoded = Vec::new();
+    flate2::read::GzDecoder::new(compressed.as_ref())
+        .read_to_end(&mut decoded)
+        .unwrap();
+    assert_eq!(raw.as_ref(), decoded);
+    h.insert("accept-encoding", "gzip;q=0".parse().unwrap());
+    assert!(
+        !presentation::docs::asset("/docs/assets/scalar-1.76.0.js", &h)
+            .headers()
+            .contains_key("content-encoding")
     );
 }

@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain")
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain", "reports")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -110,6 +110,17 @@ class Settings(BaseSettings):
             "http://100.93.16.79:8105",
             "http://172.17.0.1:8105",
             "https://cortex.asodya.com",
+        ),
+        # Reports' web build serves from a fixed LAN port (8110) in development;
+        # production is reports.asodya.com on Cloudflare Pages.
+        "reports": (
+            "http://localhost:8110",
+            "http://127.0.0.1:8110",
+            "http://192.168.1.103:8110",
+            "http://172.20.10.4:8110",
+            "http://100.93.16.79:8110",
+            "http://172.17.0.1:8110",
+            "https://reports.asodya.com",
         ),
         # asodya-domain's web build always serves from a fixed LAN port (8106),
         # chosen to avoid colliding with the auth app's own :8100. In
@@ -160,7 +171,65 @@ class Settings(BaseSettings):
         # domain_api's routes have no /v1 of their own (see domain_api
         # fix/strip-v1-prefix-gateway-routes), so neither do these patterns.
         "domain": {
-            "GET": ["/landing", "/projects", "/projects/*", "/search*"],
+            "GET": ["/landing", "/projects", "/projects/*", "/search*", "/system/health"],
+        },
+        "wilson_borba": {
+            "GET": [
+                "/content",
+                "/content*",
+                "/profile",
+                "/profile*",
+                "/experiences",
+                "/experiences/*",
+                "/educations",
+                "/educations/*",
+                "/skills",
+                "/skills/*",
+                "/projects",
+                "/projects/*",
+                "/certifications",
+                "/certifications/*",
+                "/documents",
+                "/documents/*",
+                "/media/*",
+                "/contact",
+                "/contact*",
+                "/system/health",
+            ],
+            "HEAD": ["/*"],
+            "OPTIONS": ["/*"],
+        },
+        "reports": {
+            # Public landing/catalog reads. Report data, datasets, and admin
+            # routes remain protected by FORCE_AUTH_PROXY_ROUTES and
+            # ADMIN_PROTECTED_PROXY_ROUTES below.
+            "GET": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
+            "HEAD": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
+            "OPTIONS": ["/*"],
         },
     }
 
@@ -171,7 +240,11 @@ class Settings(BaseSettings):
     # public `/projects/*` prefix used for the project detail route.
     FORCE_AUTH_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
         "domain": {
-            "GET": ["/projects/*/files", "/projects/*/files/*"],
+            "GET": ["/projects/*/files", "/projects/*/files/*", "/legal/status"],
+            "POST": ["/legal/accept"],
+        },
+        "reports": {
+            "GET": ["/projects/*/reports/*", "/projects/*/datasets/*"],
         },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
@@ -184,15 +257,39 @@ class Settings(BaseSettings):
     # domain_api proxy target (issue #28).
     DOMAIN_API_PORT: int = 8104
 
+    # wilson_borba_api proxy target.
+    WILSON_BORBA_API_PORT: int = 8107
+    REPORTS_API_PORT: int = 8109
+
     # Mutating routes (POST/PUT/PATCH/DELETE) that require an administrator
     # (X-API-KEY or session access_level == 1) rather than just any
     # authenticated session. Checked before PUBLIC_PROXY_ROUTES.
     ADMIN_PROTECTED_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
         "domain": {
-            "POST": ["/projects", "/projects/*/files", "/projects/*/image", "/categories", "/flutter-icons"],
+            "POST": [
+                "/projects",
+                "/projects/*/files",
+                "/projects/*/image",
+                "/categories",
+                "/flutter-icons",
+                "/system/sync-stats",
+                "/system/sync-stats/*",
+            ],
             "PUT": ["/projects/*"],
             "PATCH": ["/projects/*"],
             "DELETE": ["/projects/*"],
+        },
+        "wilson_borba": {
+            "POST": ["/*"],
+            "PUT": ["/*"],
+            "PATCH": ["/*"],
+            "DELETE": ["/*"],
+        },
+        "reports": {
+            "POST": ["/projects/*/admin/*"],
+            "PUT": ["/projects/*/admin/*"],
+            "PATCH": ["/projects/*/admin/*"],
+            "DELETE": ["/projects/*/admin/*"],
         },
     }
 
@@ -228,6 +325,7 @@ class Settings(BaseSettings):
         api = "/api"
         certifications = "/certifications"
         cortex = "/cortex"
+        reports = "/reports"
 
     @property
     def available_apps(self) -> AvailableApps:

@@ -62,11 +62,16 @@ app.add_middleware(
         "http://127.0.0.1:8102",
         "http://localhost:8106",
         "http://127.0.0.1:8106",
+        "http://localhost:8108",
+        "http://127.0.0.1:8108",
 
         # Auth & Certifications domain
         "https://auth.asodya.com",
         "https://certifications.asodya.com",
         "https://cortex.asodya.com",
+        "https://reports.asodya.com",
+        "https://wilson.asodya.com",
+        "https://wilsonborba.asodya.com",
         # domain (this ecosystem's root product) is served from the apex
         # domain itself, not a "domain." subdomain.
         "https://asodya.com",

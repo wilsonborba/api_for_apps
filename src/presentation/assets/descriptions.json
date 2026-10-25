@@ -1,0 +1,317 @@
+{
+  "DELETE /apps/certifications/v1/quizzes/completed/{quiz_id}": {
+    "responses": {
+      "204": {
+        "description": "Operation completed. The response has no body."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/certifications/v1/quizzes/shared/{token}/questions/{question_id}/visual": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "image/svg+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "image/svg+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/cortex/v1/openapi-en.json": {
+    "responses": {
+      "200": {
+        "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/cortex/v1/openapi-pt.json": {
+    "responses": {
+      "200": {
+        "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/cortex/v1/openapi-th.json": {
+    "responses": {
+      "200": {
+        "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/cortex/v1/docs/scalar": {
+    "responses": {
+      "200": {
+        "description": "Existing backend documentation HTML. Gateway documentation is served at /docs.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "DELETE /apps/cortex/v1/routing/pins": {
+    "responses": {
+      "204": {
+        "description": "Operation completed. The response has no body."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/domain/v1/projects/{slug}/cover": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/svg+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/domain/v1/projects/{slug}/files/{file_id}/download": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/wilson_borba/v1/certifications/{slug_or_id}/download": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/wilson_borba/v1/documents/{slug_or_id}/download": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "application/pdf": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/wilson_borba/v1/media/{file_key}": {
+    "responses": {
+      "200": {
+        "description": "Binary content. The backend sets the media type and Content-Disposition when available.",
+        "content": {
+          "image/png": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/jpeg": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "image/svg+xml": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "application/octet-stream": {
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Requested object is not available."
+      },
+      "502": {
+        "description": "The storage provider failed."
+      }
+    },
+    "x-discovery-gaps": []
+  },
+  "GET /apps/reports/v1/": {
+    "responses": {
+      "200": {
+        "description": "Reports service identification.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service": {
+                  "type": "string"
+                },
+                "openapi": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "service",
+                "openapi"
+              ]
+            },
+            "example": {
+              "service": "reports",
+              "openapi": "/openapi.json"
+            }
+          }
+        }
+      }
+    },
+    "x-discovery-gaps": []
+  }
+}

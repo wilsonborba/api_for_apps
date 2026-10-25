@@ -85,21 +85,11 @@
                 "$ref": "#/components/schemas/ClientErrorPayload"
               },
               "example": {
-                "app_name": "example",
-                "app_version": "example",
-                "environment": "example",
-                "route": "example",
-                "error_title": "example",
-                "error_message": "example",
-                "error_code": "example",
-                "stack_trace": "example",
-                "request_id": "example",
-                "user_agent": "example",
-                "user_id": "example",
-                "session_id": "example",
-                "ip_address": "example",
-                "client_timestamp": "example",
-                "server_timestamp": "example",
+                "app_name": "reports",
+                "environment": "production",
+                "error_title": "Report request failed",
+                "error_message": "The request did not complete.",
+                "route": "/projects",
                 "details": {},
                 "extra": {}
               }
@@ -110,7 +100,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-error' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_name\": \"example\", \"app_version\": \"example\", \"environment\": \"example\", \"route\": \"example\", \"error_title\": \"example\", \"error_message\": \"example\", \"error_code\": \"example\", \"stack_trace\": \"example\", \"request_id\": \"example\", \"user_agent\": \"example\", \"user_id\": \"example\", \"session_id\": \"example\", \"ip_address\": \"example\", \"client_timestamp\": \"example\", \"server_timestamp\": \"example\", \"details\": {}, \"extra\": {}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-error' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\", \"route\": \"/projects\", \"details\": {}, \"extra\": {}}'"
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
@@ -281,23 +271,10 @@
                 "$ref": "#/components/schemas/ClientErrorPayload"
               },
               "example": {
-                "app_name": "example",
-                "app_version": "example",
-                "environment": "example",
-                "route": "example",
-                "error_title": "example",
-                "error_message": "example",
-                "error_code": "example",
-                "stack_trace": "example",
-                "request_id": "example",
-                "user_agent": "example",
-                "user_id": "example",
-                "session_id": "example",
-                "ip_address": "example",
-                "client_timestamp": "example",
-                "server_timestamp": "example",
-                "details": {},
-                "extra": {}
+                "app_name": "reports",
+                "environment": "production",
+                "error_title": "Report request failed",
+                "error_message": "The request did not complete."
               }
             }
           }
@@ -306,7 +283,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-reports' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_name\": \"example\", \"app_version\": \"example\", \"environment\": \"example\", \"route\": \"example\", \"error_title\": \"example\", \"error_message\": \"example\", \"error_code\": \"example\", \"stack_trace\": \"example\", \"request_id\": \"example\", \"user_agent\": \"example\", \"user_id\": \"example\", \"session_id\": \"example\", \"ip_address\": \"example\", \"client_timestamp\": \"example\", \"server_timestamp\": \"example\", \"details\": {}, \"extra\": {}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-reports' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\"}'"
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
@@ -486,10 +463,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/waitlist'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/waitlist' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"plan\": \"free\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/waitlist_route.py:65"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/waitlist_route.py:65",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitlistRequest"
+              },
+              "example": {
+                "email": "person@example.com",
+                "plan": "free"
+              }
+            }
+          }
+        }
       }
     },
     "/apps/support/v1/attachments": {
@@ -596,10 +587,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"source_app\": \"reports\", \"subject\": \"Question about a report\", \"body\": \"Describe the problem here.\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:151"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:151",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportTicketRequestModel"
+              },
+              "example": {
+                "source_app": "reports",
+                "subject": "Question about a report",
+                "body": "Describe the problem here."
+              }
+            }
+          }
+        }
       },
       "get": {
         "operationId": "gateway_get__apps_support_v1_tickets",
@@ -786,10 +792,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"body\": \"Additional information.\", \"attachment_reference\": null}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:266"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:266",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSupportMessageRequestModel"
+              },
+              "example": {
+                "body": "Additional information.",
+                "attachment_reference": null
+              }
+            }
+          }
+        }
       }
     },
     "/apps/support/v1/tickets/{ticket_id}/messages/{message_id}/read": {
@@ -998,7 +1018,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/user/info/v1/' --header 'Content-Type: application/json' --data '{\"first_name\": \"Wilson\", \"last_name\": \"Borba\", \"phone_number\": null}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/user/info/v1/' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"first_name\": \"Wilson\", \"last_name\": \"Borba\", \"phone_number\": null}'"
           }
         ],
         "requestBody": {
@@ -1147,10 +1167,23 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/email-confirmation-resend'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/email-confirmation-resend' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:435"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:435",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirmationResendRequestModel"
+              },
+              "example": {
+                "email": "person@example.com"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/log-in": {
@@ -1187,10 +1220,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/user/sync/v1/log-in'"
+            "source": "curl --request PATCH 'https://api.asodya.com/user/sync/v1/log-in' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"password\": \"<password>\", \"app\": \"reports\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:337"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:337",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequestModel"
+              },
+              "example": {
+                "email": "person@example.com",
+                "password": "<password>",
+                "app": "reports"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/log-out": {
@@ -1274,10 +1322,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/callback'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/callback' --header 'Content-Type: application/json' --data '{\"code\": \"<authorization code>\", \"state\": \"<state from start>\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:552"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:552",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthCallbackRequestModel"
+              },
+              "example": {
+                "code": "<authorization code>",
+                "state": "<state from start>"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/oauth/start": {
@@ -1314,10 +1376,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/start'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/start' --header 'Content-Type: application/json' --data '{\"provider\": \"google\", \"app\": \"reports\", \"intent\": \"login\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:500"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:500",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthStartRequestModel"
+              },
+              "example": {
+                "provider": "google",
+                "app": "reports",
+                "intent": "login"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/password-recovery": {
@@ -1354,10 +1431,23 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/password-recovery'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/password-recovery' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:404"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:404",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordRecoveryRequestModel"
+              },
+              "example": {
+                "email": "person@example.com"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/reset-password": {
@@ -1394,10 +1484,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/reset-password'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/reset-password' --header 'Content-Type: application/json' --data '{\"access_token\": \"<recovery access token>\", \"new_password\": \"<new password>\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:466"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:466",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequestModel"
+              },
+              "example": {
+                "access_token": "<recovery access token>",
+                "new_password": "<new password>"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/sign-up": {
@@ -1434,10 +1538,26 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/sign-up'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/sign-up' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"password\": \"<password>\", \"display_name\": \"Example User\", \"app\": \"reports\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:269"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:269",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequestModel"
+              },
+              "example": {
+                "email": "person@example.com",
+                "password": "<password>",
+                "display_name": "Example User",
+                "app": "reports"
+              }
+            }
+          }
+        }
       }
     },
     "/user/v1/hello_user": {

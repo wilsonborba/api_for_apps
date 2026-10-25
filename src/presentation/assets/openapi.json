@@ -96,21 +96,11 @@
                 "$ref": "#/components/schemas/ClientErrorPayload"
               },
               "example": {
-                "app_name": "example",
-                "app_version": "example",
-                "environment": "example",
-                "route": "example",
-                "error_title": "example",
-                "error_message": "example",
-                "error_code": "example",
-                "stack_trace": "example",
-                "request_id": "example",
-                "user_agent": "example",
-                "user_id": "example",
-                "session_id": "example",
-                "ip_address": "example",
-                "client_timestamp": "example",
-                "server_timestamp": "example",
+                "app_name": "reports",
+                "environment": "production",
+                "error_title": "Report request failed",
+                "error_message": "The request did not complete.",
+                "route": "/projects",
                 "details": {},
                 "extra": {}
               }
@@ -121,7 +111,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-error' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_name\": \"example\", \"app_version\": \"example\", \"environment\": \"example\", \"route\": \"example\", \"error_title\": \"example\", \"error_message\": \"example\", \"error_code\": \"example\", \"stack_trace\": \"example\", \"request_id\": \"example\", \"user_agent\": \"example\", \"user_id\": \"example\", \"session_id\": \"example\", \"ip_address\": \"example\", \"client_timestamp\": \"example\", \"server_timestamp\": \"example\", \"details\": {}, \"extra\": {}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-error' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\", \"route\": \"/projects\", \"details\": {}, \"extra\": {}}'"
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
@@ -292,23 +282,10 @@
                 "$ref": "#/components/schemas/ClientErrorPayload"
               },
               "example": {
-                "app_name": "example",
-                "app_version": "example",
-                "environment": "example",
-                "route": "example",
-                "error_title": "example",
-                "error_message": "example",
-                "error_code": "example",
-                "stack_trace": "example",
-                "request_id": "example",
-                "user_agent": "example",
-                "user_id": "example",
-                "session_id": "example",
-                "ip_address": "example",
-                "client_timestamp": "example",
-                "server_timestamp": "example",
-                "details": {},
-                "extra": {}
+                "app_name": "reports",
+                "environment": "production",
+                "error_title": "Report request failed",
+                "error_message": "The request did not complete."
               }
             }
           }
@@ -317,7 +294,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-reports' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_name\": \"example\", \"app_version\": \"example\", \"environment\": \"example\", \"route\": \"example\", \"error_title\": \"example\", \"error_message\": \"example\", \"error_code\": \"example\", \"stack_trace\": \"example\", \"request_id\": \"example\", \"user_agent\": \"example\", \"user_id\": \"example\", \"session_id\": \"example\", \"ip_address\": \"example\", \"client_timestamp\": \"example\", \"server_timestamp\": \"example\", \"details\": {}, \"extra\": {}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-reports' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\"}'"
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
@@ -2347,10 +2324,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/waitlist'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/waitlist' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"plan\": \"free\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/waitlist_route.py:65"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/waitlist_route.py:65",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitlistRequest"
+              },
+              "example": {
+                "email": "person@example.com",
+                "plan": "free"
+              }
+            }
+          }
+        }
       }
     },
     "/apps/cortex/v1/attachments/video": {
@@ -2857,11 +2848,49 @@
         ],
         "x-source": "cortex_api/lib/presentation/api/routes/execute.py:25",
         "x-access-level": "session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteRequest"
+              },
+              "example": {
+                "prompt": "example",
+                "tenant_id": "example",
+                "tier": "example",
+                "task_type": "general",
+                "normalize_prompt": true,
+                "thinking": false,
+                "needs_web": false,
+                "use_memory": false,
+                "capabilities": {
+                  "memory": false,
+                  "tasks": false,
+                  "thinking": false,
+                  "web": false,
+                  "temporary": false
+                },
+                "conversation_id": "example",
+                "auto_retrieval": false,
+                "memory_topic": "example",
+                "force_model": "example",
+                "force_provider": "example",
+                "override_strategy": "example",
+                "force_context_format": "example",
+                "attachments": [],
+                "attachment_job_id": "example",
+                "timeout": 1.0,
+                "skip_security": false
+              }
+            }
+          }
+        },
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/execute' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/execute' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"prompt\": \"example\", \"tenant_id\": \"example\", \"tier\": \"example\", \"task_type\": \"general\", \"normalize_prompt\": true, \"thinking\": false, \"needs_web\": false, \"use_memory\": false, \"capabilities\": {\"memory\": false, \"tasks\": false, \"thinking\": false, \"web\": false, \"temporary\": false}, \"conversation_id\": \"example\", \"auto_retrieval\": false, \"memory_topic\": \"example\", \"force_model\": \"example\", \"force_provider\": \"example\", \"override_strategy\": \"example\", \"force_context_format\": \"example\", \"attachments\": [], \"attachment_job_id\": \"example\", \"timeout\": 1.0, \"skip_security\": false}'"
           }
         ]
       }
@@ -3294,11 +3323,28 @@
         ],
         "x-source": "cortex_api/lib/presentation/api/routes/models.py:39",
         "x-access-level": "session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelConfigRequest"
+              },
+              "example": {
+                "tier_eligibility": [],
+                "is_enabled": true,
+                "is_vision_capable": true,
+                "context_format_pin": "example",
+                "context_format_pin_ttl_seconds": 1
+              }
+            }
+          }
+        },
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/models/{model_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/models/{model_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"tier_eligibility\": [], \"is_enabled\": true, \"is_vision_capable\": true, \"context_format_pin\": \"example\", \"context_format_pin_ttl_seconds\": 1}'"
           }
         ]
       }
@@ -3614,11 +3660,28 @@
         ],
         "x-source": "cortex_api/lib/presentation/api/routes/pins.py:20",
         "x-access-level": "session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinCreateRequest"
+              },
+              "example": {
+                "tier": 1,
+                "task": "example",
+                "strategy_id": "example",
+                "model_id": "example",
+                "pinned_by": "example"
+              }
+            }
+          }
+        },
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/routing/pins' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/routing/pins' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"tier\": 1, \"task\": \"example\", \"strategy_id\": \"example\", \"model_id\": \"example\", \"pinned_by\": \"example\"}'"
           }
         ]
       },
@@ -4077,11 +4140,30 @@
         ],
         "x-source": "cortex_api/lib/presentation/api/routes/tiers.py:20",
         "x-access-level": "session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TierConfigRequest"
+              },
+              "example": {
+                "max_latency_seconds": 1,
+                "allow_multi_model": true,
+                "allow_external": true,
+                "retrieval_mode": "example",
+                "require_verification": true,
+                "max_model_calls": 1,
+                "allowed_models": []
+              }
+            }
+          }
+        },
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/tiers/{tier}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/tiers/{tier}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"max_latency_seconds\": 1, \"allow_multi_model\": true, \"allow_external\": true, \"retrieval_mode\": \"example\", \"require_verification\": true, \"max_model_calls\": 1, \"allowed_models\": []}'"
           }
         ]
       }
@@ -4123,11 +4205,37 @@
         ],
         "x-source": "cortex_api/lib/presentation/api/routes/openai_facade.py:45",
         "x-access-level": "session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatCompletionRequest"
+              },
+              "example": {
+                "model": "example",
+                "messages": [],
+                "temperature": 1.0,
+                "max_tokens": 1,
+                "stream": false,
+                "normalize_prompt": true,
+                "thinking": false,
+                "needs_web": false,
+                "use_memory": false,
+                "auto_retrieval": false,
+                "memory_topic": "example",
+                "conversation_id": "example",
+                "temporary": false,
+                "tenant_id": "example"
+              }
+            }
+          }
+        },
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/v1/chat/completions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/v1/chat/completions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"model\": \"example\", \"messages\": [], \"temperature\": 1.0, \"max_tokens\": 1, \"stream\": false, \"normalize_prompt\": true, \"thinking\": false, \"needs_web\": false, \"use_memory\": false, \"auto_retrieval\": false, \"memory_topic\": \"example\", \"conversation_id\": \"example\", \"temporary\": false, \"tenant_id\": \"example\"}'"
           }
         ]
       }
@@ -6261,57 +6369,6 @@
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}": {
-      "delete": {
-        "operationId": "reports_delete__admin_projects__project__reports__report_",
-        "tags": [
-          "reports"
-        ],
-        "summary": "Delete a report and its datasets",
-        "description": "Delete a report and its datasets. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nDeleted",
-        "parameters": [
-          {
-            "name": "project",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "report",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Deleted"
-          },
-          "404": {
-            "description": "Not found"
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          },
-          {
-            "AdminKey": []
-          }
-        ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ]
-      },
       "put": {
         "operationId": "reports_put__admin_projects__project__reports__report_",
         "tags": [
@@ -6415,16 +6472,14 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true}'"
           }
         ]
-      }
-    },
-    "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}": {
+      },
       "delete": {
-        "operationId": "reports_delete__admin_projects__project__reports__report__datasets__dataset_",
+        "operationId": "reports_delete__admin_projects__project__reports__report_",
         "tags": [
           "reports"
         ],
-        "summary": "Delete a dataset",
-        "description": "Delete a dataset. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nDeleted",
+        "summary": "Delete a report and its datasets",
+        "description": "Delete a report and its datasets. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nDeleted",
         "parameters": [
           {
             "name": "project",
@@ -6436,14 +6491,6 @@
           },
           {
             "name": "report",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "dataset",
             "in": "path",
             "required": true,
             "schema": {
@@ -6467,16 +6514,18 @@
             "AdminKey": []
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:137",
+        "x-source": "reports/engine/src/presentation/api/server.rs:136",
         "x-access-level": "session",
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
-      },
+      }
+    },
+    "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}": {
       "put": {
         "operationId": "reports_put__admin_projects__project__reports__report__datasets__dataset_",
         "tags": [
@@ -6550,6 +6599,65 @@
             "lang": "Shell",
             "label": "cURL",
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true}'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "reports_delete__admin_projects__project__reports__report__datasets__dataset_",
+        "tags": [
+          "reports"
+        ],
+        "summary": "Delete a dataset",
+        "description": "Delete a dataset. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nDeleted",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:137",
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
       }
@@ -6733,57 +6841,6 @@
       }
     },
     "/apps/reports/v1/admin/projects/{project}/roles/{user}": {
-      "delete": {
-        "operationId": "reports_delete__admin_projects__project__roles__user_",
-        "tags": [
-          "reports"
-        ],
-        "summary": "Remove the project role of a user (super admin)",
-        "description": "Remove the project role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nRemoved",
-        "parameters": [
-          {
-            "name": "project",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Removed"
-          },
-          "404": {
-            "description": "No role"
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          },
-          {
-            "AdminKey": []
-          }
-        ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ]
-      },
       "put": {
         "operationId": "reports_put__admin_projects__project__roles__user_",
         "tags": [
@@ -6857,6 +6914,57 @@
             "lang": "Shell",
             "label": "cURL",
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "reports_delete__admin_projects__project__roles__user_",
+        "tags": [
+          "reports"
+        ],
+        "summary": "Remove the project role of a user (super admin)",
+        "description": "Remove the project role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nRemoved",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed"
+          },
+          "404": {
+            "description": "No role"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:129",
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
       }
@@ -8463,57 +8571,6 @@
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}": {
-      "delete": {
-        "operationId": "reports_delete__projects__project__admin_reports__report_",
-        "tags": [
-          "reports"
-        ],
-        "summary": "Delete a report and its datasets",
-        "description": "Delete a report and its datasets. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nDeleted",
-        "parameters": [
-          {
-            "name": "project",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "report",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Deleted"
-          },
-          "404": {
-            "description": "Not found"
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          },
-          {
-            "AdminKey": []
-          }
-        ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-access-level": "administrator",
-        "x-codeSamples": [
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ]
-      },
       "put": {
         "operationId": "reports_put__projects__project__admin_reports__report_",
         "tags": [
@@ -8617,16 +8674,14 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true}'"
           }
         ]
-      }
-    },
-    "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}": {
+      },
       "delete": {
-        "operationId": "reports_delete__projects__project__admin_reports__report__datasets__dataset_",
+        "operationId": "reports_delete__projects__project__admin_reports__report_",
         "tags": [
           "reports"
         ],
-        "summary": "Delete a dataset",
-        "description": "Delete a dataset. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nDeleted",
+        "summary": "Delete a report and its datasets",
+        "description": "Delete a report and its datasets. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nDeleted",
         "parameters": [
           {
             "name": "project",
@@ -8638,14 +8693,6 @@
           },
           {
             "name": "report",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "dataset",
             "in": "path",
             "required": true,
             "schema": {
@@ -8669,16 +8716,18 @@
             "AdminKey": []
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:137",
+        "x-source": "reports/engine/src/presentation/api/server.rs:136",
         "x-access-level": "administrator",
         "x-codeSamples": [
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
-      },
+      }
+    },
+    "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}": {
       "put": {
         "operationId": "reports_put__projects__project__admin_reports__report__datasets__dataset_",
         "tags": [
@@ -8752,6 +8801,65 @@
             "lang": "Shell",
             "label": "cURL",
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true}'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "reports_delete__projects__project__admin_reports__report__datasets__dataset_",
+        "tags": [
+          "reports"
+        ],
+        "summary": "Delete a dataset",
+        "description": "Delete a dataset. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nDeleted",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "report",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dataset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:137",
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
       }
@@ -8872,57 +8980,6 @@
       }
     },
     "/apps/reports/v1/projects/{project}/admin/roles/{user}": {
-      "delete": {
-        "operationId": "reports_delete__projects__project__admin_roles__user_",
-        "tags": [
-          "reports"
-        ],
-        "summary": "Remove the project role of a user (super admin)",
-        "description": "Remove the project role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nRemoved",
-        "parameters": [
-          {
-            "name": "project",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Removed"
-          },
-          "404": {
-            "description": "No role"
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          },
-          {
-            "AdminKey": []
-          }
-        ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-access-level": "administrator",
-        "x-codeSamples": [
-          {
-            "lang": "Shell",
-            "label": "cURL",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ]
-      },
       "put": {
         "operationId": "reports_put__projects__project__admin_roles__user_",
         "tags": [
@@ -8996,6 +9053,57 @@
             "lang": "Shell",
             "label": "cURL",
             "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "reports_delete__projects__project__admin_roles__user_",
+        "tags": [
+          "reports"
+        ],
+        "summary": "Remove the project role of a user (super admin)",
+        "description": "Remove the project role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nRemoved",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removed"
+          },
+          "404": {
+            "description": "No role"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:129",
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "lang": "Shell",
+            "label": "cURL",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ]
       }
@@ -10373,10 +10481,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"source_app\": \"reports\", \"subject\": \"Question about a report\", \"body\": \"Describe the problem here.\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:151"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:151",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportTicketRequestModel"
+              },
+              "example": {
+                "source_app": "reports",
+                "subject": "Question about a report",
+                "body": "Describe the problem here."
+              }
+            }
+          }
+        }
       },
       "get": {
         "operationId": "gateway_get__apps_support_v1_tickets",
@@ -10563,10 +10686,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"body\": \"Additional information.\", \"attachment_reference\": null}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:266"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:266",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostSupportMessageRequestModel"
+              },
+              "example": {
+                "body": "Additional information.",
+                "attachment_reference": null
+              }
+            }
+          }
+        }
       }
     },
     "/apps/support/v1/tickets/{ticket_id}/messages/{message_id}/read": {
@@ -14139,7 +14276,7 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/user/info/v1/' --header 'Content-Type: application/json' --data '{\"first_name\": \"Wilson\", \"last_name\": \"Borba\", \"phone_number\": null}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/user/info/v1/' --header 'Content-Type: application/json' --cookie 'sid=<session>; csrf=<csrf>' --header 'X-CSRF-Token: <csrf>' --data '{\"first_name\": \"Wilson\", \"last_name\": \"Borba\", \"phone_number\": null}'"
           }
         ],
         "requestBody": {
@@ -14288,10 +14425,23 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/email-confirmation-resend'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/email-confirmation-resend' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:435"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:435",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailConfirmationResendRequestModel"
+              },
+              "example": {
+                "email": "person@example.com"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/log-in": {
@@ -14328,10 +14478,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request PATCH 'https://api.asodya.com/user/sync/v1/log-in'"
+            "source": "curl --request PATCH 'https://api.asodya.com/user/sync/v1/log-in' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"password\": \"<password>\", \"app\": \"reports\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:337"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:337",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequestModel"
+              },
+              "example": {
+                "email": "person@example.com",
+                "password": "<password>",
+                "app": "reports"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/log-out": {
@@ -14415,10 +14580,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/callback'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/callback' --header 'Content-Type: application/json' --data '{\"code\": \"<authorization code>\", \"state\": \"<state from start>\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:552"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:552",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthCallbackRequestModel"
+              },
+              "example": {
+                "code": "<authorization code>",
+                "state": "<state from start>"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/oauth/start": {
@@ -14455,10 +14634,25 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/start'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/oauth/start' --header 'Content-Type: application/json' --data '{\"provider\": \"google\", \"app\": \"reports\", \"intent\": \"login\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:500"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:500",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthStartRequestModel"
+              },
+              "example": {
+                "provider": "google",
+                "app": "reports",
+                "intent": "login"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/password-recovery": {
@@ -14495,10 +14689,23 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/password-recovery'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/password-recovery' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:404"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:404",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordRecoveryRequestModel"
+              },
+              "example": {
+                "email": "person@example.com"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/reset-password": {
@@ -14535,10 +14742,24 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/reset-password'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/reset-password' --header 'Content-Type: application/json' --data '{\"access_token\": \"<recovery access token>\", \"new_password\": \"<new password>\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:466"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:466",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordResetRequestModel"
+              },
+              "example": {
+                "access_token": "<recovery access token>",
+                "new_password": "<new password>"
+              }
+            }
+          }
+        }
       }
     },
     "/user/sync/v1/sign-up": {
@@ -14575,10 +14796,26 @@
           {
             "lang": "Shell",
             "label": "cURL",
-            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/sign-up'"
+            "source": "curl --request POST 'https://api.asodya.com/user/sync/v1/sign-up' --header 'Content-Type: application/json' --data '{\"email\": \"person@example.com\", \"password\": \"<password>\", \"display_name\": \"Example User\", \"app\": \"reports\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:269"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/user_route.py:269",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequestModel"
+              },
+              "example": {
+                "email": "person@example.com",
+                "password": "<password>",
+                "display_name": "Example User",
+                "app": "reports"
+              }
+            }
+          }
+        }
       }
     },
     "/user/v1/hello_user": {

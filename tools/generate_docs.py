@@ -146,7 +146,7 @@ def python_app(app,repo):
     args=n.args.args;defaults=[None]*(len(args)-len(n.args.defaults))+list(n.args.defaults)
     for arg,default in zip(args,defaults):
      name=arg.arg;ann=ast.unparse(arg.annotation) if arg.annotation else '';sc=schema(arg.annotation)
-     if name in ('self','request','response','background_tasks') or any(x in ann for x in ('Request','Response','BackgroundTasks','RedisAdapter','WebSocket')):continue
+     if name in ('self','request','response','background_tasks') or ann in ('Request','Response','BackgroundTasks','RedisAdapter','WebSocket'):continue
      if isinstance(default,ast.Call) and any(x in ast.unparse(default.func) for x in ('Depends','Security')):continue
      if ann in components:
       body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/'+ann},'example':example(components[ann])}}};continue

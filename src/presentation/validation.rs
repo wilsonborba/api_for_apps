@@ -9,12 +9,23 @@ pub fn method_allowed(method: &str, path: &str) -> Option<bool> {
         .and_then(Value::as_object)
         .map(|m| m.contains_key(&method.to_lowercase()))
 }
-pub fn request(method: &str, path: &str, body: &Bytes) -> Option<Response> {
+pub fn request(method: &str, path: &str, headers: &HeaderMap, body: &Bytes) -> Option<Response> {
     let op = &CONTRACT["paths"][path][method.to_lowercase()];
     let sc = op.pointer("/requestBody/content/application~1json/schema")?;
     // Exchange and profile have dynamic Python contracts. Their handlers preserve those rules.
     if matches!(path, "/apps/api/v1/exchange" | "/user/info/v1/") {
         return None;
+    }
+    let content_type = auth::header(headers, "content-type")
+        .split(';')
+        .next()
+        .unwrap_or("")
+        .trim();
+    if !content_type.is_empty()
+        && content_type != "application/json"
+        && !content_type.ends_with("+json")
+    {
+        return Some((StatusCode::UNPROCESSABLE_ENTITY,axum::Json(json!({"detail":[{"type":"model_attributes_type","loc":["body"],"msg":"Input should be a valid dictionary or object to extract fields from","input":String::from_utf8_lossy(body)}]}))).into_response());
     }
     let value=match serde_json::from_slice::<Value>(body){Ok(v)=>v,Err(_)=>return Some((StatusCode::UNPROCESSABLE_ENTITY,axum::Json(json!({"detail":[{"type":"json_invalid","loc":["body",0],"msg":"JSON decode error","input":{},"ctx":{"error":"Invalid JSON"}}]}))).into_response())};
     let mut errors = vec![];

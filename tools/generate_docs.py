@@ -271,7 +271,7 @@ if OVERRIDE.exists():
   if path in operations and method.lower() in operations[path]:operations[path][method.lower()].update(override)
 gaps=[g for g in gaps if g.get('path') not in operations or operations[g['path']].get(g.get('method',''),{}).get('x-discovery-gaps')]
 result={'openapi':'3.1.0','info':{'title':'Asodya Application Gateway API','version':'1.2.0','description':'Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.'},'servers':[{'url':'https://api.asodya.com'}],'paths':dict(sorted(operations.items())),'components':{'schemas':components,'securitySchemes':{'SessionCookie':{'type':'apiKey','in':'cookie','name':'sid'},'AdminKey':{'type':'apiKey','in':'header','name':'Authorization'}}},'x-discovery-gaps':gaps}
-rendered=json.dumps(result,indent=2)+'\n'
+rendered=json.dumps(result,indent=2,sort_keys=True)+'\n'
 if a.check:
  if not OUT.exists() or OUT.read_text()!=rendered:raise SystemExit('Central contracts differ from source; regenerate and review')
 else:OUT.write_text(rendered)

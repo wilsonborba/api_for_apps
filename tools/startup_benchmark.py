@@ -15,8 +15,8 @@ for run in range(a.runs):
     time.sleep(.005)
   if tcp is None:raise RuntimeError('No startup readiness within deadline')
   with httpx.Client(base_url='http://127.0.0.1:18110',timeout=10) as client:
-   before=time.perf_counter_ns();r=client.get('/apps/api/v1/hello_apps');after=time.perf_counter_ns();warm=[]
-   for _ in range(10):t=time.perf_counter_ns();client.get('/apps/api/v1/hello_apps');warm.append((time.perf_counter_ns()-t)/1e6)
+   before=time.perf_counter_ns();r=client.get('/apps/reports/v1/catalog');after=time.perf_counter_ns();warm=[]
+   for _ in range(10):t=time.perf_counter_ns();client.get('/apps/reports/v1/catalog');warm.append((time.perf_counter_ns()-t)/1e6)
   rows.append({'implementation':a.implementation,'run':run,'tcp_ready_ms':(tcp-start)/1e6,'first_http_complete_ms':(after-start)/1e6,'first_request_ms':(after-before)/1e6,'first_status':r.status_code,'warm_request_mean_ms':sum(warm)/len(warm)})
  finally:
   os.killpg(proc.pid,signal.SIGTERM)

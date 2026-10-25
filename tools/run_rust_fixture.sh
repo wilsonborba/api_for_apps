@@ -9,6 +9,6 @@ export FERNET_KEY_SECRET=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 export SERVER_FERNET_KEY_SECRET=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 export TEST_SQLITE_PATH=${TEST_SQLITE_PATH:-$PWD/docs/rust-migration/rust-snapshot.sqlite}
 export CERTIFICATIONS_UPSTREAM=http://127.0.0.1:18190 CORTEX_UPSTREAM=http://127.0.0.1:18190 DOMAIN_UPSTREAM=http://127.0.0.1:18190 WILSON_BORBA_UPSTREAM=http://127.0.0.1:18190 REPORTS_UPSTREAM=http://127.0.0.1:18190
-export PUBLIC_PROXY_ROUTES='{"reports":{"GET":["/catalog","/bytes/*","/delay/*","/failure","/projects/*"]},"domain":{"GET":["/projects/*"]}}'
+export PUBLIC_PROXY_ROUTES=$(python3 -c 'import json;d=json.load(open("src/core/defaults.json"))["PUBLIC_PROXY_ROUTES"];d["reports"]["GET"] += ["/bytes/*","/delay/*","/failure"];print(json.dumps(d))')
 export TOKIO_WORKER_THREADS=4
 exec target/release/api-for-apps

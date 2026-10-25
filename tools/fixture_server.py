@@ -4,6 +4,13 @@ Requires TEST_SQLITE_PATH and FIXTURE_UPSTREAM. Run from the Rust worktree.
 """
 import os,sys,pathlib,time,asyncio,copy
 if not os.environ.get('TEST_SQLITE_PATH') or not os.environ.get('FIXTURE_UPSTREAM'):raise RuntimeError('Explicit isolated fixture paths are required')
+from urllib.parse import urlparse
+for key in ['FIXTURE_UPSTREAM','FIXTURE_REDIS_URL']:
+ if os.environ.get(key):
+  target=urlparse(os.environ[key])
+  if target.hostname not in ('127.0.0.1','localhost') or not target.port or not 18000<=target.port<19000:raise RuntimeError('Fixture dependency must use an isolated loopback port')
+fixture=pathlib.Path(os.environ['TEST_SQLITE_PATH']).resolve()
+if not fixture.is_file() or 'docs' not in fixture.parts:raise RuntimeError('An existing local docs/ SQLite fixture is required')
 source=os.environ['PYTHON_BASELINE_SOURCE'];sys.path.insert(0,source)
 for k,v in {'API_KEY_SECRET':'fixture-admin','DEFAULT_DB_HOST':'127.0.0.1','DEFAULT_DB_PORT':'1','DEFAULT_DB_USER':'fixture','DEFAULT_DB_PASSWORD':'fixture','DEFAULT_DB_NAME':'fixture','SUPABASE_URL':os.environ['FIXTURE_UPSTREAM'],'SUPABASE_SECRET_KEY':'fixture','CERTIFICATIONS_SERVICE_KEY':'fixture-service','SUPPORT_COUCHDB_URL':'','TELEMETRY_COUCHDB_URL':'','REDIS_URL':'memory://','FERNET_KEY_SECRET':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=','SERVER_FERNET_KEY_SECRET':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=','ENVIRONMENT':'production'}.items():os.environ[k]=v
 from src.dal.local.redis_adapter import RedisAdapter

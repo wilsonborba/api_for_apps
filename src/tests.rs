@@ -202,6 +202,12 @@ fn central_runtime_discovers_route_add_change_remove_without_service_openapi() {
     let two = domain::documentation::refresh(one, &workspace);
     assert!(two["paths"]["/apps/certifications/v1/fixture/one"].is_null());
     assert!(two["paths"]["/apps/certifications/v1/fixture/two"]["post"].is_object());
+    std::fs::write(&source,"r=APIRouter(prefix='/fixture')\n@r.post('/two')\nasync def two(): return {'changed':True}\n").unwrap();
+    let changed = domain::documentation::refresh(two.clone(), &workspace);
+    assert_eq!(
+        changed["paths"]["/apps/certifications/v1/fixture/two"]["post"]["x-source-outdated"],
+        true
+    );
     std::fs::write(&source, "r=APIRouter(prefix='/fixture')\n").unwrap();
     let removed = domain::documentation::refresh(two, &workspace);
     assert!(removed["paths"]["/apps/certifications/v1/fixture/two"].is_null());

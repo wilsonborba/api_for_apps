@@ -17,8 +17,13 @@ async def media_upload(request:Request):
 async def handle(path:str,request:Request):
  if path=='auth/v1/admin/users':return {'users':[{'email':'existing@example.test'}]}
  if path=='auth/v1/user':return {'id':'fixture-subject','email':'fixture@example.test','user_metadata':{'display_name':'Fixture User'}}
- if path=='auth/v1/token':return {'access_token':'fixture-access','session':{'access_token':'fixture-access'}}
- if path=='auth/v1/signup':return {'access_token':'fixture-access'}
+ if path=='auth/v1/token':
+  data=await request.json()
+  if data.get('auth_code')=='fixture-root-response':return {'access_token':'fixture-access','token_type':'bearer','expires_in':3600}
+  return {'access_token':'fixture-access','session':{'access_token':'fixture-access'}}
+ if path=='auth/v1/signup':
+  data=await request.json()
+  return {'user':{'email':data.get('email')}} if str(data.get('email','')).startswith('confirm-required@') else {'access_token':'fixture-access'}
  if path.startswith('auth/v1/'):return {}
  if path=='failure':return Response('unavailable',status_code=503)
  if path.startswith('delay/'):

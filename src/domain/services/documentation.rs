@@ -4,7 +4,7 @@
 use serde_json::{Value, json};
 use std::{
     collections::{HashMap, HashSet},
-    path::{Path, PathBuf},
+    path::Path,
     sync::{LazyLock, Mutex},
     time::{Duration, Instant},
 };
@@ -26,36 +26,21 @@ pub fn current() -> Value {
     {
         return value.clone();
     }
-    let base: Value = serde_json::from_str(include_str!("../../presentation/assets/openapi.json"))
-        .expect("Embedded central contract");
+    let mut base: Value =
+        serde_json::from_str(include_str!("../../presentation/assets/openapi.json"))
+            .expect("Embedded central contract");
+    if let Ok(text) = std::fs::read_to_string("src/presentation/assets/openapi.json")
+        && let Ok(value) = serde_json::from_str::<Value>(&text)
+        && value["paths"].is_object()
+    {
+        base = value;
+    }
     let workspace = std::env::current_dir()
         .ok()
         .and_then(|p| p.parent().map(Path::to_path_buf));
     let result = workspace.map(|p| refresh(base.clone(), &p)).unwrap_or(base);
     *cache = Some((Instant::now(), result.clone()));
     result
-}
-fn files(root: &Path, extension: &str, out: &mut Vec<PathBuf>) {
-    if let Ok(entries) = std::fs::read_dir(root) {
-        for e in entries.flatten() {
-            let p = e.path();
-            let name = e.file_name();
-            let name = name.to_string_lossy();
-            if name.starts_with('.')
-                || matches!(
-                    name.as_ref(),
-                    "build" | "dist" | "target" | "tests" | "docs" | "tools" | "__pycache__"
-                )
-            {
-                continue;
-            }
-            if p.is_dir() {
-                files(&p, extension, out)
-            } else if p.extension().is_some_and(|x| x == extension) {
-                out.push(p)
-            }
-        }
-    }
 }
 fn methods(body: &str) -> Vec<String> {
     let r = rx(r"\b(get|post|put|patch|delete|head|options)\(");
@@ -181,22 +166,25 @@ pub fn refresh(mut spec: Value, workspace: &Path) -> Value {
             unresolved.push(json!({"app":app,"reason":"Source repository unavailable; retaining last verified contract"}));
             continue;
         }
-        let mut sources = vec![];
-        files(
+        let snapshot = match crate::dal::local::source_inventory::read(
             &repo,
             if entry["language"] == "rust" {
                 "rs"
             } else {
                 "py"
             },
-            &mut sources,
-        );
+        ) {
+            Ok(v) => v,
+            Err(_) => {
+                unresolved.push(json!({"app":app,"reason":"Source snapshot unavailable; retaining last verified contract"}));
+                continue;
+            }
+        };
         let mut found: HashSet<(String, String)> = HashSet::new();
         let mut scanned = HashSet::new();
-        for file in sources {
-            let Ok(text) = std::fs::read_to_string(&file) else {
-                continue;
-            };
+        for source in snapshot.files {
+            let file = source.path;
+            let text = source.text;
             if entry["language"] == "rust" && !text.contains(".route(") {
                 continue;
             }
@@ -218,6 +206,9 @@ pub fn refresh(mut spec: Value, workspace: &Path) -> Value {
                 let path = rx(r"\{(\w+):path\}").replace_all(&path, "{$1}").to_string();
                 let full = format!("/apps/{app}/v1{path}");
                 found.insert((full.clone(), method.clone()));
+                let previous_hash = spec["paths"][&full][&method]["x-source-tree-sha256"]
+                    .as_str()
+                    .map(str::to_owned);
                 let old = &spec["paths"][&full][&method];
                 if old.is_null() {
                     let mut parameters = vec![];
@@ -239,6 +230,21 @@ pub fn refresh(mut spec: Value, workspace: &Path) -> Value {
                         && !matches("FORCE_AUTH_PROXY_ROUTES")
                         && matches("PUBLIC_PROXY_ROUTES");
                     spec["paths"][&full][&method] = json!({"operationId":format!("{}_{}_{}",app,method,rx(r"\W").replace_all(&path,"_")),"tags":[app],"summary":title,"description":format!("Discovered from the registered {app} service source after the gateway build. {} The source does not provide a centrally verified full contract for this new operation yet; refresh the central build inventory to infer typed fields and review examples.",if public{"Anonymous gateway access is allowed."}else if admin{"Administrator authorization is required."}else{"Session authorization is required. Mutable session requests require CSRF."}),"parameters":parameters,"responses":{"default":{"description":"Response contract requires central review; no schema is fabricated."}},"security":if public{json!([])}else{json!([{"SessionCookie":[]},{"AdminKey":[]}])},"x-source":relative,"x-discovery-gaps":["New source route: typed contract and examples require build-time inference or central override."]});
+                }
+                let op = &mut spec["paths"][&full][&method];
+                op["x-source-current-sha256"] = json!(snapshot.sha256);
+                if let Some(old_hash) = previous_hash {
+                    if old_hash != snapshot.sha256 {
+                        op["x-source-outdated"] = json!(true);
+                        let mut gaps = op["x-discovery-gaps"]
+                            .as_array()
+                            .cloned()
+                            .unwrap_or_default();
+                        gaps.push(json!("Service source changed after contract generation. Regenerate central typed contracts; current route membership was checked."));
+                        op["x-discovery-gaps"] = json!(gaps);
+                    }
+                } else {
+                    op["x-source-tree-sha256"] = json!(snapshot.sha256);
                 }
             }
         }

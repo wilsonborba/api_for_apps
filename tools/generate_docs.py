@@ -6,6 +6,12 @@ Unknown contracts remain marked x-discovery-gaps. Central overrides can fill the
 import ast,json,pathlib,re,argparse,hashlib
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser();p.add_argument('--workspace',type=pathlib.Path,default=ROOT.parent);p.add_argument('--check',action='store_true');a=p.parse_args()
+def source_hash(repo,extension):
+ h=hashlib.sha256()
+ for f in sorted(repo.rglob('*.'+extension)):
+  if any(x.startswith('.') or x in ('build','dist','target','tests','docs','tools','__pycache__') for x in f.relative_to(repo).parts):continue
+  h.update(str(f.relative_to(repo)).encode());h.update(b'\0');h.update(f.read_bytes());h.update(b'\0')
+ return h.hexdigest()
 OUT=ROOT/'src/presentation/assets/openapi.json';OVERRIDE=ROOT/'src/presentation/assets/descriptions.json';components={};operations={};gaps=[];seen=set()
 def literal(n,default=None):
  try:return ast.literal_eval(n)
@@ -270,6 +276,21 @@ if OVERRIDE.exists():
  for key,override in json.loads(OVERRIDE.read_text()).items():
   method,path=key.split(' ',1)
   if path in operations and method.lower() in operations[path]:operations[path][method.lower()].update(override)
+# Missing sources retain centrally owned last-known contracts instead of deleting documentation.
+previous=json.loads(OUT.read_text()) if OUT.exists() else {}
+for app,entry in registry.items():
+ repo=a.workspace/entry['source']
+ if not repo.exists() or entry['language']=='rust' and not (repo/'engine/src/presentation/api/server.rs').exists():
+  for path,ms in previous.get('paths',{}).items():
+   for method,op in ms.items():
+    if op.get('tags')==[app]:operations.setdefault(path,{})[method]=op
+  for name,model in previous.get('components',{}).get('schemas',{}).items():components.setdefault(name,model)
+  if entry['language']=='rust':gaps.append({'app':app,'gaps':['Source unavailable; retaining last central contract']})
+  continue
+ digest=source_hash(repo,'rs' if entry['language']=='rust' else 'py')
+ for path,ms in operations.items():
+  for method,op in ms.items():
+   if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
 gaps=[g for g in gaps if g.get('path') not in operations or operations[g['path']].get(g.get('method',''),{}).get('x-discovery-gaps')]
 result={'openapi':'3.1.0','info':{'title':'Asodya Application Gateway API','version':'1.2.0','description':'Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.'},'servers':[{'url':'https://api.asodya.com'}],'paths':dict(sorted(operations.items())),'components':{'schemas':components,'securitySchemes':{'SessionCookie':{'type':'apiKey','in':'cookie','name':'sid'},'AdminKey':{'type':'apiKey','in':'header','name':'Authorization'}}},'x-discovery-gaps':gaps}
 rendered=json.dumps(result,indent=2,sort_keys=True)+'\n'

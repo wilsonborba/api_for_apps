@@ -51,6 +51,23 @@ impl Settings {
                 );
             }
         }
+        if let Some(port) = self.values.get("DEFAULT_DB_PORT") {
+            port.parse::<u16>()
+                .map_err(|_| anyhow::anyhow!("Invalid DEFAULT_DB_PORT"))?;
+        }
+        for key in [
+            "PUBLIC_PROXY_ROUTES",
+            "FORCE_AUTH_PROXY_ROUTES",
+            "ADMIN_PROTECTED_PROXY_ROUTES",
+            "APP_EXCHANGE_ORIGINS",
+            "EXCHANGE_ALLOWED_APPS",
+            "OAUTH_PROVIDERS",
+        ] {
+            if let Some(value) = self.values.get(key) {
+                serde_json::from_str::<Value>(value)
+                    .map_err(|_| anyhow::anyhow!("Invalid JSON setting: {key}"))?;
+            }
+        }
         Ok(())
     }
     pub fn get(&self, k: &str) -> String {

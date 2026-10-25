@@ -90,9 +90,11 @@ pub async fn issue(s: &State, access: &str, app: &str) -> Result<String> {
     let p = provider(s, reqwest::Method::GET, "user", None, Some(access)).await?;
     let email = p["email"]
         .as_str()
+        .filter(|value| !value.is_empty())
         .ok_or_else(|| anyhow!("Supabase user payload is missing email or id"))?;
     let sub = p["id"]
         .as_str()
+        .filter(|value| !value.is_empty())
         .ok_or_else(|| anyhow!("Supabase user payload is missing email or id"))?;
     let display = p["user_metadata"]["display_name"]
         .as_str()

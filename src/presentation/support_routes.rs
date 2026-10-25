@@ -15,6 +15,14 @@ pub async fn handle(
         Ok(Some(u)) if u["user_uuid_id"].is_string() => u,
         _ => return detail(403, "Support tickets require an authenticated user session"),
     };
+    let contract_path = if path.starts_with("tickets/") && path.ends_with("/messages") {
+        "/apps/support/v1/tickets/{ticket_id}/messages".to_owned()
+    } else {
+        format!("/apps/support/v1/{path}")
+    };
+    if let Some(r) = super::validation::request(m.as_str(), &contract_path, h, &b) {
+        return r;
+    }
     let admin = u["access_level"] == 1;
     if path == "attachments" && m == Method::POST {
         return attachment(s, &u, h, b).await;

@@ -241,3 +241,40 @@ async fn method_and_typed_body_contracts() {
         422
     );
 }
+
+#[tokio::test]
+async fn support_auth_precedes_body_validation() {
+    let s = state().await;
+    let (status, _) = call(
+        s.clone(),
+        "POST",
+        "/apps/support/v1/tickets",
+        json!({}),
+        &[("content-type", "application/json")],
+    )
+    .await;
+    assert_eq!(status, 403);
+    s.cache
+        .set(
+            "exchange_auth_app:user",
+            json!({"user_uuid_id":"u","access_level":3,"csrf_token":"c"}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    let (status, v) = call(
+        s,
+        "POST",
+        "/apps/support/v1/tickets",
+        json!({}),
+        &[
+            ("content-type", "application/json"),
+            ("cookie", "sid=user; csrf=c"),
+            ("x-csrf-token", "c"),
+        ],
+    )
+    .await;
+    assert_eq!(status, 422);
+    assert!(v["detail"].is_array());
+}

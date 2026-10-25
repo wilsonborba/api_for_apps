@@ -166,7 +166,9 @@ async fn handle(
     if validation::method_allowed(m.as_str(), path) == Some(false) {
         return detail(405, "Method Not Allowed");
     }
-    if let Some(r) = validation::request(m.as_str(), path, h, &b) {
+    if !path.starts_with("/apps/support/")
+        && let Some(r) = validation::request(m.as_str(), path, h, &b)
+    {
         return r;
     }
     if matches!(path, "/apps/api/v1/hello_apps" | "/user/v1/hello_user") && m == Method::GET {

@@ -82,6 +82,8 @@ async fn dispatch(
         docs::spec()
     } else if path == "/docs/favicon.svg" && method == Method::GET {
         docs::favicon()
+    } else if path.starts_with("/docs/assets/") && method == Method::GET {
+        docs::asset(&path, &h)
     } else if path == "/apps/api/v1/logs/stream" && method == Method::GET {
         logs::stream(&s, &h).await
     } else {

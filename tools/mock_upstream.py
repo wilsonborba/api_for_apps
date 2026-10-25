@@ -20,7 +20,7 @@ async def handle(path:str,request:Request):
  if path=='auth/v1/token':
   data=await request.json()
   if data.get('auth_code')=='fixture-root-response':return {'access_token':'fixture-access','token_type':'bearer','expires_in':3600}
-  return {'access_token':'fixture-access','session':{'access_token':'fixture-access'}}
+  return {'access_token':'fixture-access','token_type':'bearer','expires_in':3600}
  if path=='auth/v1/signup':
   data=await request.json()
   return {'user':{'email':data.get('email')}} if str(data.get('email','')).startswith('confirm-required@') else {'access_token':'fixture-access'}

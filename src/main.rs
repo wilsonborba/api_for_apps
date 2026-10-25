@@ -39,7 +39,9 @@ async fn main() -> anyhow::Result<()> {
         presentation::router(state).into_make_service_with_connect_info::<std::net::SocketAddr>(),
     )
     .with_graceful_shutdown(async {
-        let _ = tokio::signal::ctrl_c().await;
+        let mut term = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("SIGTERM handler");
+        tokio::select! {_=tokio::signal::ctrl_c()=>{},_=term.recv()=>{}}
     })
     .await?;
     Ok(())

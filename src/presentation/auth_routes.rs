@@ -56,6 +56,7 @@ pub async fn handle(
     if path == "/apps/api/v1/exchange" && m == Method::POST {
         let token = v["auth_exchange_token"]
             .as_str()
+            .filter(|t| !t.is_empty())
             .or(v["token"].as_str())
             .unwrap_or("");
         if token.is_empty() {

@@ -26,14 +26,15 @@ class MemoryRedis:
   if k in self.values:self.values[k]=(self.values[k][0],time.monotonic()+ttl)
  async def ttl(self,k):return int(self.values[k][1]-time.monotonic()) if k in self.values else -2
 import src.dal.local.redis_adapter as rc
-rc.RedisAdapter=MemoryRedis
+rc.RedisAdapter=MemoryRedis if not os.environ.get('FIXTURE_REDIS_URL') else RedisAdapter
+os.environ['REDIS_URL']=os.environ.get('FIXTURE_REDIS_URL','memory://')
 from sqlalchemy import create_engine
 from src.dal.local.db_adapter import DBAdapter
 original_init=DBAdapter.__init__
 def init(self,engine=None):original_init(self,engine or create_engine('sqlite:///'+os.environ['TEST_SQLITE_PATH'],connect_args={'check_same_thread':False}))
 DBAdapter.__init__=init
 import main
-main.RedisAdapter=MemoryRedis
+main.RedisAdapter=rc.RedisAdapter
 from src.domain.services.local_proxy_service import LocalProxyService
 LocalProxyService.get_full_url=lambda self,app,path:os.environ['FIXTURE_UPSTREAM']+path
 app=main.app

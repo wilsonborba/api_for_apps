@@ -10,14 +10,11 @@ pub fn favicon() -> Response {
         .into_response()
 }
 pub fn spec() -> Response {
-    (
-        [(axum::http::header::CONTENT_TYPE, "application/json")],
-        include_str!("assets/openapi.json"),
-    )
-        .into_response()
+    axum::Json(crate::domain::documentation::current()).into_response()
 }
+
 pub fn hello() -> Response {
-    static VERSES: std::sync::LazyLock<Vec<Vec<Value>>> = std::sync::LazyLock::new(|| {
+    static VERSES: std::sync::LazyLock<Vec<Vec<Vec<Value>>>> = std::sync::LazyLock::new(|| {
         serde_json::from_str(include_str!("../dal/data/verses.json"))
             .expect("Embedded verse dataset")
     });
@@ -26,7 +23,12 @@ pub fn hello() -> Response {
         return response(500, "Verse data unavailable", Value::Null);
     }
     let book = &b[rand::random::<u64>() as usize % b.len()];
-    let verse = &book[rand::random::<u64>() as usize % book.len()];
+    let chapter = &book[rand::random::<u64>() as usize % book.len()];
+    let verse = &chapter[rand::random::<u64>() as usize % chapter.len()];
+    // Preserve the existing missing-KJV-data failure until owner resolves #48.
+    if verse.is_null() {
+        return (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
+    }
     response(
         200,
         "Hello, World, this is an opened test endpoint.",

@@ -178,3 +178,32 @@ async fn docs_only_and_public_spec() {
     assert_eq!(status, 200);
     assert!(v["paths"].as_object().unwrap().len() > 100);
 }
+
+#[test]
+fn central_runtime_discovers_route_add_change_remove_without_service_openapi() {
+    let workspace =
+        std::env::temp_dir().join(format!("asodya-source-test-{}", uuid::Uuid::new_v4()));
+    let repo = workspace.join("certifications_api");
+    std::fs::create_dir_all(&repo).unwrap();
+    let source = repo.join("routes.py");
+    let base = json!({"paths":{}});
+    std::fs::write(
+        &source,
+        "r=APIRouter(prefix='/fixture')\n@r.get('/one')\nasync def one(): pass\n",
+    )
+    .unwrap();
+    let one = domain::documentation::refresh(base, &workspace);
+    assert!(one["paths"]["/apps/certifications/v1/fixture/one"]["get"].is_object());
+    std::fs::write(
+        &source,
+        "r=APIRouter(prefix='/fixture')\n@r.post('/two')\nasync def two(): pass\n",
+    )
+    .unwrap();
+    let two = domain::documentation::refresh(one, &workspace);
+    assert!(two["paths"]["/apps/certifications/v1/fixture/one"].is_null());
+    assert!(two["paths"]["/apps/certifications/v1/fixture/two"]["post"].is_object());
+    std::fs::write(&source, "r=APIRouter(prefix='/fixture')\n").unwrap();
+    let removed = domain::documentation::refresh(two, &workspace);
+    assert!(removed["paths"]["/apps/certifications/v1/fixture/two"].is_null());
+    std::fs::remove_dir_all(workspace).unwrap();
+}

@@ -87,12 +87,17 @@ impl Database {
     pub async fn fields(&self) -> Result<Value> {
         match self {
             Self::Pg(p) => {
-                let rows=sqlx::query("SELECT column_name,data_type FROM information_schema.columns WHERE table_name='defaultdb_user'").fetch_all(p).await?;
+                let rows=sqlx::query("SELECT a.attname,pg_catalog.format_type(a.atttypid,a.atttypmod) FROM pg_catalog.pg_attribute a JOIN pg_catalog.pg_class c ON c.oid=a.attrelid JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE c.relname='defaultdb_user' AND n.nspname=current_schema() AND a.attnum>0 AND NOT a.attisdropped").fetch_all(p).await?;
                 let mut o = serde_json::Map::new();
                 for r in rows {
                     o.insert(
                         r.get::<String, _>(0),
-                        json!(r.get::<String, _>(1).to_uppercase()),
+                        json!(
+                            r.get::<String, _>(1)
+                                .to_uppercase()
+                                .replace("CHARACTER VARYING", "VARCHAR")
+                                .replace("TIMESTAMP WITH TIME ZONE", "TIMESTAMP")
+                        ),
                     );
                 }
                 Ok(Value::Object(o))

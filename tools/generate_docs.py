@@ -238,7 +238,7 @@ def rust_reports(repo):
   prefixes=[''] if pos>=boundary else ['/projects/{project}/admin','/admin/projects/{project}']
   for prefix in prefixes:
    for method in set(methods):
-    if prefix.startswith('/projects/') and method=='get' and expr.strip() in ('schemas','grants','calcs','snapshots'):continue
+    if prefix.startswith('/projects/') and method=='get' and path in ('/schemas','/grants','/calculations','/reports/{report}/datasets/{dataset}/snapshots'):continue
     hm=re.search(r'\b'+method+r'\((?:\w+::)*([a-zA-Z_]\w*)',expr)
     signature,annotation=handlers.get(hm.group(1) if hm else '',('',''))
     body_match=re.search(r'Json<([^>]+)>',signature);body=None;params=[];unknown=[]

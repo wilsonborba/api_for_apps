@@ -7,7 +7,12 @@ pub struct Settings {
 }
 impl Settings {
     pub fn load() -> Self {
-        let _ = dotenvy::dotenv();
+        if std::env::var("TEST_SQLITE_PATH")
+            .unwrap_or_default()
+            .is_empty()
+        {
+            let _ = dotenvy::dotenv();
+        }
         Self {
             values: Arc::new(std::env::vars().collect()),
             defaults: Arc::new(serde_json::from_str(include_str!("defaults.json")).unwrap()),

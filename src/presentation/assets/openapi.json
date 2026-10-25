@@ -8249,7 +8249,7 @@
   "info": {
     "description": "Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.",
     "title": "Asodya Application Gateway API",
-    "version": "1.2.0"
+    "version": "1.2.1"
   },
   "openapi": "3.1.0",
   "paths": {

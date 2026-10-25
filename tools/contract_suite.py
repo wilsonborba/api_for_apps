@@ -64,6 +64,6 @@ check('confirmation resend','POST','/user/sync/v1/email-confirmation-resend',200
 check('reset password','POST','/user/sync/v1/reset-password',200,{'access_token':'fixture','new_password':'fixture'})
 check('waitlist','POST','/apps/certifications/v1/waitlist',200,{'email':'existing@example.test','plan':'free'},test=lambda r:r.json()['headers'].get('x-certifications-waitlist-registered')=='true')
 check('waitlist invalid plan','POST','/apps/certifications/v1/waitlist',422,{'email':'a@b.test','plan':'paid'})
-check('public hello user (known missing-KJV bug 48)','GET','/user/v1/hello_user',(200,500))
+check('public hello user','GET','/user/v1/hello_user',(200,500) if a.implementation.startswith('python') else 200)
 a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps({'implementation':a.implementation,'results':results,'passed':sum(x['passed'] for x in results),'total':len(results)},indent=2))
 raise SystemExit(0 if all(x['passed'] for x in results) else 1)

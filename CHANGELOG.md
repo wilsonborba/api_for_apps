@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-10-25
+
+### 🐛 Bug Fixes
+
+- *(api)* Repair OAuth and verse lookup, render Docs once with local assets ([`9a72edf`](https://github.com/wilsonborba/api_for_apps/commit/9a72edf8ab36a9d1d2ae43995f14f9ee7d61407d))
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Synchronize v1.2.0 back to release ([`808f550`](https://github.com/wilsonborba/api_for_apps/commit/808f55060bc31b7a41406f3b67f90249067f28b6))
+- *(release)* Synchronize v1.2.0 back to development ([`2ba5aeb`](https://github.com/wilsonborba/api_for_apps/commit/2ba5aebad9dc7df9ab8e5c0dcc1916f1bf125bb9))
+- *(release)* Synchronize v1.2.0 back to feature main ([`98aa908`](https://github.com/wilsonborba/api_for_apps/commit/98aa908da32b6f210b3444e0b76443e0a1dc3bcb))
 ## [1.2.0] - 2026-10-25
 
 ### 🚀 Features

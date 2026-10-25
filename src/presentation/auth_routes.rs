@@ -407,9 +407,15 @@ async fn oauth_callback(s: &State, v: &Value) -> Response {
             None,
         )
         .await?;
-        let access = r["session"]["access_token"]
+        let access = r["access_token"]
             .as_str()
-            .ok_or_else(|| anyhow::anyhow!("Missing provider session"))?;
+            .filter(|token| !token.trim().is_empty())
+            .or_else(|| {
+                r["session"]["access_token"]
+                    .as_str()
+                    .filter(|token| !token.trim().is_empty())
+            })
+            .ok_or_else(|| anyhow::anyhow!("Missing provider access token"))?;
         let t = auth::issue(s, access, &app).await?;
         s.cache.delete(&key).await?;
         Ok(t)

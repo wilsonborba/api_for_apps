@@ -6,6 +6,7 @@ class DiscoveryTests(unittest.TestCase):
   # Run a copy of the generator so tests never modify central production contracts.
   with tempfile.TemporaryDirectory(prefix='asodya-doc-test-') as tmp:
    root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True);shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py')
+   shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
    for f in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/f,root/'src/core'/f)
    shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json');repo=root/'certifications_api';repo.mkdir();route=repo/'routes.py'
    def generate():

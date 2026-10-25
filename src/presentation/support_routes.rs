@@ -36,6 +36,7 @@ pub async fn handle(
             return detail(422, "Support filter exceeds maximum length");
         }
         if let Some(status) = params.get("status")
+            && !status.is_empty()
             && !["open", "pending", "resolved", "closed"].contains(&status.as_str())
         {
             return response(
@@ -48,10 +49,12 @@ pub async fn handle(
             Ok(mut ts) => {
                 ts.retain(|t| {
                     (admin || t["user_id"] == u["user_uuid_id"])
+                        && params.get("source_app").is_none_or(|a| {
+                            a.trim().is_empty() || t["source_app"] == a.trim().to_lowercase()
+                        })
                         && params
-                            .get("source_app")
-                            .is_none_or(|a| t["source_app"] == a.trim().to_lowercase())
-                        && params.get("status").is_none_or(|a| t["status"] == *a)
+                            .get("status")
+                            .is_none_or(|a| a.is_empty() || t["status"] == *a)
                 });
                 ts.sort_by(|a, b| text(b, "updated_at").cmp(text(a, "updated_at")));
                 response(200, "Support tickets retrieved successfully.", json!(ts))
@@ -180,41 +183,21 @@ async fn attachment(s: &State, u: &Value, h: &HeaderMap, b: Bytes) -> Response {
     if key.is_empty() {
         return response(503, "Attachment storage is not configured.", Value::Null);
     }
-    let part = match reqwest::multipart::Part::bytes(data.to_vec())
-        .file_name(name)
-        .mime_str(&mime)
-    {
-        Ok(p) => p,
-        Err(_) => return detail(422, "Invalid content type"),
-    };
-    let form = reqwest::multipart::Form::new()
-        .text("album", format!("support-{}", text(u, "user_uuid_id")))
-        .text("force", "false")
-        .part("file", part);
-    let r = s
-        .client
-        .post(format!(
-            "{}/{}/media",
-            s.settings.get("FSM_MEDIA_ENDPOINT").trim_end_matches('/'),
-            s.settings.get("FSM_APP_NAME")
-        ))
-        .bearer_auth(key)
-        .timeout(std::time::Duration::from_secs(90))
-        .multipart(form)
-        .send()
-        .await;
-    match r {
-        Ok(r) if r.status().is_success() => {
-            let v = r.json::<Value>().await.unwrap_or(Value::Null);
-            if let Some(key) = v["item"]["key"].as_str().filter(|s| !s.is_empty()) {
-                return response(
-                    201,
-                    "Attachment uploaded successfully.",
-                    json!({"attachment_reference":key}),
-                );
-            }
-            response(502, "Failed to upload the attachment.", Value::Null)
-        }
-        _ => response(502, "Failed to upload the attachment.", Value::Null),
+    let result = crate::dal::remote::fsm::upload(
+        &s.client,
+        &s.settings,
+        &format!("support-{}", text(u, "user_uuid_id")),
+        name,
+        &mime,
+        data.to_vec(),
+    )
+    .await;
+    match result {
+        Ok(key) => response(
+            201,
+            "Attachment uploaded successfully.",
+            json!({"attachment_reference":key}),
+        ),
+        Err(_) => response(502, "Failed to upload the attachment.", Value::Null),
     }
 }

@@ -1,5 +1,5 @@
 //! Read-only operational verification. Never executes schema changes or DML.
-use super::database::Database;
+use crate::dal::database::Database;
 use crate::domain::State;
 use anyhow::{Result, bail};
 use serde_json::{Value, json};
@@ -22,7 +22,7 @@ pub async fn check(state: &State) -> Result<Value> {
         let _:Value=sqlx::query_scalar("SELECT jsonb_build_object('time', CAST($1 AS timestamp with time zone), 'active', CAST($2 AS boolean), 'role', CAST($3 AS integer))").bind("2026-10-25T00:00:00Z").bind("true").bind("3").fetch_one(&mut *tx).await?;
         tx.rollback().await?;
     }
-    let cache = if let super::cache::Cache::Redis(c, _) = &state.cache {
+    let cache = if let crate::dal::cache::Cache::Redis(c, _) = &state.cache {
         let mut c = c.clone();
         let pong: String = redis::cmd("PING").query_async(&mut c).await?;
         pong == "PONG"

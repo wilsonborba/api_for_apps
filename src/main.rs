@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
     {
         println!(
             "{}",
-            serde_json::to_string_pretty(&dal::verification::check(&state).await?)?
+            serde_json::to_string_pretty(&domain::verification::check(&state).await?)?
         );
         return Ok(());
     }

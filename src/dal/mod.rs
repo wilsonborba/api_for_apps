@@ -1,5 +1,4 @@
-pub mod cache;
-pub mod database;
-pub mod documents;
-
-pub mod verification;
+pub mod local;
+pub mod remote;
+pub use local::{cache, database};
+pub use remote::documents;

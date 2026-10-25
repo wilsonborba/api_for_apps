@@ -1,6 +1,6 @@
-pub mod auth;
-pub mod proxy;
-pub mod support;
+pub mod services;
+pub use services::{auth, documentation, proxy, support, verification};
+
 use crate::{
     core::settings::Settings,
     dal::{cache::Cache, database::Database, documents::Documents},
@@ -78,5 +78,3 @@ impl State {
         })
     }
 }
-
-pub mod documentation;

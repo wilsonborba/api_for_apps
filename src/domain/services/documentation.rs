@@ -26,7 +26,7 @@ pub fn current() -> Value {
     {
         return value.clone();
     }
-    let base: Value = serde_json::from_str(include_str!("../presentation/assets/openapi.json"))
+    let base: Value = serde_json::from_str(include_str!("../../presentation/assets/openapi.json"))
         .expect("Embedded central contract");
     let workspace = std::env::current_dir()
         .ok()
@@ -172,8 +172,8 @@ fn rust_routes(text: &str) -> Vec<(String, String, String)> {
     out
 }
 pub fn refresh(mut spec: Value, workspace: &Path) -> Value {
-    let registry: Value = serde_json::from_str(include_str!("../core/apps.json")).unwrap();
-    let defaults: Value = serde_json::from_str(include_str!("../core/defaults.json")).unwrap();
+    let registry: Value = serde_json::from_str(include_str!("../../core/apps.json")).unwrap();
+    let defaults: Value = serde_json::from_str(include_str!("../../core/defaults.json")).unwrap();
     let mut unresolved = vec![];
     for (app, entry) in registry.as_object().unwrap() {
         let repo = workspace.join(entry["source"].as_str().unwrap());

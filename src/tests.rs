@@ -207,3 +207,37 @@ fn central_runtime_discovers_route_add_change_remove_without_service_openapi() {
     assert!(removed["paths"]["/apps/certifications/v1/fixture/two"].is_null());
     std::fs::remove_dir_all(workspace).unwrap();
 }
+
+#[tokio::test]
+async fn method_and_typed_body_contracts() {
+    let s = state().await;
+    assert_eq!(
+        call(s.clone(), "GET", "/user/sync/v1/log-in", json!({}), &[])
+            .await
+            .0,
+        405
+    );
+    let (status, v) = call(
+        s.clone(),
+        "POST",
+        "/user/sync/v1/password-recovery",
+        json!({}),
+        &[("content-type", "application/json")],
+    )
+    .await;
+    assert_eq!(status, 422);
+    assert_eq!(v["detail"][0]["type"], "missing");
+    assert_eq!(v["detail"][0]["loc"], json!(["body", "email"]));
+    assert_eq!(
+        call(
+            s,
+            "POST",
+            "/user/sync/v1/password-recovery",
+            json!({"email":"u@example.test"}),
+            &[("content-type", "text/plain")]
+        )
+        .await
+        .0,
+        422
+    );
+}

@@ -1,4 +1,4 @@
-use super::State;
+use crate::domain::State;
 use anyhow::{Result, anyhow, bail};
 use axum::http::HeaderMap;
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
@@ -64,25 +64,9 @@ pub async fn provider(
     body: Option<Value>,
     access: Option<&str>,
 ) -> Result<Value> {
-    let mut r = s
-        .client
-        .request(
-            method,
-            format!(
-                "{}/auth/v1/{path}",
-                s.settings.get("SUPABASE_URL").trim_end_matches('/')
-            ),
-        )
-        .header("apikey", s.settings.get("SUPABASE_SECRET_KEY"));
-    if let Some(t) = access {
-        r = r.bearer_auth(t)
-    }
-    if let Some(v) = body {
-        r = r.json(&v)
-    }
-    let res = r.send().await?;
-    let status = res.status();
-    let v = res.json::<Value>().await.unwrap_or(json!({}));
+    let (status, v) =
+        crate::dal::remote::supabase::request(&s.client, &s.settings, method, path, body, access)
+            .await?;
     if !status.is_success() {
         let detail = ["msg", "message", "error_description", "error"]
             .iter()

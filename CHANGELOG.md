@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-10-25
+
+### 🚀 Features
+
+- *(rust)* Port gateway authentication storage and application APIs ([`661c459`](https://github.com/wilsonborba/api_for_apps/commit/661c4594847eb0bf92f0bea34e8e56ea4ba3fa01))
+- *(docs)* Refresh central source inventory and verify admin live streams ([`328c892`](https://github.com/wilsonborba/api_for_apps/commit/328c8928fb526fb29ae615aa5af862ff90e1e94c))
+- *(docs)* Detect source changes and reload central contracts without downstream specs ([`670bfac`](https://github.com/wilsonborba/api_for_apps/commit/670bfac118010b765213b690eb386180ff5c21d5))
+
+### 🐛 Bug Fixes
+
+- *(contracts)* Infer typed request models and preserve validation errors ([`2fd9dc7`](https://github.com/wilsonborba/api_for_apps/commit/2fd9dc71766217236b16d48ef3c88c470fbb1eb7))
+- *(auth)* Preserve support authorization before request validation ([`27cf223`](https://github.com/wilsonborba/api_for_apps/commit/27cf223b3c6d17ae4718d9f22f7e4f0bce4368ab))
+- *(verification)* Validate workload responses and initialize branded Scalar explicitly ([`0db1147`](https://github.com/wilsonborba/api_for_apps/commit/0db1147e7453d152e5a3086fbd104c0fb8b45daf))
+- *(runtime)* Preserve required configuration and provider identity validation ([`5fffe7f`](https://github.com/wilsonborba/api_for_apps/commit/5fffe7f615f69b98da85c7e9752b0ed302ae93e4))
+- *(auth)* Reject empty provider identities and malformed required configuration ([`9c4fff2`](https://github.com/wilsonborba/api_for_apps/commit/9c4fff2bc6e17e8729d2c7c78ded4e8535a86c85))
+
+### 🚜 Refactor
+
+- *(rust)* Retire Python runtime and preserve migration and API contracts ([`d89f9ba`](https://github.com/wilsonborba/api_for_apps/commit/d89f9bacbb72fe033ffbc1383e86492a3aae06b4))
+- *(architecture)* Separate Rust adapters and services and verify validation parity ([`21666d5`](https://github.com/wilsonborba/api_for_apps/commit/21666d5e1d093159ebc9a2a5bb32b02e811a1b42))
+
+### 📚 Documentation
+
+- *(api)* Verify request examples and session requirements for central contracts ([`2773b67`](https://github.com/wilsonborba/api_for_apps/commit/2773b67860b0595923e01d02943e29528e35eb6d))
+- *(api)* Explain API contracts and generate deterministic central documentation ([`958983b`](https://github.com/wilsonborba/api_for_apps/commit/958983bccc2c2312e191e8838bf905514100d5d7))
+
+### 🧪 Testing
+
+- *(migration)* Map Python behavior and record reproducible isolated baseline ([`460bcac`](https://github.com/wilsonborba/api_for_apps/commit/460bcac957b153a29e96b80b2895eb958f85e40e))
+- *(migration)* Use verified baseline tools for Rust implementation ([`e5d423e`](https://github.com/wilsonborba/api_for_apps/commit/e5d423e473745c6b9f7150c2947a980fc5f1299f))
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Synchronize v1.1.0 back to release ([`089c848`](https://github.com/wilsonborba/api_for_apps/commit/089c8483d5ab98101a6e44965eb17677d7f486ed))
+- *(release)* Synchronize v1.1.0 back to development ([`60fe4de`](https://github.com/wilsonborba/api_for_apps/commit/60fe4de668b4445545af5ff7dc63c57a0ee3e174))
+- *(release)* Synchronize v1.1.0 back to feature/main ([`92c3968`](https://github.com/wilsonborba/api_for_apps/commit/92c3968e55f67557057fb9d3d0469712c852679e))
 ## [1.1.0] - 2026-10-25
 
 ### 🚀 Features

@@ -72,6 +72,7 @@ def operation(app,path,method,summary,description,params,body,responses,source,w
  op={'operationId':re.sub('[^a-zA-Z0-9_]','_',app+'_'+method+'_'+path),'tags':[app],'summary':summary,'description':narrative,'parameters':params,'responses':responses or {'default':{'description':'Response contract not declared in source; inspect the implementation.','content':{'application/json':{'schema':{}}}}},'security':security,'x-source':source,'x-access-level':level}
  for param in re.findall(r'\{(\w+)\}',full):
   if not any(p['name']==param and p['in']=='path' for p in op['parameters']):op['parameters'].append({'name':param,'in':'path','required':True,'schema':{'type':'string'}})
+ if level!='public' and method.lower() in ('post','put','patch','delete'):op['parameters'].append({'name':'X-CSRF-Token','in':'header','required':False,'schema':{'type':'string'},'description':'Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.'})
  if body:op['requestBody']=body
  if ws:op['x-websocket']=True
  if unknown:op['x-discovery-gaps']=unknown;gaps.append({'path':full,'method':method,'gaps':unknown})

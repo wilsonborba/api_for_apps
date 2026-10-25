@@ -28,15 +28,15 @@ async def main():
    for run in range(a.runs):
     for concurrency in [1,8,32]:
      for name,path in scenarios:
-      scenario_headers={'Authorization':'fixture-admin'} if name=='admin_proxy' else {'Cookie':'sid=fixture-admin-session'} if name=='admin_support_list' else {'Cookie':'sid=fixture-viewer-session'} if name in ('session_proxy','user_info','user_fields','support_list') else {}
-      await client.request('HEAD' if name=='head_transfer' else 'GET',path,headers=scenario_headers)
+      scenario_headers={'Authorization':'fixture-admin'} if name=='admin_proxy' else {'Cookie':'sid=fixture-admin-session'} if name=='admin_support_list' else {'Cookie':'sid=fixture-viewer-session'} if name in ('session_proxy','user_info','user_fields','support_list','head_transfer') else {}
+      await client.request('HEAD' if name=='head_transfer' else 'POST' if name=='admin_proxy' else 'GET',path,headers=scenario_headers)
       sem=asyncio.Semaphore(concurrency)
       async def one(i):
        async with sem:
         start=time.perf_counter_ns();ts=time.time_ns();status=0;size=0;error=''
-        try:r=await client.request('HEAD' if name=='head_transfer' else 'GET',path,headers={'Authorization':'fixture-admin'} if name=='admin_proxy' else {'Cookie':'sid=fixture-admin-session'} if name=='admin_support_list' else {'Cookie':'sid=fixture-viewer-session'} if name in ('session_proxy','user_info','user_fields','support_list') else {});status=r.status_code;size=len(r.content)
+        try:r=await client.request('HEAD' if name=='head_transfer' else 'POST' if name=='admin_proxy' else 'GET',path,headers={'Authorization':'fixture-admin'} if name=='admin_proxy' else {'Cookie':'sid=fixture-admin-session'} if name=='admin_support_list' else {'Cookie':'sid=fixture-viewer-session'} if name in ('session_proxy','user_info','user_fields','support_list','head_transfer') else {});status=r.status_code;size=len(r.content)
         except Exception as e:error=type(e).__name__
-        rows.append({'implementation':a.implementation,'run':run,'scenario':name,'path':path,'concurrency':concurrency,'request':i,'timestamp_ns':ts,'duration_ns':time.perf_counter_ns()-start,'status':status,'response_bytes':size,'error':error})
+        rows.append({'implementation':a.implementation,'run':run,'scenario':name,'method':'HEAD' if name=='head_transfer' else 'POST' if name=='admin_proxy' else 'GET','path':path,'concurrency':concurrency,'request':i,'timestamp_ns':ts,'duration_ns':time.perf_counter_ns()-start,'status':status,'response_bytes':size,'error':error,'expected_status':403 if name=='protected_denied' else 503 if name=='upstream_failure' else 200,'known_baseline_bug':name=='hello' and status!=200})
       await asyncio.gather(*(one(i) for i in range(a.requests)))
  finally:
   stop=True;await sampling
@@ -46,3 +46,6 @@ for name,data in [('requests',rows),('resources',samples)]:
   w=csv.DictWriter(f,fieldnames=list(data[0]) if data else []);w.writeheader();w.writerows(data)
 meta={'implementation':a.implementation,'harness_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'application_commit':subprocess.check_output(['git','-C',str(pathlib.Path('../api_for_apps-python-baseline') if a.implementation.startswith('python') else pathlib.Path('.')),'rev-parse','HEAD'],text=True).strip(),'binary_sha256':hashlib.sha256(pathlib.Path('target/release/api-for-apps').read_bytes()).hexdigest() if a.implementation.startswith('rust') else None,'workers':4,'worker_model':'4 Gunicorn UvicornWorker processes' if a.implementation.startswith('python') else '4 Tokio workers','platform':platform.platform(),'cpus':os.cpu_count(),'url':a.url,'requests_per_scenario':a.requests,'runs':a.runs,'dependency':'local deterministic double','database':'SQLite fixture','cache':'loopback Redis RESP2/RESP3 test double' if a.extended else 'process-local memory fixture','clock':'perf_counter_ns','resource_sample_seconds':.1,'limitations':['Closed-loop clients; offered rate follows completion','No production PostgreSQL locking or driver write verification','Provider operations use doubles','CPU shared with host services; repeat matched trials','Protected-denied scenarios measure access rejection']}
 (a.output/'metadata.json').write_text(json.dumps(meta,indent=2));print(len(rows),'requests',len(samples),'resource samples')
+
+unexpected=[r for r in rows if r['status']!=r['expected_status'] and not r['known_baseline_bug']]
+if unexpected:raise SystemExit(f'{len(unexpected)} unexpected responses; retain raw data and correct the experiment before comparison')

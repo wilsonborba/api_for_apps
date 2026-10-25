@@ -8793,7 +8793,17 @@
       "post": {
         "description": "Save completed quiz. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "certifications_post__quizzes_completed",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -8875,6 +8885,15 @@
             "in": "path",
             "name": "quiz_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -9043,6 +9062,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -9122,6 +9150,15 @@
             "in": "path",
             "name": "quiz_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -9272,6 +9309,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -9355,6 +9401,15 @@
             "in": "path",
             "name": "token",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -9544,7 +9599,17 @@
       "post": {
         "description": "Create study. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "certifications_post__studies",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -9613,6 +9678,15 @@
             "in": "path",
             "name": "study_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -9723,6 +9797,15 @@
             "in": "path",
             "name": "study_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -9906,6 +9989,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -10035,6 +10127,15 @@
             "in": "path",
             "name": "study_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10189,6 +10290,15 @@
             "name": "kind",
             "required": true,
             "schema": {}
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -10273,6 +10383,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -10330,6 +10449,15 @@
             "in": "path",
             "name": "source_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10398,6 +10526,15 @@
             "in": "path",
             "name": "source_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10528,7 +10665,17 @@
       "post": {
         "description": "Submit video. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "cortex_post__attachments_video",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -10693,7 +10840,17 @@
       "post": {
         "description": "Create conversation. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCreates a new, empty conversation's metadata row. No message turns\nexist yet, so it will not appear from Hippocampus alone until the first\nturn is recorded, this row is what makes it visible in the meantime.",
         "operationId": "cortex_post__conversations",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -10756,6 +10913,15 @@
             "in": "path",
             "name": "conversation_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10856,6 +11022,15 @@
             "in": "path",
             "name": "conversation_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -10971,7 +11146,17 @@
       "post": {
         "description": "Execute. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "cortex_post__execute",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -11307,7 +11492,17 @@
       "post": {
         "description": "Sync models. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "cortex_post__models_sync",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -11424,6 +11619,15 @@
             "in": "path",
             "name": "model_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -11723,6 +11927,15 @@
                 }
               ]
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -11797,7 +12010,17 @@
       "post": {
         "description": "Create pin. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "cortex_post__routing_pins",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12202,6 +12425,15 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -12265,7 +12497,17 @@
       "post": {
         "description": "Chat completions. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "cortex_post__v1_chat_completions",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12377,7 +12619,17 @@
       "post": {
         "description": "Create category. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "domain_post__categories",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12437,7 +12689,17 @@
       "post": {
         "description": "Create flutter icon. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "domain_post__flutter_icons",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12535,7 +12797,17 @@
       "post": {
         "description": "Accept legal document. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
         "operationId": "domain_post__legal_accept",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12706,7 +12978,17 @@
       "post": {
         "description": "Create project. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "domain_post__projects",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -12779,6 +13061,15 @@
             "in": "path",
             "name": "slug",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -12881,6 +13172,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -12960,6 +13260,15 @@
             "name": "payload",
             "required": true,
             "schema": {}
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -13133,6 +13442,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -13277,6 +13595,15 @@
             "in": "path",
             "name": "slug",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -13456,7 +13783,17 @@
       "post": {
         "description": "Sync all stats. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "domain_post__system_sync_stats",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -13507,6 +13844,15 @@
             "in": "path",
             "name": "slug",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -13616,6 +13962,15 @@
             "in": "path",
             "name": "manifest",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -13769,6 +14124,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -13842,6 +14206,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -13909,6 +14282,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -13970,6 +14352,15 @@
             "in": "path",
             "name": "version",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -14077,6 +14468,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -14162,6 +14562,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14212,6 +14621,15 @@
             "in": "path",
             "name": "schema",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -14293,6 +14711,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -14424,6 +14851,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14469,6 +14905,15 @@
             "in": "path",
             "name": "report",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -14583,6 +15028,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14636,6 +15090,15 @@
             "in": "path",
             "name": "dataset",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -14783,6 +15246,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14875,6 +15347,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14920,6 +15401,15 @@
             "in": "path",
             "name": "user",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -15033,6 +15523,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -15127,6 +15626,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -15202,6 +15710,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -15258,6 +15775,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -15958,6 +16484,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -16034,6 +16569,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16104,6 +16648,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16171,6 +16724,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16216,6 +16778,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16307,6 +16878,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16360,6 +16940,15 @@
             "in": "path",
             "name": "schema",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16444,6 +17033,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16578,6 +17176,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16626,6 +17233,15 @@
             "in": "path",
             "name": "report",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16743,6 +17359,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16799,6 +17424,15 @@
             "in": "path",
             "name": "dataset",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -16896,6 +17530,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -16987,6 +17630,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -17035,6 +17687,15 @@
             "in": "path",
             "name": "user",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -17105,6 +17766,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -17205,6 +17875,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -17283,6 +17962,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -17342,6 +18030,15 @@
             "in": "path",
             "name": "project",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -18360,7 +19057,17 @@
       "post": {
         "description": "Upload one multipart file for a support message. A real authenticated user session is required, including for an administrator. Send the matching CSRF cookie/header. The maximum file size is 15 MiB. A successful response contains attachment_reference. Pass that reference in a ticket or message request. This operation does not create a ticket. Missing storage configuration returns 503; storage failure returns 502.",
         "operationId": "gateway_post__apps_support_v1_attachments",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -18495,7 +19202,17 @@
       "post": {
         "description": "Create a support ticket. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOpens a new cross-app support ticket with its first message.",
         "operationId": "gateway_post__apps_support_v1_tickets",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18615,6 +19332,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -18690,6 +19416,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -18740,6 +19475,15 @@
             "in": "path",
             "name": "ticket_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -18842,7 +19586,17 @@
       "post": {
         "description": "Create certification. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__certifications",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18924,6 +19678,15 @@
             "in": "path",
             "name": "slug_or_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -19034,6 +19797,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -19114,6 +19886,15 @@
             "in": "path",
             "name": "slug_or_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -19266,6 +20047,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -19375,7 +20165,17 @@
       "post": {
         "description": "Upsert contact. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__contact",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -19438,7 +20238,17 @@
       "put": {
         "description": "Upsert contact. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_put__contact",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -19577,6 +20387,15 @@
                 }
               ]
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -19692,7 +20511,17 @@
       "post": {
         "description": "Create document. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__documents",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -19816,6 +20645,15 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -19884,6 +20722,15 @@
             "in": "path",
             "name": "slug_or_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -19986,6 +20833,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -20057,6 +20913,15 @@
             "in": "path",
             "name": "slug_or_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -20238,7 +21103,17 @@
       "post": {
         "description": "Create education. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__educations",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -20310,6 +21185,15 @@
             "in": "path",
             "name": "edu_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -20412,6 +21296,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -20482,6 +21375,15 @@
             "in": "path",
             "name": "edu_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -20598,7 +21500,17 @@
       "post": {
         "description": "Create experience. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__experiences",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -20671,6 +21583,15 @@
             "in": "path",
             "name": "exp_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -20773,6 +21694,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -20844,6 +21774,15 @@
             "in": "path",
             "name": "exp_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -20919,6 +21858,15 @@
           {
             "in": "query",
             "name": "album",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
             "required": false,
             "schema": {
               "type": "string"
@@ -21100,7 +22048,17 @@
       "post": {
         "description": "Upsert profile. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__profile",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21163,7 +22121,17 @@
       "put": {
         "description": "Upsert profile. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_put__profile",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21329,7 +22297,17 @@
       "post": {
         "description": "Upsert project preference. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__projects_preferences",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21398,7 +22376,17 @@
       "put": {
         "description": "Upsert project preference. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_put__projects_preferences",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21477,6 +22465,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -21527,6 +22524,15 @@
             "in": "path",
             "name": "slug",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -21703,7 +22709,17 @@
       "post": {
         "description": "Create skill group. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__skills",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21770,6 +22786,15 @@
             "in": "path",
             "name": "group_id",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -21872,6 +22897,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -21940,6 +22974,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -22002,7 +23045,17 @@
       "post": {
         "description": "Trigger domain sync. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
         "operationId": "wilson_borba_post__sync_domain",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -22065,6 +23118,15 @@
                   "type": "null"
                 }
               ]
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -22194,7 +23256,17 @@
       "patch": {
         "description": "Update User Info. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThis endpoint updates user information.",
         "operationId": "gateway_patch__user_info_v1_",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -22455,7 +23527,17 @@
       "post": {
         "description": "Revoke the current Redis-backed session and clear sid and csrf cookies. Session authentication and matching CSRF cookie/header are required for browser calls.",
         "operationId": "gateway_post__user_sync_v1_log_out",
-        "parameters": [],
+        "parameters": [
+          {
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

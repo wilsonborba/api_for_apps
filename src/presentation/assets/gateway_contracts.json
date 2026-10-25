@@ -491,7 +491,17 @@
         ],
         "summary": "Upload a support ticket attachment",
         "description": "Upload a support ticket attachment. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nUploads a file to FSM's media storage and returns its reference. Pass the returned attachment_reference when creating a ticket or posting a message; this endpoint never touches a ticket itself.",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
+          }
+        ],
         "responses": {
           "201": {
             "description": "Successful operation.",
@@ -551,7 +561,17 @@
         ],
         "summary": "Create a support ticket",
         "description": "Create a support ticket. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOpens a new cross-app support ticket with its first message.",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
+          }
+        ],
         "responses": {
           "201": {
             "description": "Successful operation.",
@@ -746,6 +766,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
           }
         ],
         "responses": {
@@ -821,6 +850,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
           }
         ],
         "responses": {
@@ -874,6 +912,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
           }
         ],
         "responses": {
@@ -961,7 +1008,17 @@
         ],
         "summary": "Update User Info",
         "description": "Update User Info. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThis endpoint updates user information.",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation.",
@@ -1222,7 +1279,17 @@
         ],
         "summary": "Log out user",
         "description": "Revoke the current Redis-backed session and clear sid and csrf cookies. Session authentication and matching CSRF cookie/header are required for browser calls.",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Required for cookie sessions; must equal the csrf cookie. Administrative key calls bypass CSRF where permitted."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful operation.",

@@ -1,75 +1,83 @@
-# api_for_apps
+# Asodya Application Gateway
 
-Central API Gateway, Reverse Proxy, and Authentication Middleware for Asodya Applications.
+Rust API for Asodya authentication, application proxying, support tickets, and frontend error reports.
 
-## Overview
+The public API is `https://api.asodya.com`. Public English documentation uses Scalar at `/docs`. Administrative operations remain protected even though their descriptions are public.
 
-`api_for_apps` serves as the central hub and control plane for Asodya's ecosystem of applications. It manages session exchange, role-scoped routing, real-time client error telemetry, and reverse-proxying requests to internal backend services (such as `certifications_api`).
+## Requirements
 
-## Key Features
+- Rust stable and Cargo.
+- PostgreSQL, Redis or Valkey, CouchDB, and configured Supabase/FSM services.
+- Python 3 for the build-time source documentation extractor and development measurement tools. The API process runs entirely in Rust.
 
-- **Authentication & Session Exchange**: Centralized Supabase session token verification, exchange, and role-scoped authorization.
-- **Client Telemetry Engine**: Ingests client errors (`POST /telemetry/v1/client-errors`) with Redis IP-based rate limiting (10 requests/min/IP), asynchronous CouchDB persistence (`client_errors` database), and admin retrieval (`GET /telemetry/v1/client-errors`).
-- **Reverse Proxying**: Dynamic, authenticated proxy routing to domain-specific microservices with secure header forwarding and attestation.
-- **CORS & Multi-App Support**: Preconfigured cross-origin sharing and routing tailored for Asodya frontend clients (`auth.asodya.com`, `certifications.asodya.com`).
+Keep private connection values and credentials in the canonical `.env`. Start from `.env.example`. Non-secret defaults and application registration live in `src/core/defaults.json` and `src/core/apps.json`.
 
-## Architecture & Tech Stack
+## Build and run
 
-- **Runtime**: Python 3.12+ / FastAPI / Uvicorn
-- **Databases & Cache**:
-  - PostgreSQL (via SQLAlchemy & Alembic for user/app schema)
-  - CouchDB (for structured client telemetry logs)
-  - Redis (for caching, token lookup, and rate limiting)
-- **Deployment**: Systemd service (`asodya-api.service`) managed via Cloudflare Tunnel / Reverse Proxy.
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.12+
-- `uv` or `pip`
-- Running instances of PostgreSQL, CouchDB, and Redis
-
-### Installation
-
-```bash
-# Clone the repository
-git clone git@github.com:wilsonborba/api_for_apps.git
-cd api_for_apps
-
-# Create virtual environment and install dependencies
-uv venv
-source .venv/bin/activate
-uv pip install -e .
+```sh
+python3 tools/generate_docs.py
+cargo build --release --locked
+scripts/app_prod_run.sh
 ```
 
-### Environment Configuration
+The production listener defaults to `0.0.0.0:8101`. `HOST`, `PORT`, and `TOKIO_WORKER_THREADS` can override process settings. The production launcher defaults to four Tokio workers.
 
-Create a `.env` file based on `.env.example`:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/asodya
-COUCHDB_URL=http://admin:password@localhost:5984
-REDIS_URL=redis://localhost:6379/0
-SUPABASE_URL=https://<your-project>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-key
+```sh
+sudo scripts/install_service.sh
 ```
 
-### Running Locally
+The installer builds as the repository owner, installs `asodya-api.service`, and restarts the service. It does not run migrations.
 
-```bash
-uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+For local development:
+
+```sh
+scripts/app_dev_run.sh
 ```
 
-## Changelog & Releases
+## Architecture
 
-Changelogs are automatically generated using [git-cliff](https://git-cliff.org) adhering to Conventional Commits.
+- `src/core`: configuration and logging.
+- `src/dal`: PostgreSQL/SQLite, Redis MessagePack, and CouchDB adapters.
+- `src/domain`: authentication, support, proxying, and central source discovery.
+- `src/presentation`: request handlers, validation, Scalar, and documentation assets.
+- `src/main.rs`: startup, listener, operational commands, and shutdown.
 
-```bash
-# Generate changelog for next release
-git cliff -o CHANGELOG.md --tag <tag>
+The gateway forwards `/apps/{app}/v1/{path}` to each registered backend. It validates sessions and permissions before adding internal identity headers. Authentication uses Supabase through the gateway, single-use Fernet exchange artifacts, and Redis-backed `sid`/`csrf` sessions.
+
+PostgreSQL remains the identity and ticket index store. CouchDB stores support threads and frontend telemetry. SQLite is limited to isolated test fixtures.
+
+## Central documentation
+
+All gateway and downstream documentation content belongs to this repository. No downstream OpenAPI endpoint is required.
+
+`tools/generate_docs.py` reads configured sibling service sources without importing or starting them. It builds detailed central contracts. English descriptions and reviewed exceptions live in `src/presentation/assets/`. Use `--check` to detect an outdated generated inventory.
+
+The running Rust API also checks available source registrations when `/openapi.json` is requested. It caches the result for ten seconds. Source checksums flag changes to routes or imported models. New routes appear with explicit contract gaps until central generation or a reviewed override supplies their details. The running API reloads centrally generated contracts without a restart. Missing source repositories retain their last verified contracts and report their status. Source scanning never changes service code.
+
+Only `/docs` serves the gateway documentation UI. `/scalar` is not a gateway documentation page.
+
+## Administrative live logs
+
+- `GET /apps/api/v1/logs/stream`: gateway Server-Sent Events.
+- `WS /apps/cortex/v1/logs/stream`: existing Cortex backend stream through the gateway.
+- `WS /apps/certifications/v1/logs/stream`: existing Certifications stream through the gateway.
+
+These require an administrator session or administrative credential. The gateway rechecks authorization during each connection. Streams use bounded buffering and create no new archive. Existing system logging continues normally.
+
+## Verification and existing database history
+
+```sh
+cargo test
+cargo clippy --all-targets -- -D warnings
+python3 -m unittest discover -s tools -p 'test_docs_generation.py'
+target/release/api-for-apps check-storage
+scripts/migration_status.sh
 ```
 
-## License
+`check-storage` and `migration-status` perform reads only. The Rust application recognizes the existing Alembic revision `20260909_01`. Historical revision IDs, source hashes, and the Python reference tag are recorded in `src/dal/data/migration_history.json`. Startup and installation never replay historical migrations.
 
-Proprietary © Asodya. All rights reserved.
+Use designated isolated fixtures for mutation tests. The tools reject production benchmark targets. Real snapshots and measurements stay in the ignored local `docs/` directory. SQLite verification does not establish PostgreSQL locking or concurrency parity.
+
+## Python rollback
+
+The complete previous runtime is retained in Git tag `v1.1.0`. A rollback restores that tagged checkout, its Python environment, and the tagged production launcher, then restarts `asodya-api.service`. Never discard local `.env` or measurement files when switching versions.

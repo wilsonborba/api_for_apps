@@ -208,3 +208,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Local migration notes, real-data snapshots, and benchmark observations.
+/docs/

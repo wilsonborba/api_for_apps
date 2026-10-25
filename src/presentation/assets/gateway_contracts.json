@@ -513,9 +513,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -576,9 +573,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -669,9 +663,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -725,9 +716,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -781,9 +769,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -859,9 +844,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -915,9 +897,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/support_routes.rs",
@@ -962,9 +941,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/auth_routes.rs",
@@ -1007,9 +983,6 @@
         "security": [
           {
             "SessionCookie": []
-          },
-          {
-            "AdminKey": []
           }
         ],
         "x-source": "api_for_apps/src/presentation/auth_routes.rs",

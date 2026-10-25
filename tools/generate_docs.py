@@ -64,7 +64,7 @@ def operation(app,path,method,summary,description,params,body,responses,source,w
  admin='logs' in suffix.split('/') or match('ADMIN_PROTECTED_PROXY_ROUTES')
  if app!='gateway':level='administrator' if admin else 'session' if match('FORCE_AUTH_PROXY_ROUTES') or not match('PUBLIC_PROXY_ROUTES') else 'public'
  else:level='administrator' if full.endswith('/logs/stream') or (full.endswith('/client-error') and method.lower()=='get') else 'session' if full.startswith(('/user/info/','/apps/support/')) else 'public'
- if level!='public':security=[{'SessionCookie':[]},{'AdminKey':[]}]
+ if level!='public':security=[{'SessionCookie':[]},{'AdminKey':[]}] if level=='administrator' else [{'SessionCookie':[]}]
  narrative=f'{summary}. This operation belongs to {app}. Send requests through the Asodya gateway at the path shown here. '
  narrative+= {'public':'The gateway allows anonymous access to this operation. The backend can apply additional validation.','session':'Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.','administrator':'Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.'}[level]
  if description:narrative+='\n\n'+description

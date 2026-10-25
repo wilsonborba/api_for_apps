@@ -20,7 +20,10 @@ from src.presentation.handler.user_handler import (
     update_password_with_recovery_token,
     resend_signup_confirmation_email,
 )
-from src.presentation.handler.exchange_auth_app_handler import register_auth_exchange_artifact
+from src.presentation.handler.exchange_auth_app_handler import (
+    register_auth_exchange_artifact,
+    resolve_cookie_domain,
+)
 from ..handler.responses import MyResponseModel, MyResponse
 from src.core.logs import error, debug
 from src.presentation.handler.auth import verify_auth
@@ -250,8 +253,9 @@ async def post_log_out_user(request: Request, response: Response, _auth: str = D
     if sid:
         await adapter.delete(adapter.k(settings.CACHE_AUTH_PREFIX, sid))
     resp = MyResponse(status_code=status.HTTP_200_OK, message="Logged out successfully.", data=None)
-    resp.delete_cookie(settings.HTTP_ONLY_COOKIE_KEY_NAME, path="/", domain=settings.cookie_domain)
-    resp.delete_cookie(settings.CSRF_COOKIE_KEY_NAME, path="/", domain=settings.cookie_domain)
+    cookie_domain = resolve_cookie_domain(request)
+    resp.delete_cookie(settings.HTTP_ONLY_COOKIE_KEY_NAME, path="/", domain=cookie_domain)
+    resp.delete_cookie(settings.CSRF_COOKIE_KEY_NAME, path="/", domain=cookie_domain)
     return resp
 
 

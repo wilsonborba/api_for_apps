@@ -71,6 +71,26 @@ def is_request_https(request: Request) -> bool:
     return request.url.scheme == "https"
 
 
+def resolve_cookie_domain(request: Request) -> str | None:
+    """
+    Decides the cookie `Domain` attribute per request instead of a static
+    dev/prod flag, so the same always-on instance behaves correctly whether
+    it's reached through the real domain (Cloudflare Tunnel) or directly by
+    LAN IP for local testing.
+
+    A `Domain=.asodya.com` cookie is only valid for requests whose host is
+    actually a subdomain of asodya.com; setting it for a bare LAN IP makes
+    the browser silently reject the whole Set-Cookie header. So: real
+    subdomain -> shared prod domain (needed so sibling apps like cortex/
+    certifications can read it); anything else (LAN IP, localhost) -> no
+    Domain attribute at all (host-only cookie, scoped to that literal host).
+    """
+    host = (request.headers.get("x-forwarded-host") or request.url.hostname or "").lower()
+    if host.endswith(settings.ASODYA_MAIN_DOMAIN):
+        return settings.COOKIE_DOMAIN_PROD
+    return None
+
+
 async def set_http_only_cookies_for_auth_sync(
     adapter: RedisAdapter,
     request: Request,
@@ -82,16 +102,15 @@ async def set_http_only_cookies_for_auth_sync(
     """
     https_external = is_request_https(request)
 
-    same_site = "lax" if settings.development_mode else "lax"
     response.set_cookie(
         key=settings.HTTP_ONLY_COOKIE_KEY_NAME,
         value=user_cookie.session_id,
         httponly=True,
         secure=True if https_external else False,
-        samesite=same_site,
+        samesite="lax",
         max_age=settings.SESSION_TTL_SECONDS,
         path="/",
-        domain=settings.cookie_domain,
+        domain=resolve_cookie_domain(request),
     )
 
     # Save session in Redis
@@ -115,7 +134,7 @@ async def set_csrf_cookie_for_auth_sync(request: Request, response, user_cookie:
         samesite="lax",
         max_age=settings.CSRF_TTL_SECONDS,
         path="/",
-        domain=settings.cookie_domain,
+        domain=resolve_cookie_domain(request),
     )
     return response
 

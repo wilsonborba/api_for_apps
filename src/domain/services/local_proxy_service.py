@@ -18,6 +18,9 @@ class LocalProxyService:
         app_ports = {
             self._parse_app_name(self.available_apps.certifications): 8103,
             "cortex": settings().CORTEX_API_PORT,
+            "domain": settings().DOMAIN_API_PORT,
+            "wilson_borba": settings().WILSON_BORBA_API_PORT,
+            "reports": settings().REPORTS_API_PORT,
         }
         if app_name not in app_ports:
             raise AppNotFoundError(f"App '{app_name}' not found.")

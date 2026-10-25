@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-10-25
+
+### 🚀 Features
+
+- *(security)* Enforce admin authorization for diagnostic, metrics, and log streaming routes ([`0ed733d`](https://github.com/wilsonborba/api_for_apps/commit/0ed733d35e7753836134d4bde6ae6175c7fea264))
+- *(security)* Enforce server-only telemetry identity and browser origin validation ([`bd48f6b`](https://github.com/wilsonborba/api_for_apps/commit/bd48f6b96bbbc1c8ac5eda5fff2b6a78f7444fec))
+- *(settings)* Add cortex to available apps and register local exchange origins ([`6a30818`](https://github.com/wilsonborba/api_for_apps/commit/6a30818ffba6c17df4f1d0eb86719f4d056b8c09))
+- *(proxy)* Integrate domain_api backend and domain frontend into central gateway ([`835e693`](https://github.com/wilsonborba/api_for_apps/commit/835e69326a0d8e0c10b74f04614f90a91ec3c641))
+- *(legal)* Implement terms-of-service/privacy-policy acceptance API ([`a7e9762`](https://github.com/wilsonborba/api_for_apps/commit/a7e97621b21b412a8b43d2295e7ce6d48549b843))
+- *(telemetry)* Add /v1/client-reports route alias for client error ingestion ([`cf4e6f4`](https://github.com/wilsonborba/api_for_apps/commit/cf4e6f4bdb7b92519fd4e5d6f7b4e62cdffbeea0))
+- *(domain)* Proxy /system/health and admin /system/sync-stats routes ([`3d1ab96`](https://github.com/wilsonborba/api_for_apps/commit/3d1ab96c85f528f3407f440120beedd2b1bc2e26))
+- *(proxy)* Register wilson_borba_api with public GET and admin-gated mutations ([`53359d9`](https://github.com/wilsonborba/api_for_apps/commit/53359d9ee23ac9a2c5d88919d7be41e78ae27213))
+- Proxy reports through headless engine ([`f1f1cb7`](https://github.com/wilsonborba/api_for_apps/commit/f1f1cb756974c4340ea146d53c086c69bd87ff0b))
+- *(settings)* Allow the Reports app in the session exchange ([`42ce007`](https://github.com/wilsonborba/api_for_apps/commit/42ce007a4e187c02436bb64a066a7c091f4eaa55))
+
+### 🐛 Bug Fixes
+
+- Per-request cookie domain, remove dead cortex anonymous-auth router ([`cc97afb`](https://github.com/wilsonborba/api_for_apps/commit/cc97afbe86ed2ed1a6aed328f7ced385101f6286))
+- Add cortex.asodya.com to the CORS allowlist ([`f04687e`](https://github.com/wilsonborba/api_for_apps/commit/f04687eb4f9510b50d0fbbc4d02959c4cfabade7))
+- *(auth)* Add asodya-domain to EXCHANGE_ALLOWED_APPS allowlist ([`c679798`](https://github.com/wilsonborba/api_for_apps/commit/c6797985c04288fcbf8b59a489e50cc7dfe6060a))
+- *(auth)* Remove legacy domain key and rely exclusively on asodya-domain ([`515c7de`](https://github.com/wilsonborba/api_for_apps/commit/515c7de11f6e50c668749268cb164a5edad4d0f9))
+- *(auth)* Support both domain and asodya-domain in EXCHANGE_ALLOWED_APPS and APP_EXCHANGE_ORIGINS ([`1403625`](https://github.com/wilsonborba/api_for_apps/commit/140362513a074920435a54f62184ae74eefb5d5d))
+- *(legal)* Add /legal/status and /legal/accept to FORCE_AUTH_PROXY_ROUTES to pass x-uuid header ([`6896fcf`](https://github.com/wilsonborba/api_for_apps/commit/6896fcf7a68bd25ae6d4592653f2248758559711))
+- Allow public reports landing reads ([`3355072`](https://github.com/wilsonborba/api_for_apps/commit/3355072b2dbb522fcfc1656752796548cffb02d9))
+- Allow Reports browser CORS preflight ([`625f0b6`](https://github.com/wilsonborba/api_for_apps/commit/625f0b6078e1e40c0d803b160c9ba5e32ba69f91))
+
+### 💼 Other Changes
+
+- Feature/admin-logs-guard into feature/main ([`cd54fb9`](https://github.com/wilsonborba/api_for_apps/commit/cd54fb91ec8cb5abd08670488b39033ff2e3a690))
+- Feature/28-domain-gateway-integration into feature/main ([`ea37b1e`](https://github.com/wilsonborba/api_for_apps/commit/ea37b1e85b7c0653804f1032f934acc23d116c37))
+- Implement terms-of-service/privacy-policy acceptance API (#29) ([`d5b3627`](https://github.com/wilsonborba/api_for_apps/commit/d5b362722e4213d19e7eda847b78dde2d1617f6a))
+- Revert legal-acceptance API, moved to domain_api instead ([`2e3e080`](https://github.com/wilsonborba/api_for_apps/commit/2e3e08026d9145794acf15a78918d96f86f89633))
+- Fix/exchange-allowed-apps-allowlist into feature/main ([`05c5af2`](https://github.com/wilsonborba/api_for_apps/commit/05c5af27ba1066512ccd67e9b00be8aca82c8915))
+- Fix/remove-domain-legacy-allowlist into feature/main ([`3e6bfac`](https://github.com/wilsonborba/api_for_apps/commit/3e6bfac3c167a0fe5284c65bcb7f3e0ded402cb1))
+- Fix/support-both-domain-and-asodya-domain-exchange-apps into feature/main ([`8756368`](https://github.com/wilsonborba/api_for_apps/commit/87563688ddbdb50e9b2ae485a91ec7dc625d55b0))
+- Merge branch 'feature/remove-legacy-domain-identifier' into feature/main ([`2f6b300`](https://github.com/wilsonborba/api_for_apps/commit/2f6b30058fd33c0abcbf42c5fd01c7b82fbc4400))
+- *(gateway)* Force authentication on /projects/*/files* ([`6c271ff`](https://github.com/wilsonborba/api_for_apps/commit/6c271ffc02379ff822d77b72d43a170d28f0cb17))
+- Merge branch 'feature/wilson-borba-gateway-integration' into feature/main ([`66bafa5`](https://github.com/wilsonborba/api_for_apps/commit/66bafa55f811d5303107923a7aeaa17a432a15f5))
+- Merge branch 'feature/reports-exchange' into feature/reports-gateway ([`c5cdbea`](https://github.com/wilsonborba/api_for_apps/commit/c5cdbea996a349ef87f20d3d03ff71fba120f579))
+- Merge branch 'feature/reports-gateway' into feature/main ([`02c4201`](https://github.com/wilsonborba/api_for_apps/commit/02c4201b8842b3d073fff692487964aeae68e6fd))
+
+### 🚜 Refactor
+
+- *(security)* Restrict log protection rule strictly to /logs* paths ([`e1a43e5`](https://github.com/wilsonborba/api_for_apps/commit/e1a43e5ff502c791a7c8beed2f5b764986dbd82c))
+- *(telemetry)* Consolidate client-error route to /apps/api/v1/client-error and drop legacy db table ([`ecc2317`](https://github.com/wilsonborba/api_for_apps/commit/ecc2317ec21cea1610714b4ff7cc912dccc76e0b))
+- Standardize routes under /apps and remove legacy cortex/telemetry aliases ([`8185116`](https://github.com/wilsonborba/api_for_apps/commit/8185116792d4e15a3b6cea604a1c83fc22e1e78c))
+- *(auth)* Remove legacy 'domain' app identifier in favor of 'asodya-domain' ([`62f0042`](https://github.com/wilsonborba/api_for_apps/commit/62f00422088db436a1a5f34b733f3d51575a9121))
+
+### 📚 Documentation
+
+- Exclude telemetry, waitlist, and support endpoints from OpenAPI documentation ([`b41a6fb`](https://github.com/wilsonborba/api_for_apps/commit/b41a6fb6549adcb7ac69ae6c8df3fe5f4e55c0b3))
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Sync release/v1.0.0 back to feature/main ([`968f64c`](https://github.com/wilsonborba/api_for_apps/commit/968f64cce91bbbab0240629325550d5c7860304f))
+- *(release)* Prepare v1.1.0 release documentation and changelog ([`b48b373`](https://github.com/wilsonborba/api_for_apps/commit/b48b3731904f2107bf5804eb8feb96572b272f74))
+- *(release)* Sync release/v1.1.0 back to feature/main ([`ae9e454`](https://github.com/wilsonborba/api_for_apps/commit/ae9e4545d296f8eee8e7052f61251fb86901b18e))
+- Regenerate CHANGELOG from conventional commits history ([`960cb21`](https://github.com/wilsonborba/api_for_apps/commit/960cb21134b8bb0a9073b7f3620151b96c5ffb3b))
+
+### ◀️ Revert
+
+- Move legal-acceptance API to domain_api instead of api_for_apps ([`211a97c`](https://github.com/wilsonborba/api_for_apps/commit/211a97cd08ec1022bd83e8a0bf6f2394dd9e35b8))
 ## [1.0.0] - 2026-09-08
 
 ### 🚀 Features
@@ -112,4 +174,5 @@ Allow public proxy allowlist and fall back to user auth on invalid admin key ([`
 - *(release)* Created a install bash script for systemctl service ([`abb4f38`](https://github.com/wilsonborba/api_for_apps/commit/abb4f38a250c1cd43265fa2a73b56e33277c9499))
 - *(runtime)* Configure gateway endpoints ([`9333df6`](https://github.com/wilsonborba/api_for_apps/commit/9333df625604befb9f9c513b426cba768b4d8380))
 - *(runtime)* Merge gateway endpoint configuration ([`33c0eea`](https://github.com/wilsonborba/api_for_apps/commit/33c0eea0a24855cd78389b3c8ef11aac31ce9912))
+- *(release)* Prepare v1.0.0 release documentation and changelog ([`0b65639`](https://github.com/wilsonborba/api_for_apps/commit/0b65639b13806dc583c4b3daa70784c466580754))
 <!-- generated by git-cliff -->

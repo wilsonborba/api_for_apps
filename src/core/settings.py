@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     CSRF_TTL_SECONDS: int = 60 * 60 * 24
     EXCHANGE_ARTIFACT_TTL_SECONDS: int = 60
     DEFAULT_EXCHANGE_APP: str = "certifications"
-    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex")
+    EXCHANGE_ALLOWED_APPS: Tuple[str, ...] = ("certifications", "cortex", "asodya-domain", "reports")
     # Browser origins permitted to redeem an app's short-lived exchange
     # artifact. This is a server-owned allowlist, not frontend context.
     APP_EXCHANGE_ORIGINS: Dict[str, Tuple[str, ...]] = {
@@ -103,14 +103,41 @@ class Settings(BaseSettings):
         # guessed here: it is loaded from CORTEX_WEB_LOCAL_ORIGIN (see
         # below) and merged in by `_add_cortex_local_exchange_origin`.
         "cortex": (
+            "http://localhost:8105",
+            "http://127.0.0.1:8105",
+            "http://192.168.1.103:8105",
+            "http://172.20.10.4:8105",
+            "http://100.93.16.79:8105",
+            "http://172.17.0.1:8105",
             "https://cortex.asodya.com",
         ),
+        # Reports' web build serves from a fixed LAN port (8110) in development;
+        # production is reports.asodya.com on Cloudflare Pages.
+        "reports": (
+            "http://localhost:8110",
+            "http://127.0.0.1:8110",
+            "http://192.168.1.103:8110",
+            "http://172.20.10.4:8110",
+            "http://100.93.16.79:8110",
+            "http://172.17.0.1:8110",
+            "https://reports.asodya.com",
+        ),
+        # asodya-domain's web build always serves from a fixed LAN port (8106),
+        # chosen to avoid colliding with the auth app's own :8100. In
+        # production it is served from the apex asodya.com domain itself
+        # (this ecosystem's root product).
+        "asodya-domain": (
+            "http://localhost:8106",
+            "http://127.0.0.1:8106",
+            "http://192.168.1.103:8106",
+            "http://172.20.10.4:8106",
+            "http://100.93.16.79:8106",
+            "http://172.17.0.1:8106",
+            "https://asodya.com",
+            "https://www.asodya.com",
+        ),
     }
-    # Browser origin the official Cortex Web App serves from in a local/dev
-    # environment for this deployment. Left blank, only the production
-    # origin above is accepted for the cortex exchange. Set per-deployment
-    # via `.env`, never hardcoded, since Flutter's dev web server does not
-    # have a fixed port.
+    # Optional override for custom Cortex Web App local dev origin.
     CORTEX_WEB_LOCAL_ORIGIN: str = ""
 
     @model_validator(mode="after")
@@ -139,23 +166,132 @@ class Settings(BaseSettings):
             "OPTIONS": ["/quiz/certifications/*"],
             "POST": ["/waitlist"],
         },
+        # NOTE: these patterns are matched (and forwarded upstream) against
+        # the path AFTER the gateway's own "/{app}/v1" anchor is stripped —
+        # domain_api's routes have no /v1 of their own (see domain_api
+        # fix/strip-v1-prefix-gateway-routes), so neither do these patterns.
+        "domain": {
+            "GET": ["/landing", "/projects", "/projects/*", "/search*", "/system/health"],
+        },
+        "wilson_borba": {
+            "GET": [
+                "/content",
+                "/content*",
+                "/profile",
+                "/profile*",
+                "/experiences",
+                "/experiences/*",
+                "/educations",
+                "/educations/*",
+                "/skills",
+                "/skills/*",
+                "/projects",
+                "/projects/*",
+                "/certifications",
+                "/certifications/*",
+                "/documents",
+                "/documents/*",
+                "/media/*",
+                "/contact",
+                "/contact*",
+                "/system/health",
+            ],
+            "HEAD": ["/*"],
+            "OPTIONS": ["/*"],
+        },
+        "reports": {
+            # Public landing/catalog reads. Report data, datasets, and admin
+            # routes remain protected by FORCE_AUTH_PROXY_ROUTES and
+            # ADMIN_PROTECTED_PROXY_ROUTES below.
+            "GET": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
+            "HEAD": [
+                "/health",
+                "/ready",
+                "/catalog",
+                "/projects",
+                "/projects/*",
+                "/projects/*/theme",
+                "/site",
+                "/stats",
+                "/docs",
+                "/openapi.json",
+                "/scalar",
+            ],
+            "OPTIONS": ["/*"],
+        },
+    }
+
+    # Checked before PUBLIC_PROXY_ROUTES: a path matching here always
+    # requires a plain authenticated session (verify_auth), even if it
+    # would otherwise also match a public glob above. This is how
+    # `/projects/{slug}/files` stays protected despite living under the
+    # public `/projects/*` prefix used for the project detail route.
+    FORCE_AUTH_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
+        "domain": {
+            "GET": ["/projects/*/files", "/projects/*/files/*", "/legal/status"],
+            "POST": ["/legal/accept"],
+        },
+        "reports": {
+            "GET": ["/projects/*/reports/*", "/projects/*/datasets/*"],
+        },
     }
     PUBLIC_PROXY_ALLOWED_METHODS: Tuple[str, ...] = ("GET", "HEAD", "OPTIONS")
     OAUTH_PROVIDERS: Tuple[str, ...] = ("google", "github", "microsoft", "azure")
 
-    # cortex_api proxy (see src/presentation/routes/cortex_route.py). Serves
-    # anonymous/guest chat requests, so it deliberately sits outside the
-    # session-based verify_auth check used by the generic apps proxy.
+    # cortex_api proxy target.
     CORTEX_API_HOST: str = "localhost"
     CORTEX_API_PORT: int = 8003
-    # Shared HMAC secret used to validate the official Web App's
-    # X-Asodya-App-Proof header. Loaded only from `.env`; never hardcode a
-    # real value here.
-    CORTEX_PROOF_SECRET: str = ""
-    CORTEX_APP_ID: str = "cortex_web_app"
-    # Requests without a valid X-Asodya-App-Proof are capped at this many
-    # per calendar day, per client IP (see enforce_daily_quota).
-    CORTEX_DAILY_TEST_LIMIT: int = 5
+
+    # domain_api proxy target (issue #28).
+    DOMAIN_API_PORT: int = 8104
+
+    # wilson_borba_api proxy target.
+    WILSON_BORBA_API_PORT: int = 8107
+    REPORTS_API_PORT: int = 8109
+
+    # Mutating routes (POST/PUT/PATCH/DELETE) that require an administrator
+    # (X-API-KEY or session access_level == 1) rather than just any
+    # authenticated session. Checked before PUBLIC_PROXY_ROUTES.
+    ADMIN_PROTECTED_PROXY_ROUTES: Dict[str, Dict[str, List[str]]] = {
+        "domain": {
+            "POST": [
+                "/projects",
+                "/projects/*/files",
+                "/projects/*/image",
+                "/categories",
+                "/flutter-icons",
+                "/system/sync-stats",
+                "/system/sync-stats/*",
+            ],
+            "PUT": ["/projects/*"],
+            "PATCH": ["/projects/*"],
+            "DELETE": ["/projects/*"],
+        },
+        "wilson_borba": {
+            "POST": ["/*"],
+            "PUT": ["/*"],
+            "PATCH": ["/*"],
+            "DELETE": ["/*"],
+        },
+        "reports": {
+            "POST": ["/projects/*/admin/*"],
+            "PUT": ["/projects/*/admin/*"],
+            "PATCH": ["/projects/*/admin/*"],
+            "DELETE": ["/projects/*/admin/*"],
+        },
+    }
 
     @property
     def auth_app_callback_url(self) -> str:
@@ -166,12 +302,6 @@ class Settings(BaseSettings):
     def auth_app_reset_url(self) -> str:
         base_url = self.AUTH_APP_LOCAL_URL if self.development_mode else self.AUTH_APP_PROD_URL
         return f"{base_url}/reset-password"
-
-    @property
-    def cookie_domain(self) -> str | None:
-        if self.development_mode:
-            return None
-        return self.COOKIE_DOMAIN_PROD
 
     @property
     def development_mode(self) -> bool:
@@ -194,6 +324,8 @@ class Settings(BaseSettings):
     class AvailableApps:
         api = "/api"
         certifications = "/certifications"
+        cortex = "/cortex"
+        reports = "/reports"
 
     @property
     def available_apps(self) -> AvailableApps:

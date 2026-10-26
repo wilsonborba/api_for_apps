@@ -13,49 +13,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(db)* Merge app catalog foundation (#57) ([`0f84b21`](https://github.com/wilsonborba/api_for_apps/commit/0f84b215706c26d86875861d3f983ecce65e0c32))
 - *(logs)* Add admin streams and bounded app recording (#58) ([`a609d8d`](https://github.com/wilsonborba/api_for_apps/commit/a609d8ddda9b8a7f82f47e7448e2588beddc042f))
 
+### 🐛 Bug Fixes
+
+- *(logs)* Enforce the saved log read retention window (#58) ([`4d16a54`](https://github.com/wilsonborba/api_for_apps/commit/4d16a540ac311f724ca14208118cf9ddb5d8891d))
+
 ### 📚 Documentation
 
 - Record the app catalog foundation (#57) ([`fea5d64`](https://github.com/wilsonborba/api_for_apps/commit/fea5d641f74c648f768ed327b53be4a972ec5e42))
+- *(logs)* Record the stream and retention safety locks (#58) ([`64876da`](https://github.com/wilsonborba/api_for_apps/commit/64876da16d1656764bbb7c6c2e6f9fe7748eabc8))
+
+### 🧪 Testing
+
+- *(logs)* Hide expired rows before the next purge tick (#58) ([`1d4bb84`](https://github.com/wilsonborba/api_for_apps/commit/1d4bb849d46769176ac373a7c4630b21a5a270aa))
 
 ### ⚙️ Miscellaneous Tasks
 
 - *(release)* Synchronize v1.3.0 back to feature main ([`a7ef9a9`](https://github.com/wilsonborba/api_for_apps/commit/a7ef9a9c2b11a48fe8fd8cb050687884fd18d64f))
 - Synchronize app catalog with the completed release ([`107bf9d`](https://github.com/wilsonborba/api_for_apps/commit/107bf9db3b41e8aacb30cc8ce7070afc38b973d0))
-## [unreleased]
-
-### 🚀 Features
-
-- Register Annotations upstream and browser origin (#53) ([`5589dc1`](https://github.com/wilsonborba/api_for_apps/commit/5589dc168cb9d8b98648e920238448f680936b12))
-- Merge Annotations registration (#53) ([`7bf05b5`](https://github.com/wilsonborba/api_for_apps/commit/7bf05b542cb3fb9f17c215ed169348e41f2fcd9c))
-- Enforce Annotations admin policy and stream temporary uploads (#54) ([`e7cae84`](https://github.com/wilsonborba/api_for_apps/commit/e7cae843d8f0341e7b837cb08f20edb9622684c4))
-- Merge Annotations proxy boundary (#54) ([`e4415fa`](https://github.com/wilsonborba/api_for_apps/commit/e4415fab3bbadc35757df96a07b336858fcf9900))
-- Merge Annotations gateway integration (#55) ([`ff6845c`](https://github.com/wilsonborba/api_for_apps/commit/ff6845ccee20708dc0728876dd785fd5f0cadda6))
-- Allow public removal of Annotations Instant Share items (#56) ([`2ddd62f`](https://github.com/wilsonborba/api_for_apps/commit/2ddd62f5c345d7d365dfa4bb057f55bd63475116))
-- Merge public Instant Share item removal route (#56) ([`9122e25`](https://github.com/wilsonborba/api_for_apps/commit/9122e25dfcf3d4763980aa98268933fa7ff4354c))
-- *(db)* Add the app catalog schema foundation (#57) ([`ef6480d`](https://github.com/wilsonborba/api_for_apps/commit/ef6480ddb969f50e0e1ce14387db59fdba7179f1))
-
-### 🐛 Bug Fixes
-
-- *(auth)* Restrict the full user list to administrators (#24) ([`e029354`](https://github.com/wilsonborba/api_for_apps/commit/e029354e3230bd06d7ca4c4ce00202dfd5a4bf47))
-- *(auth)* Merge administrator-only user list (#24) ([`175c604`](https://github.com/wilsonborba/api_for_apps/commit/175c60409b859cc829e12d9e4bce49e741a75b13))
-- *(proxy)* Never forward client credentials to backends (#25) ([`08a5087`](https://github.com/wilsonborba/api_for_apps/commit/08a5087de0a380e3a7c12672bf4ea08e4061ad16))
-- *(proxy)* Merge credential stripping at the gateway boundary (#25) ([`5c8e5e5`](https://github.com/wilsonborba/api_for_apps/commit/5c8e5e5f98ea3408a238069ec3b579457f0515ac))
-- *(auth)* Compare admin key and CSRF tokens in constant time (#26) ([`98dc66f`](https://github.com/wilsonborba/api_for_apps/commit/98dc66fa6fcc18c5f05103f47b074d29bbea09b8))
-- *(auth)* Merge constant-time secret comparison (#26) ([`160271c`](https://github.com/wilsonborba/api_for_apps/commit/160271c4c9554eb65b491f127f6a5bacd10a055c))
-
-### 🧪 Testing
-
-- Verify Annotations contracts and gateway deployment (#55) ([`38bf317`](https://github.com/wilsonborba/api_for_apps/commit/38bf317fffaa4f0117898c6794345940fd0b792b))
-- *(proxy)* Prove the Reports public parent never opens protected children ([`a048299`](https://github.com/wilsonborba/api_for_apps/commit/a0482998e273facc8c279d92b386838e4c5fc403))
-- *(proxy)* Merge Reports route policy coverage ([`4ff08d2`](https://github.com/wilsonborba/api_for_apps/commit/4ff08d2828ba5ea8f9f974b18c2945b090a7f65c))
-
-### ⚙️ Miscellaneous Tasks
-
-- *(release)* Synchronize v1.2.1 back to release ([`d850d3d`](https://github.com/wilsonborba/api_for_apps/commit/d850d3deb39ba71b59c3fc4d331518115c9dfd7a))
-- *(release)* Synchronize v1.2.1 back to development ([`f278c0f`](https://github.com/wilsonborba/api_for_apps/commit/f278c0fc046abb0e27b34f48cd6089c4393578b4))
-- *(release)* Synchronize v1.2.1 back to feature main ([`79cc6ea`](https://github.com/wilsonborba/api_for_apps/commit/79cc6ea1e66879d3f5fc788f0517d9f3982f3317))
-- *(release)* Document v1.3.0 Annotations integration ([`911bf36`](https://github.com/wilsonborba/api_for_apps/commit/911bf3661d0d23f0f0c749237553e68d311c5e2f))
-- *(docs)* Format secret comparison and refresh central source hashes ([`d451295`](https://github.com/wilsonborba/api_for_apps/commit/d451295e72f35b6f496146a7ca288079a9a21981))
+<!-- generated by git-cliff -->
 
 ## [1.3.0] - 2026-10-27
 

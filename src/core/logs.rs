@@ -36,7 +36,7 @@ impl Redactor {
                 value.len() >= 3
                     && (key.contains("PASSWORD")
                         || key.contains("SECRET")
-                        || key.ends_with("_API_KEY")
+                        || key.ends_with("_KEY")
                         || key.ends_with("_TOKEN"))
             })
             .map(|(_, value)| value.clone())
@@ -55,7 +55,7 @@ impl Redactor {
             std::sync::LazyLock::new(|| {
                 vec![
             (regex::Regex::new(r"(?i)(bearer\s+)[^\s,;]+").unwrap(), "${1}[redacted]"),
-            (regex::Regex::new(r#"(?i)((?:"|')?(?:password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key)(?:"|')?\s*[=:]\s*)(?:"[^"]*"|'[^']*'|[^\s,;]+)"#).unwrap(), "${1}[redacted]"),
+            (regex::Regex::new(r#"(?i)((?:"|')?(?:password|passwd|secret|token|authorization|cookie|csrf|(?:api|service|app)[_-]?key)(?:"|')?\s*[=:]\s*)(?:"[^"]*"|'[^']*'|[^\s,;]+)"#).unwrap(), "${1}[redacted]"),
             (regex::Regex::new(r"(https?://|postgres(?:ql)?://|redis://)[^/@\s]+@").unwrap(), "${1}[redacted]@"),
             (regex::Regex::new(r"eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+").unwrap(), "[redacted]"),
         ]
@@ -99,6 +99,7 @@ impl Visit for Fields {
             "cookie",
             "authorization",
             "api_key",
+            "service_key",
         ]
         .iter()
         .any(|word| key.to_ascii_lowercase().contains(word))

@@ -212,6 +212,51 @@
         ],
         "type": "object"
       },
+      "AppLogRecording": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id",
+          "started_at",
+          "expires_at"
+        ],
+        "type": "object"
+      },
+      "AppLogRecordings": {
+        "properties": {
+          "max_recording_seconds": {
+            "const": 1800,
+            "type": "integer"
+          },
+          "recordings": {
+            "items": {
+              "$ref": "#/components/schemas/AppLogRecording"
+            },
+            "type": "array"
+          },
+          "retention_days": {
+            "const": 15,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "recordings",
+          "max_recording_seconds",
+          "retention_days"
+        ],
+        "type": "object"
+      },
       "AppState": {
         "properties": {
           "datasets": {},
@@ -6609,6 +6654,25 @@
         ],
         "type": "object"
       },
+      "SavedAppLogs": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SavedAppLog"
+            },
+            "type": "array"
+          },
+          "retention_days": {
+            "const": 15,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "retention_days"
+        ],
+        "type": "object"
+      },
       "SchemaDraftRequest": {
         "properties": {
           "description": {
@@ -10619,8 +10683,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/SavedAppLogs"
                 }
               }
             },
@@ -10659,8 +10722,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/AppLogRecordings"
                 }
               }
             },
@@ -10707,8 +10769,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/AppLogRecording"
                 }
               }
             },

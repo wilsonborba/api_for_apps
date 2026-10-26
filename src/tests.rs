@@ -32,7 +32,6 @@ async fn state() -> domain::State {
         cache: dal::cache::Cache::new("memory://", "").await.unwrap(),
         db: dal::database::Database::Sqlite(db),
         support: dal::documents::Documents::new(&settings, "SUPPORT", client.clone()).await,
-        telemetry: dal::documents::Documents::new(&settings, "TELEMETRY", client.clone()).await,
         settings,
         client,
         logs,
@@ -967,4 +966,313 @@ async fn app_log_foreign_keys_levels_and_inactive_flags_are_enforced() {
     )
     .await;
     assert_eq!(status, 422);
+}
+
+async fn telemetry_state() -> domain::State {
+    let state = state().await;
+    let dal::database::Database::Sqlite(pool) = &state.db else {
+        unreachable!()
+    };
+    sqlx::query("CREATE UNIQUE INDEX user_uuid_fixture ON defaultdb_user(uuid_id)")
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::raw_sql(
+        include_str!("../migrations/001_app_catalog.sql")
+            .replace("public.", "")
+            .as_str(),
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+    let schema = include_str!("../migrations/003_client_telemetry.sql")
+        .replace("public.", "")
+        .replace("BIGSERIAL PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT");
+    sqlx::raw_sql(&schema).execute(pool).await.unwrap();
+    state
+        .db
+        .sync_log_apps(&[("annotations".into(), "Annotations".into())])
+        .await
+        .unwrap();
+    state
+}
+fn event_batch() -> Value {
+    json!({"app_id":"annotations","session_id":"22222222-2222-4222-8222-222222222222","locale":"en","theme":"dark","viewport_width":1280,"viewport_height":800,"events":[{"seq":0,"event_type":"input","screen":"article","route":"/article/:slug","path":"/article/example?token=should-not-store","element_id":"article.search.input","element_label":"Search articles","element_path":"article > content > search","value":"RAG study"}]})
+}
+#[tokio::test]
+async fn telemetry_is_relational_idempotent_and_admin_only() {
+    let s = telemetry_state().await;
+    let batch = event_batch();
+    let (status, first) = call(
+        s.clone(),
+        "POST",
+        "/apps/api/v1/telemetry/events",
+        batch.clone(),
+        &[
+            ("User-Agent", "Fixture browser"),
+            ("CF-Connecting-IP", "203.0.113.9"),
+        ],
+    )
+    .await;
+    assert_eq!(status, 202);
+    assert_eq!(first["accepted"], 1);
+    let (_, again) = call(
+        s.clone(),
+        "POST",
+        "/apps/api/v1/telemetry/events",
+        batch,
+        &[],
+    )
+    .await;
+    assert_eq!(again["accepted"], 0);
+    for kind in ["events", "errors", "sessions"] {
+        assert_eq!(
+            call(
+                s.clone(),
+                "GET",
+                &format!("/apps/api/v1/telemetry/{kind}"),
+                json!({}),
+                &[]
+            )
+            .await
+            .0,
+            403
+        );
+    }
+    let (status, events) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/telemetry/events",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(events["items"].as_array().unwrap().len(), 1);
+    assert_eq!(events["items"][0]["value"], "RAG study");
+    assert_eq!(events["items"][0]["path"], "/article/example");
+    let (_, sessions) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/telemetry/sessions",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(sessions["items"][0]["ip"], "203.0.113.9");
+    assert_eq!(sessions["items"][0]["user_id"], Value::Null);
+    let mut bad = event_batch();
+    bad["user_id"] = json!("forged");
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/events", bad, &[])
+            .await
+            .0,
+        422
+    );
+    let mut bad = event_batch();
+    bad["ip"] = json!("1.1.1.1");
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/events", bad, &[])
+            .await
+            .0,
+        422
+    );
+    let mut bad = event_batch();
+    bad["events"][0]["element_id"] = json!("RenderObject#99");
+    assert_eq!(
+        call(s, "POST", "/apps/api/v1/telemetry/events", bad, &[])
+            .await
+            .0,
+        422
+    );
+}
+#[tokio::test]
+async fn telemetry_drops_sensitive_values_and_derives_user() {
+    let s = telemetry_state().await;
+    let dal::database::Database::Sqlite(pool) = &s.db else {
+        unreachable!()
+    };
+    sqlx::query("INSERT INTO defaultdb_user(id,uuid_id) VALUES(10,'real-user')")
+        .execute(pool)
+        .await
+        .unwrap();
+    s.cache
+        .set(
+            "exchange_auth_app:real",
+            json!({"user_uuid_id":"real-user","access_level":3}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    let mut batch = event_batch();
+    batch["events"][0]["sensitive"] = json!(true);
+    batch["events"][0]["value"] = json!("must-not-leave-device");
+    let headers = [("Cookie", "sid=real")];
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/telemetry/events",
+            batch.clone(),
+            &headers
+        )
+        .await
+        .0,
+        202
+    );
+    let (_, sessions) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/telemetry/sessions",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(sessions["items"][0]["user_id"], "real-user");
+    let (_, events) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/telemetry/events",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(events["items"][0]["value"], Value::Null);
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/telemetry/events",
+            batch,
+            &[]
+        )
+        .await
+        .0,
+        409
+    );
+    let mut batch = event_batch();
+    batch["session_id"] = json!("33333333-3333-4333-8333-333333333333");
+    batch["events"][0]["element_id"] = json!("login.password.input");
+    batch["events"][0]["value"] = json!("password-value");
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/telemetry/events",
+            batch,
+            &[]
+        )
+        .await
+        .0,
+        202
+    );
+    let (_, events) = call(
+        s,
+        "GET",
+        "/apps/api/v1/telemetry/events",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(events["items"][0]["value"], Value::Null);
+}
+#[tokio::test]
+async fn telemetry_limits_and_errors_use_sql_including_legacy() {
+    let s = telemetry_state().await;
+    let error = json!({"app_id":"annotations","session_id":"22222222-2222-4222-8222-222222222222","route":"/notes?secret=never","error_type":"FlutterError","message":"Bearer sensitive-value","stack":"trace","build_version":"1.1.0"});
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/telemetry/errors",
+            error.clone(),
+            &[]
+        )
+        .await
+        .0,
+        202
+    );
+    let (_, errors) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/telemetry/errors",
+        json!({}),
+        &[("Authorization", "test-admin")],
+    )
+    .await;
+    assert!(!errors.to_string().contains("sensitive-value"));
+    assert_eq!(errors["items"][0]["route"], "/notes");
+    let mut bad = error.clone();
+    bad["user_id"] = json!("fake");
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/errors", bad, &[])
+            .await
+            .0,
+        422
+    );
+    let mut bad = error.clone();
+    bad["message"] = json!("x".repeat(70_000));
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/errors", bad, &[])
+            .await
+            .0,
+        413
+    );
+    let mut bad = event_batch();
+    bad["events"] = json!(vec![bad["events"][0].clone(); 51]);
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/events", bad, &[])
+            .await
+            .0,
+        422
+    );
+    let mut bad = event_batch();
+    bad["app_id"] = json!("unknown");
+    assert_eq!(
+        call(s.clone(), "POST", "/apps/api/v1/telemetry/events", bad, &[])
+            .await
+            .0,
+        422
+    );
+    assert_eq!(call(s.clone(),"POST","/apps/api/v1/client-error",json!({"app_name":"Annotations","error_title":"Legacy error","error_message":"Compatibility"}),&[]).await.0,202);
+    assert_eq!(
+        call(
+            s.clone(),
+            "GET",
+            "/apps/api/v1/telemetry/errors?limit=201",
+            json!({}),
+            &[("Authorization", "test-admin")]
+        )
+        .await
+        .0,
+        422
+    );
+    for _ in 0..120 {
+        s.cache
+            .increment("ratelimit:tracking:198.51.100.5", 60)
+            .await
+            .unwrap();
+    }
+    assert_eq!(
+        call(
+            s,
+            "POST",
+            "/apps/api/v1/telemetry/errors",
+            error,
+            &[("CF-Connecting-IP", "198.51.100.5")]
+        )
+        .await
+        .0,
+        429
+    );
+}
+#[test]
+fn telemetry_does_not_trust_forwarded_ip_from_direct_peers() {
+    let mut headers = axum::http::HeaderMap::new();
+    headers.insert("cf-connecting-ip", "1.2.3.4".parse().unwrap());
+    assert_eq!(
+        domain::services::telemetry::client_ip(&headers, "198.51.100.6".parse().unwrap()),
+        "198.51.100.6"
+    );
 }

@@ -8,11 +8,18 @@ async fn main() -> anyhow::Result<()> {
     let (logs, _) = tokio::sync::broadcast::channel(256);
     core::logs::init(&settings, logs.clone());
     let state = domain::State::new(settings.clone(), logs).await?;
-    if std::env::args().nth(1).as_deref() == Some("sync-log-apps") {
-        state
-            .db
-            .sync_log_apps(&dal::remote::log_source::registered_apps())
-            .await?;
+    if matches!(
+        std::env::args().nth(1).as_deref(),
+        Some("sync-log-apps" | "sync-telemetry-apps")
+    ) {
+        let mut apps = dal::remote::log_source::registered_apps();
+        if std::env::args().nth(1).as_deref() == Some("sync-telemetry-apps") {
+            apps.extend([
+                ("auth_apps".into(), "Asodya Authentication".into()),
+                ("oryzaelo".into(), "Oryza-elo Cloud".into()),
+            ]);
+        }
+        state.db.sync_log_apps(&apps).await?;
         println!("Registered app catalog synchronized. Existing inactive apps stay inactive.");
         return Ok(());
     }

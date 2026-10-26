@@ -44,7 +44,7 @@ scripts/app_dev_run.sh
 
 The gateway forwards `/apps/{app}/v1/{path}` to each registered backend. It validates sessions and permissions before adding internal identity headers. Authentication uses Supabase through the gateway, single-use Fernet exchange artifacts, and Redis-backed `sid`/`csrf` sessions.
 
-PostgreSQL remains the identity and ticket index store. CouchDB stores support threads and frontend telemetry. SQLite is limited to isolated test fixtures.
+PostgreSQL stores identity, the ticket index, logs and frontend telemetry. CouchDB stores support threads. SQLite is limited to isolated test fixtures.
 
 ## Central documentation
 
@@ -177,3 +177,44 @@ even before the next cleanup tick. A stream gap is stored as a warning.
 Retention uses the trusted gateway receipt time, not the source's clock. Removing
 these locks requires an explicit future decision. Backends never write `appdb`.
 The saved table is relational and contains no JSON columns.
+
+## Frontend telemetry
+
+Errors and usage are separate normalized records in appdb. Run the explicit
+schema migration after a dry run with the canonical environment:
+
+```sh
+.venv/bin/python scripts/migrate_telemetry.py --env-file .env --dry-run
+.venv/bin/python scripts/migrate_telemetry.py --env-file .env --yes
+ENVIRONMENT=production target/release/api-for-apps sync-telemetry-apps
+```
+
+The CLI registers frontend applications separately from log sources. Installation
+and normal startup never create schemas or populate application data.
+
+- `POST /apps/api/v1/telemetry/errors` stores an error with app/session UUID,
+  route, error type, message, stack and build version.
+- `POST /apps/api/v1/telemetry/events` accepts a session UUID, app, locale, theme,
+  viewport width/height and up to 50 mapped events. Every event has a sequence,
+  type, screen, route template, path and human-readable element id/label/tree path.
+- Batches are atomic and retries are idempotent by session and sequence. A session
+  can link anonymous activity to its first authenticated user. Changing users or
+  logging out requires a fresh UUID; identity conflicts return 409.
+- Writes accept anonymous users. The gateway derives the user from its session
+  and the IP from its connection (trusted local Cloudflare ingress only).
+  Client-supplied identity fields are rejected. The limit is 120 requests per IP
+  per minute and 65,536 bytes per request. Unavailable rate limits fail closed.
+- `GET` on `errors`, `events` and `sessions` requires an administrator. Filter by
+  app/session/from/to/limit; errors/events support a `before_id` cursor.
+- PostgreSQL has relational tables and foreign keys, with no JSON, JSONB or array
+  columns. Unit tests use the equivalent SQLite schema only.
+
+The shared Flutter package is `wilsonborba/asodya_tracking`. Each app commits a
+manifest of its screens and stable dot-path elements. Sensitive input values are
+dropped on the device before queueing. Routes omit query strings and fragments.
+The gateway adds a defensive sensitive-name check and redacts credentials.
+Existing consent remains unchanged. No additional banner is required.
+
+The old `client-error` and `client-reports` routes remain compatible with deployed
+reporters but write to the relational error table. The gateway no longer initializes
+or writes the telemetry CouchDB store. Historical CouchDB data remains untouched.

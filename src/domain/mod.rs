@@ -11,7 +11,6 @@ pub struct State {
     pub cache: Cache,
     pub db: Database,
     pub support: Documents,
-    pub telemetry: Documents,
     pub client: reqwest::Client,
     pub logs: tokio::sync::broadcast::Sender<String>,
     pub recordings: std::sync::Arc<services::app_logs::Recorder>,
@@ -23,12 +22,7 @@ impl State {
     ) -> anyhow::Result<Self> {
         settings.validate_runtime()?;
         if !settings.get("TEST_SQLITE_PATH").is_empty() {
-            for key in [
-                "SUPABASE_URL",
-                "FSM_MEDIA_ENDPOINT",
-                "SUPPORT_COUCHDB_URL",
-                "TELEMETRY_COUCHDB_URL",
-            ] {
+            for key in ["SUPABASE_URL", "FSM_MEDIA_ENDPOINT", "SUPPORT_COUCHDB_URL"] {
                 let value = settings.get(key);
                 if value.is_empty() {
                     continue;
@@ -73,7 +67,6 @@ impl State {
             cache: Cache::new(&settings.get("REDIS_URL"), &settings.get("REDIS_NAMESPACE")).await?,
             db: Database::new(&settings).await?,
             support: Documents::new(&settings, "SUPPORT", client.clone()).await,
-            telemetry: Documents::new(&settings, "TELEMETRY", client.clone()).await,
             settings,
             client,
             logs,

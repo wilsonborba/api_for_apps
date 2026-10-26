@@ -12,15 +12,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(db)* Add the app catalog schema foundation (#57) ([`ef6480d`](https://github.com/wilsonborba/api_for_apps/commit/ef6480ddb969f50e0e1ce14387db59fdba7179f1))
 - *(db)* Merge app catalog foundation (#57) ([`0f84b21`](https://github.com/wilsonborba/api_for_apps/commit/0f84b215706c26d86875861d3f983ecce65e0c32))
 - *(logs)* Add admin streams and bounded app recording (#58) ([`a609d8d`](https://github.com/wilsonborba/api_for_apps/commit/a609d8ddda9b8a7f82f47e7448e2588beddc042f))
+- *(logs)* Merge protected streams and recording (#58) ([`5d925ec`](https://github.com/wilsonborba/api_for_apps/commit/5d925ec70ee1fe2a99d078c9858f169bcfe8ae4d))
+- *(telemetry)* Store frontend errors and usage in relational appdb tables ([`d419aa9`](https://github.com/wilsonborba/api_for_apps/commit/d419aa900678846f835e8c566dffee787892c227))
 
 ### 🐛 Bug Fixes
 
 - *(logs)* Enforce the saved log read retention window (#58) ([`4d16a54`](https://github.com/wilsonborba/api_for_apps/commit/4d16a540ac311f724ca14208118cf9ddb5d8891d))
+- *(logs)* Redact service keys and specify saved log responses (#58) ([`1d54d01`](https://github.com/wilsonborba/api_for_apps/commit/1d54d01fd34d44c181643f1df3159dc0d029f3bb))
+- *(logs)* Merge complete secret filtering and response contracts (#58) ([`14709eb`](https://github.com/wilsonborba/api_for_apps/commit/14709eb3ba5fb8827bb065811a08b72c7c7c90aa))
+
+### 💼 Other Changes
+
+- Merge remote-tracking branch 'origin/feature/main' into feature/58-log-streams ([`5ebcc29`](https://github.com/wilsonborba/api_for_apps/commit/5ebcc292b39c85d99e7ddace37b7a14459a00152))
 
 ### 📚 Documentation
 
 - Record the app catalog foundation (#57) ([`fea5d64`](https://github.com/wilsonborba/api_for_apps/commit/fea5d641f74c648f768ed327b53be4a972ec5e42))
 - *(logs)* Record the stream and retention safety locks (#58) ([`64876da`](https://github.com/wilsonborba/api_for_apps/commit/64876da16d1656764bbb7c6c2e6f9fe7748eabc8))
+- Consolidate unreleased observability changes (#58) ([`95fbd45`](https://github.com/wilsonborba/api_for_apps/commit/95fbd452a376ff7ad394ea72dfa0805ea3874184))
 
 ### 🧪 Testing
 

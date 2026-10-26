@@ -96,42 +96,6 @@ impl Documents {
             .await
             .is_ok_and(|r| r.status().is_success())
     }
-    pub async fn recent(&self, limit: usize, skip: usize) -> Vec<Value> {
-        if self.url.is_empty() {
-            let mut v = self
-                .memory
-                .lock()
-                .await
-                .values()
-                .cloned()
-                .collect::<Vec<_>>();
-            v.sort_by(|a, b| {
-                b["server_timestamp"]
-                    .as_str()
-                    .cmp(&a["server_timestamp"].as_str())
-            });
-            return v.into_iter().skip(skip).take(limit).collect();
-        }
-        let r = self
-            .req(reqwest::Method::GET, &format!("{}/_all_docs", self.url))
-            .query(&[
-                ("include_docs", "true".to_owned()),
-                ("descending", "true".into()),
-                ("limit", limit.to_string()),
-                ("skip", skip.to_string()),
-            ])
-            .send()
-            .await;
-        if let Ok(r) = r
-            && let Ok(v) = r.json::<Value>().await
-        {
-            return v["rows"]
-                .as_array()
-                .map(|a| a.iter().filter_map(|x| x.get("doc").cloned()).collect())
-                .unwrap_or_default();
-        }
-        vec![]
-    }
     pub async fn available(&self) -> bool {
         self.url.is_empty()
             || self

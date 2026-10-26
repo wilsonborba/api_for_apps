@@ -102,3 +102,24 @@ supply a validated `CF-Connecting-IP`. Annotations receives the resulting IP for
 its aggregate temporary upload quota. No downstream service credential or LAN
 authentication system was introduced. Central source discovery includes the
 Annotations Rust `lib/presentation` routes and namespaced request contracts.
+
+## App catalog schema foundation
+
+Issue #57 currently provides only `appdb.public.defaultdb_app`: `id`, `name` and
+`is_active`. This table is the relational target for later app-scoped features.
+The waitlist, support-ticket changes and data transfers from #57 remain deferred
+until the owner requests them. The migration contains schema only and adds no rows.
+
+Use an operations Python environment with `python-dotenv` and PostgreSQL `psql`:
+
+```
+python scripts/migrate_app_catalog.py --env-file /path/to/canonical/.env --dry-run
+python scripts/migrate_app_catalog.py --env-file /path/to/canonical/.env --yes
+```
+
+The script accepts only the explicit `appdb` target. It reads credentials through
+`python-dotenv`, passes them through the PostgreSQL environment and does not log
+them. The dry run only inspects the schema. Application startup and installation
+never apply this migration. An existing table is inspected and left unchanged.
+Run the isolated schema and dry-run tests with
+`python -m unittest discover -s tools -p test_app_catalog.py`.

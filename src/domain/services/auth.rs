@@ -27,7 +27,10 @@ pub fn cookie(h: &HeaderMap, name: &str) -> Option<String> {
 /// every byte is folded, so timing does not reveal the matching prefix or the length.
 pub fn same_secret(a: &str, b: &str) -> bool {
     let (x, y) = (Sha256::digest(a.as_bytes()), Sha256::digest(b.as_bytes()));
-    x.iter().zip(y.iter()).fold(0u8, |acc, (p, q)| acc | (p ^ q)) == 0
+    x.iter()
+        .zip(y.iter())
+        .fold(0u8, |acc, (p, q)| acc | (p ^ q))
+        == 0
 }
 pub fn header<'a>(h: &'a HeaderMap, k: &str) -> &'a str {
     h.get(k).and_then(|v| v.to_str().ok()).unwrap_or("")

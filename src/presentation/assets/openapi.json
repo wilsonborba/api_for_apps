@@ -8605,7 +8605,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/images": {
@@ -8693,7 +8693,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:22",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/images/{key}": {
@@ -8753,7 +8753,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:27",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}": {
@@ -8827,7 +8827,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       },
       "put": {
         "description": "PUT /admin/posts/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -8904,7 +8904,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}/publish": {
@@ -8973,7 +8973,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:20",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/schemas": {
@@ -9024,7 +9024,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:20",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       },
       "post": {
         "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9093,7 +9093,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:20",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
@@ -9170,7 +9170,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:21",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/catalog": {
@@ -9214,7 +9214,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:13",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/health": {
@@ -9258,7 +9258,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:15",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/instant/{code}": {
@@ -9320,7 +9320,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       },
       "put": {
         "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9380,7 +9380,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/instant/{code}/files": {
@@ -9471,7 +9471,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}": {
@@ -9541,7 +9541,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:21",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/instant/{code}/items": {
@@ -9613,7 +9613,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/instant/{code}/items/{id}": {
@@ -9696,7 +9696,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:22",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/links/preview": {
@@ -9750,7 +9750,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:15",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/media/{key}": {
@@ -9803,7 +9803,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:26",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/posts": {
@@ -9888,7 +9888,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:16",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/posts/{key}": {
@@ -9955,7 +9955,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:17",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/ready": {
@@ -9999,7 +9999,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:19",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/annotations/v1/waitlist": {
@@ -10066,7 +10066,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:14",
-        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+        "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
     "/apps/api/v1/client-error": {

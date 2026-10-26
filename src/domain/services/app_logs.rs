@@ -166,7 +166,7 @@ fn level(line: &str) -> &'static str {
     "INFO"
 }
 
-pub async fn saved(state: &State, query: LogQuery) -> Result<Value, (u16, &'static str)> {
+pub async fn saved(state: &State, mut query: LogQuery) -> Result<Value, (u16, &'static str)> {
     if query.limit.is_some_and(|n| !(1..=200).contains(&n))
         || query
             .level

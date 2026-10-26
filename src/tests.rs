@@ -848,6 +848,21 @@ async fn saved_log_retention_removes_only_rows_older_than_15_days() {
     s.db.insert_log("annotations", "ERROR", "recent", now)
         .await
         .unwrap();
+    let (_, visible) = call(
+        s.clone(),
+        "GET",
+        "/apps/api/v1/logs",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert!(
+        visible["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|row| row["message"] != "expired")
+    );
     assert_eq!(s.db.purge_logs_before(cutoff).await.unwrap(), 1);
     let rows = s.db.saved_logs(&Default::default()).await.unwrap();
     assert_eq!(rows.len(), 2);

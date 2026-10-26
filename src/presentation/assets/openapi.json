@@ -6746,6 +6746,10 @@
           "domain_timeout_ms": {
             "type": "integer"
           },
+          "embed_chrome_binary": {
+            "description": "Browser used only for bounded previews of the original Flutter renderer.",
+            "type": "string"
+          },
           "environment": {
             "type": "string"
           },
@@ -6794,7 +6798,8 @@
           "domain_api_url",
           "domain_public_url",
           "domain_cache_ttl_secs",
-          "domain_timeout_ms"
+          "domain_timeout_ms",
+          "embed_chrome_binary"
         ],
         "type": "object"
       },
@@ -8600,7 +8605,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/images": {
@@ -8688,7 +8693,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:22",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/images/{key}": {
@@ -8748,7 +8753,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:27",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}": {
@@ -8822,7 +8827,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       },
       "put": {
         "description": "PUT /admin/posts/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -8899,7 +8904,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}/publish": {
@@ -8968,7 +8973,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:20",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/schemas": {
@@ -9019,7 +9024,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:20",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       },
       "post": {
         "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9088,7 +9093,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:20",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
@@ -9165,7 +9170,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:21",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/catalog": {
@@ -9209,7 +9214,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:13",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/health": {
@@ -9253,7 +9258,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:15",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/instant/{code}": {
@@ -9315,7 +9320,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       },
       "put": {
         "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9375,7 +9380,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/instant/{code}/files": {
@@ -9466,7 +9471,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}": {
@@ -9536,7 +9541,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:21",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/instant/{code}/items": {
@@ -9608,7 +9613,90 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
+      }
+    },
+    "/apps/annotations/v1/instant/{code}/items/{id}": {
+      "delete": {
+        "description": "DELETE /instant/{code}/items/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_delete__instant__code__items__id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "DELETE /instant/{code}/items/{id}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/instant/{code}/items/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:22",
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/links/preview": {
@@ -9662,7 +9750,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:15",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/media/{key}": {
@@ -9715,7 +9803,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:26",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/posts": {
@@ -9800,7 +9888,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:16",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/posts/{key}": {
@@ -9867,7 +9955,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:17",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/ready": {
@@ -9911,7 +9999,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:19",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/annotations/v1/waitlist": {
@@ -9978,7 +10066,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:14",
-        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+        "x-source-tree-sha256": "fc91be799245d9989a6768a21d26557295e7f2fb5feb6a5cb7f25ed596c5a2d8"
       }
     },
     "/apps/api/v1/client-error": {
@@ -15758,7 +15846,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "reports/engine/src/presentation/api/server.rs:150",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/fixtures/{manifest}": {
@@ -15826,7 +15914,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:174",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/operations": {
@@ -15876,7 +15964,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:175",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations": {
@@ -15922,7 +16010,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "post": {
         "description": "Create or replace a draft calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOmit `version` to create the next version. A published version cannot change.",
@@ -15987,7 +16075,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/publish": {
@@ -16064,7 +16152,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:124",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/retire": {
@@ -16138,7 +16226,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:125",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/validate": {
@@ -16209,7 +16297,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:123",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/grants": {
@@ -16271,7 +16359,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "post": {
         "description": "Grant read access to a restricted report or card. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nSuper admin or project admin of this project. The same grant twice returns the first one. Also under `/projects/{project}/admin/grants` (super admin).",
@@ -16356,7 +16444,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/grants/{grant}": {
@@ -16419,7 +16507,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:128",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/ingest/{schema}": {
@@ -16518,7 +16606,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/project": {
@@ -16648,7 +16736,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:134",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}": {
@@ -16708,7 +16796,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Create or update a report. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nSaved report",
@@ -16819,7 +16907,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}": {
@@ -16887,7 +16975,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Bind a dataset card to a published calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThe card shows the result of one published calculation version. Dataset references must stay in the report and form no cycle.",
@@ -16970,7 +17058,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/snapshots": {
@@ -17026,7 +17114,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "post": {
         "description": "Store a durable snapshot of the current result in CouchDB. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThe snapshot keeps the rows and the lineage (calculation version, input schema versions, source watermark, time).",
@@ -17105,7 +17193,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/roles": {
@@ -17151,7 +17239,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/roles/{user}": {
@@ -17211,7 +17299,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Set the project admin role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAsodya user UUID",
@@ -17294,7 +17382,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas": {
@@ -17340,7 +17428,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "post": {
         "description": "Create or replace a draft schema version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOmit `version` to create the next version. A published version cannot change.",
@@ -17426,7 +17514,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/publish": {
@@ -17511,7 +17599,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:142",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/retire": {
@@ -17596,7 +17684,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:143",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/theme": {
@@ -17694,7 +17782,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/catalog": {
@@ -17819,7 +17907,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:154",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/health": {
@@ -17865,7 +17953,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:151",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/me": {
@@ -17912,7 +18000,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:166",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/me/projects/{project}/reports": {
@@ -18052,7 +18140,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:167",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects": {
@@ -18177,7 +18265,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}": {
@@ -18309,7 +18397,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:156",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations": {
@@ -18379,7 +18467,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/publish": {
@@ -18459,7 +18547,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:124",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/retire": {
@@ -18536,7 +18624,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:125",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/validate": {
@@ -18610,7 +18698,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:123",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/grants": {
@@ -18700,7 +18788,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/grants/{grant}": {
@@ -18766,7 +18854,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:128",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/ingest/{schema}": {
@@ -18868,7 +18956,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/project": {
@@ -19001,7 +19089,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:134",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}": {
@@ -19064,7 +19152,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Create or update a report. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nSaved report",
@@ -19178,7 +19266,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}": {
@@ -19249,7 +19337,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Bind a dataset card to a published calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nThe card shows the result of one published calculation version. Dataset references must stay in the report and form no cycle.",
@@ -19335,7 +19423,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/snapshots": {
@@ -19419,7 +19507,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/roles": {
@@ -19461,7 +19549,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/roles/{user}": {
@@ -19524,7 +19612,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       },
       "put": {
         "description": "Set the project admin role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAsodya user UUID",
@@ -19610,7 +19698,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas": {
@@ -19701,7 +19789,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/publish": {
@@ -19789,7 +19877,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:142",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/retire": {
@@ -19877,7 +19965,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:143",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/theme": {
@@ -19978,7 +20066,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/reports": {
@@ -20114,7 +20202,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:158",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}": {
@@ -20231,7 +20319,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:168",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}": {
@@ -20333,7 +20421,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:170",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}/datasets/{dataset}": {
@@ -20435,7 +20523,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:169",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}": {
@@ -20543,7 +20631,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:160",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{card}": {
@@ -20635,7 +20723,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:161",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/embed": {
@@ -20699,7 +20787,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:162",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/thumbnail.png": {
@@ -20757,7 +20845,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:163",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/stats": {
@@ -20833,7 +20921,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:159",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/projects/{project}/theme": {
@@ -20915,7 +21003,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:157",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/ready": {
@@ -20983,7 +21071,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:152",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/reports/v1/stats": {
@@ -21042,7 +21130,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:164",
-        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+        "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
       }
     },
     "/apps/support/v1/attachments": {

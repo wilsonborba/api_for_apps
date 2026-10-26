@@ -19,6 +19,7 @@ pub(super) fn public(method: &Method, path: &str) -> bool {
             | ("GET" | "PUT", ["instant", _])
             | ("POST", ["instant", _, "items" | "files"])
             | ("GET", ["instant", _, "files", _])
+            | ("DELETE", ["instant", _, "items", _])
     )
 }
 pub(super) fn client_ip(peer: IpAddr, headers: &HeaderMap) -> IpAddr {
@@ -155,6 +156,9 @@ mod tests {
     fn public_writes_are_only_waitlist_and_temporary_rooms() {
         assert!(public(&Method::POST, "/instant/a/files"));
         assert!(public(&Method::PUT, "/instant/a"));
+        assert!(public(&Method::DELETE, "/instant/a/items/b"));
+        assert!(!public(&Method::DELETE, "/instant/a"));
+        assert!(!public(&Method::DELETE, "/admin/posts/a"));
         assert!(!public(&Method::PUT, "/admin/posts/a"));
         assert!(!public(&Method::POST, "/posts"));
         assert!(!public(&Method::GET, "/admin/posts/a"));

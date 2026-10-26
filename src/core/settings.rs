@@ -166,6 +166,13 @@ pub fn glob(pattern: &str, s: &str) -> bool {
 mod tests {
     use super::*;
     #[test]
+    fn annotations_upstream_uses_registered_and_overridable_listener() {
+        let settings=Settings{values:Arc::new(HashMap::new()), defaults:Arc::new(serde_json::json!({}))};
+        assert_eq!(settings.target("annotations").as_deref(),Some("http://localhost:8111"));
+        let settings=Settings{values:Arc::new(HashMap::from([("ANNOTATIONS_UPSTREAM".into(),"http://127.0.0.1:19001".into())])),..settings};
+        assert_eq!(settings.target("annotations").as_deref(),Some("http://127.0.0.1:19001"));
+    }
+    #[test]
     fn glob_matches_python_slashes() {
         assert!(glob("/projects/*", "/projects/a/files/b"));
         assert!(glob("*/logs*", "/nested/logs/stream"));

@@ -105,6 +105,7 @@ fn allowed_origin(origin: &str) -> bool {
             | "https://certifications.asodya.com"
             | "https://cortex.asodya.com"
             | "https://reports.asodya.com"
+            | "https://annotations.asodya.com"
             | "https://wilson.asodya.com"
             | "https://wilsonborba.asodya.com"
             | "https://asodya.com"

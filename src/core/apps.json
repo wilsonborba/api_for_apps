@@ -1,7 +1,39 @@
 {
-  "certifications": {"port":8103,"source":"certifications_api","language":"python","live_logs":"websocket"},
-  "cortex": {"port":8003,"port_setting":"CORTEX_API_PORT","source":"cortex_api","language":"python","live_logs":"websocket"},
-  "domain": {"port":8104,"port_setting":"DOMAIN_API_PORT","source":"domain_api","language":"python"},
-  "wilson_borba": {"port":8107,"port_setting":"WILSON_BORBA_API_PORT","source":"wilson_borba_api","language":"python"},
-  "reports": {"port":8109,"port_setting":"REPORTS_API_PORT","source":"reports","language":"rust"}
+  "certifications": {
+    "port": 8103,
+    "source": "certifications_api",
+    "language": "python",
+    "live_logs": "websocket"
+  },
+  "cortex": {
+    "port": 8003,
+    "port_setting": "CORTEX_API_PORT",
+    "source": "cortex_api",
+    "language": "python",
+    "live_logs": "websocket"
+  },
+  "domain": {
+    "port": 8104,
+    "port_setting": "DOMAIN_API_PORT",
+    "source": "domain_api",
+    "language": "python"
+  },
+  "wilson_borba": {
+    "port": 8107,
+    "port_setting": "WILSON_BORBA_API_PORT",
+    "source": "wilson_borba_api",
+    "language": "python"
+  },
+  "reports": {
+    "port": 8109,
+    "port_setting": "REPORTS_API_PORT",
+    "source": "reports",
+    "language": "rust"
+  },
+  "annotations": {
+    "port": 8111,
+    "port_setting": "ANNOTATIONS_API_PORT",
+    "source": "annotations_api",
+    "language": "rust"
+  }
 }

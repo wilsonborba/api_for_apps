@@ -427,7 +427,8 @@ async fn oauth_callback(s: &State, v: &Value) -> Response {
     }
 }
 async fn user_info(s: &State, m: &Method, path: &str, h: &HeaderMap, b: Bytes) -> Response {
-    let u = match auth::verify(s, h, m.as_str(), false).await {
+    // Listing every user is an administrator operation.
+    let u = match auth::verify(s, h, m.as_str(), path.ends_with("/all")).await {
         Ok(u) => u,
         Err(e) => return detail(403, &e.to_string()),
     };

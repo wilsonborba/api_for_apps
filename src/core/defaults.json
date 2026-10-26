@@ -159,6 +159,26 @@
       "OPTIONS": [
         "/*"
       ]
+    },
+    "annotations": {
+      "GET": [
+        "/health",
+        "/ready",
+        "/catalog",
+        "/posts",
+        "/posts/*",
+        "/links/preview",
+        "/media/*",
+        "/instant/*"
+      ],
+      "POST": [
+        "/waitlist",
+        "/instant/*/items",
+        "/instant/*/files"
+      ],
+      "PUT": [
+        "/instant/*"
+      ]
     }
   },
   "FORCE_AUTH_PROXY_ROUTES": {
@@ -242,6 +262,23 @@
       ],
       "DELETE": [
         "/projects/*/admin/*"
+      ]
+    },
+    "annotations": {
+      "GET": [
+        "/admin/*"
+      ],
+      "POST": [
+        "/admin/*"
+      ],
+      "PUT": [
+        "/admin/*"
+      ],
+      "PATCH": [
+        "/admin/*"
+      ],
+      "DELETE": [
+        "/admin/*"
       ]
     }
   }

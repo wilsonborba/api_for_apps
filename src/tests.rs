@@ -544,3 +544,34 @@ async fn user_list_requires_an_administrator() {
     assert_eq!(list("admin").await, 200);
     assert_eq!(call(s.clone(), "GET", "/user/info/v1/all", json!({}), &[]).await.0, 403);
 }
+#[tokio::test]
+async fn proxied_backends_never_receive_client_credentials() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let h = request.headers();
+        axum::Json(json!({
+            "authorization": h.contains_key("authorization"),
+            "cookie": h.contains_key("cookie"),
+            "forwarded": h.contains_key("x-forwarded-for"),
+        }))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("DOMAIN_UPSTREAM".into(), format!("http://{address}"));
+    let (status, v) = call(
+        s,
+        "GET",
+        "/apps/domain/v1/projects",
+        json!({}),
+        &[("authorization", "test-admin"), ("cookie", "sid=anything")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(v, json!({"authorization":false,"cookie":false,"forwarded":true}));
+    task.abort();
+}

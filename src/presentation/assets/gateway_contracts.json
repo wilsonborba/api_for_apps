@@ -1649,8 +1649,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/AppLogRecordings"
                 }
               }
             }
@@ -1687,8 +1686,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/AppLogRecording"
                 }
               }
             }
@@ -1844,8 +1842,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true
+                  "$ref": "#/components/schemas/SavedAppLogs"
                 }
               }
             }
@@ -10391,6 +10388,70 @@
           "type": "string",
           "format": "date-time",
           "description": "Gateway receipt time. Retention uses this trusted timestamp."
+        }
+      }
+    },
+    "AppLogRecording": {
+      "type": "object",
+      "required": [
+        "app_id",
+        "started_at",
+        "expires_at"
+      ],
+      "properties": {
+        "app_id": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AppLogRecordings": {
+      "type": "object",
+      "required": [
+        "recordings",
+        "max_recording_seconds",
+        "retention_days"
+      ],
+      "properties": {
+        "recordings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/AppLogRecording"
+          }
+        },
+        "max_recording_seconds": {
+          "type": "integer",
+          "const": 1800
+        },
+        "retention_days": {
+          "type": "integer",
+          "const": 15
+        }
+      }
+    },
+    "SavedAppLogs": {
+      "type": "object",
+      "required": [
+        "items",
+        "retention_days"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/SavedAppLog"
+          }
+        },
+        "retention_days": {
+          "type": "integer",
+          "const": 15
         }
       }
     }

@@ -89,6 +89,13 @@ impl Settings {
             .and_then(|s| serde_json::from_str(s).ok())
             .unwrap_or_else(|| self.defaults[k].clone())
     }
+    pub fn development(&self) -> bool {
+        match self.values.get("DEVELOPMENT_MODE").map(String::as_str) {
+            Some("true" | "1") => true,
+            Some("false" | "0") => false,
+            _ => !self.production(),
+        }
+    }
     pub fn production(&self) -> bool {
         !matches!(
             self.get("ENVIRONMENT").to_lowercase().as_str(),

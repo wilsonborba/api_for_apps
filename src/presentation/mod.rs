@@ -3,6 +3,7 @@ pub mod auth_routes;
 pub mod docs;
 pub mod logs;
 pub mod support_routes;
+pub mod telemetry;
 pub mod validation;
 use crate::domain::{State, auth, proxy};
 use axum::{
@@ -95,6 +96,13 @@ async fn dispatch(
         }
     } else if logs::recording_route(&path) {
         logs::recording(&s, &method, &path, query.as_deref(), &h, body).await
+    } else if matches!(
+        path.as_str(),
+        "/apps/api/v1/client-error" | "/apps/api/v1/client-reports"
+    ) {
+        telemetry::legacy(&s, &method, query.as_deref(), &h, body, addr.ip()).await
+    } else if telemetry::route(&path) {
+        telemetry::dispatch(&s, &method, &path, query.as_deref(), &h, body, addr.ip()).await
     } else if let Some(suffix) = path.strip_prefix("/apps/annotations/v1") {
         annotations::forward(&s, &method, suffix, query.as_deref(), &h, body, addr.ip()).await
     } else {
@@ -121,6 +129,9 @@ fn allowed_origin(origin: &str) -> bool {
             | "https://wilsonborba.asodya.com"
             | "https://asodya.com"
             | "https://www.asodya.com"
+            | "https://oryza-elo.asodya.com"
+            | "https://wilsonborba.com"
+            | "https://www.wilsonborba.com"
     ) {
         return true;
     }
@@ -193,12 +204,6 @@ async fn handle(
     }
     if let Some(rest) = path.strip_prefix("/apps/support/v1/") {
         return support_routes::handle(s, m, rest, q, h, b).await;
-    }
-    if matches!(
-        path,
-        "/apps/api/v1/client-error" | "/apps/api/v1/client-reports"
-    ) {
-        return telemetry(s, m, path, q, h, b, ip).await;
     }
     if path == "/apps/certifications/v1/waitlist" && m == Method::POST {
         return waitlist(s, h, b, ip).await;
@@ -290,174 +295,6 @@ pub fn valid_string(b: &Value, k: &str, min: usize, max: usize, optional: bool) 
         let n = v.chars().count();
         n >= min && n <= max
     })
-}
-async fn telemetry(
-    s: &State,
-    m: &Method,
-    path: &str,
-    q: Option<&str>,
-    h: &HeaderMap,
-    b: Bytes,
-    ip: &str,
-) -> Response {
-    if m == Method::GET && path.ends_with("client-error") {
-        if let Err(e) = auth::verify(s, h, "GET", true).await {
-            return detail(403, &e.to_string());
-        }
-        let query: std::collections::HashMap<_, _> =
-            url::form_urlencoded::parse(q.unwrap_or("").as_bytes())
-                .into_owned()
-                .collect();
-        for key in ["limit", "skip"] {
-            if let Some(value) = query.get(key)
-                && value.parse::<usize>().is_err()
-            {
-                return detail(422, "Invalid pagination parameter");
-            }
-        }
-        let limit = query
-            .get("limit")
-            .and_then(|v| v.parse::<usize>().ok())
-            .unwrap_or(50);
-        let skip = query
-            .get("skip")
-            .and_then(|v| v.parse::<usize>().ok())
-            .unwrap_or(0);
-        if !(1..=200).contains(&limit) {
-            return detail(422, "Invalid limit");
-        }
-        let errors = s.telemetry.recent(limit, skip).await;
-        return response(
-            200,
-            "Success",
-            json!({"total":errors.len(),"errors":errors}),
-        );
-    }
-    if m != Method::POST {
-        return detail(405, "Method Not Allowed");
-    }
-    let mut v = match parse(&b) {
-        Ok(v) => v,
-        Err(r) => return *r,
-    };
-    for (k, min, max, opt) in [
-        ("app_name", 2, 80, false),
-        ("environment", 2, 32, false),
-        ("error_title", 2, 200, false),
-        ("error_message", 1, 4000, false),
-        ("app_version", 0, 50, true),
-        ("route", 0, 300, true),
-        ("error_code", 0, 80, true),
-        ("stack_trace", 0, 8000, true),
-        ("request_id", 0, 100, true),
-        ("user_agent", 0, 500, true),
-        ("user_id", 0, 100, true),
-        ("session_id", 0, 100, true),
-        ("ip_address", 0, 64, true),
-        ("client_timestamp", 0, 50, true),
-        ("server_timestamp", 0, 50, true),
-    ] {
-        if !valid_string(&v, k, min, max, opt) {
-            return detail(422, "Invalid telemetry payload");
-        }
-    }
-    for k in ["details", "extra"] {
-        if v.get(k).is_none() {
-            v[k] = json!({})
-        } else if !v[k].is_object() {
-            return detail(422, "Invalid telemetry details");
-        }
-    }
-    if let Some(obj) = v.as_object_mut() {
-        obj.retain(|k, _| {
-            [
-                "app_name",
-                "app_version",
-                "environment",
-                "route",
-                "error_title",
-                "error_message",
-                "error_code",
-                "stack_trace",
-                "request_id",
-                "user_id",
-                "session_id",
-                "ip_address",
-                "user_agent",
-                "client_timestamp",
-                "server_timestamp",
-                "details",
-                "extra",
-            ]
-            .contains(&k.as_str())
-        });
-    }
-    let origin = if h.contains_key("origin") {
-        auth::header(h, "origin")
-    } else {
-        auth::header(h, "referer")
-    };
-    if !origin.is_empty()&&!origin.to_lowercase().contains(".asodya.com")&&!origin.to_lowercase().starts_with("https://asodya.com")&&!regex::Regex::new(r"https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?").unwrap().is_match(origin){return response(403,"Forbidden origin.",Value::Null)}
-    let real = if h.contains_key("cf-connecting-ip") {
-        auth::header(h, "cf-connecting-ip")
-    } else if h.contains_key("x-forwarded-for") {
-        auth::header(h, "x-forwarded-for")
-            .split(',')
-            .next()
-            .unwrap_or(ip)
-    } else {
-        ip
-    };
-    if s.cache
-        .increment(&format!("ratelimit:telemetry:{real}"), 60)
-        .await
-        .unwrap_or(0)
-        > 10
-    {
-        return response(429, "Rate limit exceeded. Try again later.", Value::Null);
-    }
-    let u = auth::session(s, h).await.ok().flatten();
-    let id = uuid::Uuid::new_v4().to_string();
-    v["error_id"] = json!(id);
-    v["user_id"] = u
-        .as_ref()
-        .map(|u| {
-            u.get("id")
-                .or(u.get("user_id"))
-                .cloned()
-                .unwrap_or(Value::Null)
-        })
-        .unwrap_or(Value::Null);
-    v["session_id"] = json!(auth::cookie(
-        h,
-        &s.settings.get("HTTP_ONLY_COOKIE_KEY_NAME")
-    ));
-    v["ip_address"] = json!(real);
-    v["user_agent"] = h
-        .get("user-agent")
-        .and_then(|x| x.to_str().ok())
-        .map(Value::from)
-        .unwrap_or(Value::Null);
-    v["server_timestamp"] = json!(crate::domain::support::timestamp());
-    for k in [
-        "app_version",
-        "route",
-        "error_code",
-        "stack_trace",
-        "request_id",
-        "client_timestamp",
-    ] {
-        if v.get(k).is_none() {
-            v[k] = Value::Null;
-        }
-    }
-    let store = s.telemetry.clone();
-    tokio::spawn(async move {
-        if !store.put(&id, v).await {
-            tracing::warn!("Client error persistence failed")
-        }
-    });
-    response(202, "Telemetry accepted.", json!({"status":"queued"}))
 }
 async fn waitlist(s: &State, h: &HeaderMap, b: Bytes, ip: &str) -> Response {
     let v = match parse(&b) {

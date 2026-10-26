@@ -5,3 +5,5 @@ pub mod support;
 pub mod verification;
 
 pub mod app_logs;
+
+pub mod telemetry;

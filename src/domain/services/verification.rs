@@ -30,6 +30,6 @@ pub async fn check(state: &State) -> Result<Value> {
         true
     };
     Ok(
-        json!({"users":users.len(),"support_tickets":tickets.len(),"migration_revision":revision,"cache_connected":cache,"support_store_available":state.support.available().await,"telemetry_store_available":state.telemetry.available().await,"read_only":true,"limitations":["No production write transaction executed","Provider mutation flows use local test doubles","SQLite does not validate PostgreSQL locking/concurrency"]}),
+        json!({"users":users.len(),"support_tickets":tickets.len(),"migration_revision":revision,"cache_connected":cache,"support_store_available":state.support.available().await,"telemetry_store_available":state.db.telemetry_available().await,"read_only":true,"limitations":["No production write transaction executed","Provider mutation flows use local test doubles","SQLite does not validate PostgreSQL locking/concurrency"]}),
     )
 }

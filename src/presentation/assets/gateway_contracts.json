@@ -7,7 +7,7 @@
           "gateway"
         ],
         "summary": "Ingest frontend client error reports",
-        "description": "Ingest frontend client error reports. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAccepts client error telemetry, rate-limited per IP, stored in CouchDB.",
+        "description": "Compatibility route for deployed reporters. New errors are validated and stored in appdb.defaultdb_client_error, never CouchDB. New clients must use /apps/api/v1/telemetry/errors. The gateway derives identity. Read operations are administrator-only. The same 65536-byte and 120-request-per-minute limits apply.",
         "parameters": [],
         "responses": {
           "202": {
@@ -103,7 +103,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-error' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\", \"route\": \"/projects\", \"details\": {}, \"extra\": {}}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63",
+        "deprecated": true
       },
       "get": {
         "operationId": "gateway_get__apps_api_v1_client_error",
@@ -111,7 +112,7 @@
           "gateway"
         ],
         "summary": "Query recent client errors (Admin only)",
-        "description": "Query recent client errors (Admin only). This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nLists recent client-side errors from CouchDB.",
+        "description": "Compatibility route for deployed reporters. New errors are validated and stored in appdb.defaultdb_client_error, never CouchDB. New clients must use /apps/api/v1/telemetry/errors. The gateway derives identity. Read operations are administrator-only. The same 65536-byte and 120-request-per-minute limits apply.",
         "parameters": [
           {
             "name": "limit",
@@ -183,7 +184,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/api/v1/client-error' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:120"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:120",
+        "deprecated": true
       }
     },
     "/apps/api/v1/client-reports": {
@@ -193,7 +195,7 @@
           "gateway"
         ],
         "summary": "Ingest frontend client error reports",
-        "description": "Ingest frontend client error reports. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAccepts client error telemetry, rate-limited per IP, stored in CouchDB.",
+        "description": "Compatibility route for deployed reporters. New errors are validated and stored in appdb.defaultdb_client_error, never CouchDB. New clients must use /apps/api/v1/telemetry/errors. The gateway derives identity. Read operations are administrator-only. The same 65536-byte and 120-request-per-minute limits apply.",
         "parameters": [],
         "responses": {
           "202": {
@@ -286,7 +288,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/client-reports' --header 'Content-Type: application/json' --data '{\"app_name\": \"reports\", \"environment\": \"production\", \"error_title\": \"Report request failed\", \"error_message\": \"The request did not complete.\"}'"
           }
         ],
-        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63"
+        "x-python-baseline-source": "api_for_apps/src/presentation/routes/telemetry_route.py:63",
+        "deprecated": true
       }
     },
     "/apps/api/v1/exchange": {
@@ -2106,6 +2109,302 @@
         ],
         "x-access-level": "administrator",
         "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
+    "/apps/api/v1/telemetry/errors": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Ingest frontend errors",
+        "description": "Normalized telemetry stored in appdb. Read access requires an administrator. The gateway derives the user and IP; client identity fields are rejected. No JSON or document columns. Text from sensitive fields must be removed on the device before queuing; the gateway also removes explicitly marked or named sensitive values. Query strings and fragments are removed from routes and paths. Anonymous writes allowed. Maximum 65536 bytes, 50 events per batch and 120 requests per IP per minute. Session identity conflicts return 409; rotate the anonymous UUID and retry. Events are idempotent by session_id and seq.",
+        "operationId": "tracking_post_errors",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingError"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Stored in SQL; accepted counts new events."
+          },
+          "409": {
+            "description": "session_identity_changed; rotate UUID."
+          },
+          "413": {
+            "description": "Body size limit exceeded."
+          },
+          "422": {
+            "description": "Invalid payload or inactive app."
+          },
+          "429": {
+            "description": "IP rate limit exceeded."
+          },
+          "503": {
+            "description": "Storage or identity service unavailable."
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Read saved frontend errors",
+        "description": "Normalized telemetry stored in appdb. Read access requires an administrator. The gateway derives the user and IP; client identity fields are rejected. No JSON or document columns. Text from sensitive fields must be removed on the device before queuing; the gateway also removes explicitly marked or named sensitive values. Query strings and fragments are removed from routes and paths.",
+        "operationId": "tracking_get_errors",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved rows under items."
+          },
+          "403": {
+            "description": "Administrator authorization required."
+          },
+          "422": {
+            "description": "Invalid filters."
+          },
+          "503": {
+            "description": "Storage unavailable."
+          }
+        }
+      }
+    },
+    "/apps/api/v1/telemetry/events": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Ingest frontend events",
+        "description": "Normalized telemetry stored in appdb. Read access requires an administrator. The gateway derives the user and IP; client identity fields are rejected. No JSON or document columns. Text from sensitive fields must be removed on the device before queuing; the gateway also removes explicitly marked or named sensitive values. Query strings and fragments are removed from routes and paths. Anonymous writes allowed. Maximum 65536 bytes, 50 events per batch and 120 requests per IP per minute. Session identity conflicts return 409; rotate the anonymous UUID and retry. Events are idempotent by session_id and seq.",
+        "operationId": "tracking_post_events",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackingBatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Stored in SQL; accepted counts new events."
+          },
+          "409": {
+            "description": "session_identity_changed; rotate UUID."
+          },
+          "413": {
+            "description": "Body size limit exceeded."
+          },
+          "422": {
+            "description": "Invalid payload or inactive app."
+          },
+          "429": {
+            "description": "IP rate limit exceeded."
+          },
+          "503": {
+            "description": "Storage or identity service unavailable."
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Read saved frontend events",
+        "description": "Normalized telemetry stored in appdb. Read access requires an administrator. The gateway derives the user and IP; client identity fields are rejected. No JSON or document columns. Text from sensitive fields must be removed on the device before queuing; the gateway also removes explicitly marked or named sensitive values. Query strings and fragments are removed from routes and paths.",
+        "operationId": "tracking_get_events",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved rows under items."
+          },
+          "403": {
+            "description": "Administrator authorization required."
+          },
+          "422": {
+            "description": "Invalid filters."
+          },
+          "503": {
+            "description": "Storage unavailable."
+          }
+        }
+      }
+    },
+    "/apps/api/v1/telemetry/sessions": {
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Read saved frontend sessions",
+        "description": "Normalized telemetry stored in appdb. Read access requires an administrator. The gateway derives the user and IP; client identity fields are rejected. No JSON or document columns. Text from sensitive fields must be removed on the device before queuing; the gateway also removes explicitly marked or named sensitive values. Query strings and fragments are removed from routes and paths.",
+        "operationId": "tracking_get_sessions",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Saved rows under items."
+          },
+          "403": {
+            "description": "Administrator authorization required."
+          },
+          "422": {
+            "description": "Invalid filters."
+          },
+          "503": {
+            "description": "Storage unavailable."
+          }
+        }
       }
     }
   },
@@ -10454,6 +10753,163 @@
           "const": 15
         }
       }
+    },
+    "TrackingError": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "route": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "error_type": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "stack": {
+          "type": "string",
+          "maxLength": 8000
+        },
+        "build_version": {
+          "type": "string",
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "app_id",
+        "session_id",
+        "route",
+        "error_type",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "TrackingEvent": {
+      "type": "object",
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "view",
+            "click",
+            "input",
+            "submit",
+            "scroll",
+            "error_link"
+          ]
+        },
+        "screen": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "route": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "element_id": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "element_label": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "element_path": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 4000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sensitive": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "seq",
+        "event_type",
+        "screen",
+        "route",
+        "path",
+        "element_id",
+        "element_label",
+        "element_path"
+      ],
+      "additionalProperties": false
+    },
+    "TrackingBatch": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locale": {
+          "type": "string",
+          "maxLength": 35
+        },
+        "theme": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "viewport_width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "viewport_height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/components/schemas/TrackingEvent"
+          }
+        }
+      },
+      "required": [
+        "app_id",
+        "session_id",
+        "events"
+      ],
+      "additionalProperties": false
     }
   }
 }

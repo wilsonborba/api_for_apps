@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-26
+
+### 🚀 Features
+
+- Register Annotations upstream and browser origin (#53) ([`5589dc1`](https://github.com/wilsonborba/api_for_apps/commit/5589dc168cb9d8b98648e920238448f680936b12))
+- Merge Annotations registration (#53) ([`7bf05b5`](https://github.com/wilsonborba/api_for_apps/commit/7bf05b542cb3fb9f17c215ed169348e41f2fcd9c))
+- Enforce Annotations admin policy and stream temporary uploads (#54) ([`e7cae84`](https://github.com/wilsonborba/api_for_apps/commit/e7cae843d8f0341e7b837cb08f20edb9622684c4))
+- Merge Annotations proxy boundary (#54) ([`e4415fa`](https://github.com/wilsonborba/api_for_apps/commit/e4415fab3bbadc35757df96a07b336858fcf9900))
+- Merge Annotations gateway integration (#55) ([`ff6845c`](https://github.com/wilsonborba/api_for_apps/commit/ff6845ccee20708dc0728876dd785fd5f0cadda6))
+
+### 🧪 Testing
+
+- Verify Annotations contracts and gateway deployment (#55) ([`38bf317`](https://github.com/wilsonborba/api_for_apps/commit/38bf317fffaa4f0117898c6794345940fd0b792b))
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Synchronize v1.2.1 back to release ([`d850d3d`](https://github.com/wilsonborba/api_for_apps/commit/d850d3deb39ba71b59c3fc4d331518115c9dfd7a))
+- *(release)* Synchronize v1.2.1 back to development ([`f278c0f`](https://github.com/wilsonborba/api_for_apps/commit/f278c0fc046abb0e27b34f48cd6089c4393578b4))
+- *(release)* Synchronize v1.2.1 back to feature main ([`79cc6ea`](https://github.com/wilsonborba/api_for_apps/commit/79cc6ea1e66879d3f5fc788f0517d9f3982f3317))
 ## [1.2.1] - 2026-10-25
 
 ### 🐛 Bug Fixes

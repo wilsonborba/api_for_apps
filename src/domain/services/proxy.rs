@@ -5,10 +5,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde_json::{Value, json};
+/// Hop-by-hop headers and client credentials never cross the gateway: the admin key
+/// and session cookie are verified here; backends receive the derived identity headers.
 pub fn blocked(k: &str) -> bool {
     matches!(
         k,
-        "connection"
+        "authorization"
+            | "cookie"
+            | "connection"
             | "keep-alive"
             | "proxy-authenticate"
             | "proxy-authorization"

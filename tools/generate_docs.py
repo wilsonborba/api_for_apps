@@ -199,9 +199,9 @@ def rust_schema(typ):
  if typ in ('I18nText',) or 'HashMap<' in typ or 'BTreeMap<' in typ:return {'type':'object','additionalProperties':True}
  if typ in components:return {'$ref':'#/components/schemas/'+typ}
  return {}
-def rust_models(repo):
+def rust_models(repo, source="engine/src"):
  texts=[]
- for f in (repo/'engine/src').rglob('*.rs'):
+ for f in (repo/source).rglob('*.rs'):
   text=f.read_text();texts.append((f,text))
   for m in re.finditer(r'pub struct (\w+)(?:<[^>]+>)?\s*\{',text):components.setdefault(m.group(1),{'type':'object'})
  for f,text in texts:
@@ -225,6 +225,7 @@ def rust_reports(repo):
  if not f.exists():return
  text=f.read_text();bindings={};source_texts=rust_models(repo);handlers={}
  for sf,st in source_texts:
+  if '/presentation/api/' not in str(sf):continue
   for hm in re.finditer(r'pub async fn (\w+)\s*\((.*?)\)\s*->[^\{]+\{',st,re.S):handlers[hm.group(1)]=(hm.group(2),st[max(0,st.rfind('#[utoipa::path(',0,hm.start())):hm.start()])
  for m in re.finditer(r'let\s+(\w+)\s*=\s*([^;]+);',text,re.S):bindings[m.group(1)]=m.group(2)
  def chunks(text):
@@ -263,6 +264,48 @@ def rust_reports(repo):
      if typ:responses[status]['content']={'application/json':{'schema':rust_schema(typ.strip()),'example':example(rust_schema(typ.strip()))}}
     if not responses:unknown.append('Dynamic Rust response shape requires central review.')
     operation('reports',prefix+path,method,summary_match.group(1) if summary_match else method.upper()+' '+path,desc_match.group(1) if desc_match else 'Reports operation discovered directly from route registration and handler source.',params,body,responses or None,str(f.relative_to(a.workspace))+':'+str(text[:pos].count('\n')+1),unknown=unknown)
+
+def rust_annotations(repo):
+ if not (repo/'lib/presentation/mod.rs').exists():return
+ # Namespace the selected service models; common names such as Query must not
+ # overwrite contracts belonging to Reports or another registered service.
+ import copy
+ before=copy.deepcopy(components)
+ rust_models(repo,'lib')
+ selected={k:copy.deepcopy(components[k]) for k in ('Field','Draft','Translation','WritePost','Query','Edit') if k in components}
+ components.clear();components.update(before)
+ def namespace(value):
+  if isinstance(value,dict):
+   return {k:('#/components/schemas/Annotations'+v.rsplit('/',1)[-1] if k=='$ref' and v.rsplit('/',1)[-1] in selected else namespace(v)) for k,v in value.items()}
+  if isinstance(value,list):return [namespace(x) for x in value]
+  return value
+ for name,model in selected.items():components['Annotations'+name]=namespace(model)
+ for f in sorted((repo/'lib/presentation').glob('*.rs')):
+  text=f.read_text()
+  for match in re.finditer(r'\.route\(\s*"([^"]+)"\s*,',text):
+   path=match[1];i=match.end();start=i;depth=1
+   while i<len(text) and depth:
+    if text[i]=='(':depth+=1
+    elif text[i]==')':depth-=1
+    i+=1
+   expr=text[start:i-1]
+   for method in re.findall(r'\b(get|post|put|patch|delete)\(',expr):
+    params=[];body=None
+    if path=='/posts':params=[{'name':k,'in':'query','required':False,'schema':v} for k,v in components['AnnotationsQuery']['properties'].items()]
+    elif path in ('/posts/{key}','/admin/posts/{id}') and method=='get':params=[{'name':'lang','in':'query','schema':{'type':'string'}},{'name':'channel','in':'query','schema':{'type':'string'}}]
+    if path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
+    model= 'Draft' if path=='/admin/schemas' and method=='post' else 'WritePost' if path=='/admin/posts/{id}' and method=='put' else 'Edit' if path.endswith('/items') and method=='post' else None
+    if model:body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Annotations'+model}}}}
+    if path=='/waitlist':body={'required':True,'content':{'application/json':{'schema':{'type':'object','required':['email'],'properties':{'email':{'type':'string','format':'email'},'message':{'type':'string','maxLength':2000}}}}}}
+    if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections. Each entry has id/name; owners use display_name; languages use code/label.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
+    if path.endswith('/files') or path=='/admin/images':
+     params=[{'name':'size' if path.endswith('/files') else 'owner_id','in':'query','required':True,'schema':{'type':'integer','minimum':1,'maximum':50000000} if path.endswith('/files') else {'type':'string'}}]
+     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'}}}}}}
+    binary=method=='get' and (path.startswith('/media/') or path.startswith('/admin/images/') or '/files/' in path)
+    responses={'200':{'description':'Current resource or operation result.','content':{'application/octet-stream' if binary else 'application/json':{'schema':{'type':'string','format':'binary'} if binary else {'type':'object','additionalProperties':True}}}},'404':{'description':'Resource missing, private, unpublished or expired.'},'422':{'description':'Input or registered document schema validation failed.'},'503':{'description':'A required storage service is unavailable.'}}
+    if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
+    operation('annotations',path,method,method.upper()+' '+path,'Annotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+
 registry=json.loads((ROOT/'src/core/apps.json').read_text())
 for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in registry.items() if v['language']=='python']:
  repo=a.workspace/folder
@@ -271,6 +314,7 @@ for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in r
  elif repo.exists():python_app(app,repo)
  else:gaps.append({'app':app,'gaps':['Source repository not available']})
 rust_reports(a.workspace/'reports')
+rust_annotations(a.workspace/'annotations_api')
 operation('gateway','/apps/api/v1/logs/stream','get','Stream gateway logs','Server-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.',[],None,{'200':{'description':'Live SSE log stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: gateway ready\n\n'}}},'403':{'description':'Administrator authorization required.'}},'src/presentation/logs.rs')
 if OVERRIDE.exists():
  for key,override in json.loads(OVERRIDE.read_text()).items():
@@ -280,7 +324,7 @@ if OVERRIDE.exists():
 previous=json.loads(OUT.read_text()) if OUT.exists() else {}
 for app,entry in registry.items():
  repo=a.workspace/entry['source']
- if not repo.exists() or entry['language']=='rust' and not (repo/'engine/src/presentation/api/server.rs').exists():
+ if not repo.exists() or entry['language']=='rust' and not (repo/('lib/presentation/mod.rs' if app=='annotations' else 'engine/src/presentation/api/server.rs')).exists():
   for path,ms in previous.get('paths',{}).items():
    for method,op in ms.items():
     if op.get('tags')==[app]:operations.setdefault(path,{})[method]=op

@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚀 Features
 
+- *(db)* Add the app catalog schema foundation (#57) ([`ef6480d`](https://github.com/wilsonborba/api_for_apps/commit/ef6480ddb969f50e0e1ce14387db59fdba7179f1))
+- *(db)* Merge app catalog foundation (#57) ([`0f84b21`](https://github.com/wilsonborba/api_for_apps/commit/0f84b215706c26d86875861d3f983ecce65e0c32))
+- *(logs)* Add admin streams and bounded app recording (#58) ([`a609d8d`](https://github.com/wilsonborba/api_for_apps/commit/a609d8ddda9b8a7f82f47e7448e2588beddc042f))
+
+### 📚 Documentation
+
+- Record the app catalog foundation (#57) ([`fea5d64`](https://github.com/wilsonborba/api_for_apps/commit/fea5d641f74c648f768ed327b53be4a972ec5e42))
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Synchronize v1.3.0 back to feature main ([`a7ef9a9`](https://github.com/wilsonborba/api_for_apps/commit/a7ef9a9c2b11a48fe8fd8cb050687884fd18d64f))
+- Synchronize app catalog with the completed release ([`107bf9d`](https://github.com/wilsonborba/api_for_apps/commit/107bf9db3b41e8aacb30cc8ce7070afc38b973d0))
+## [unreleased]
+
+### 🚀 Features
+
 - Register Annotations upstream and browser origin (#53) ([`5589dc1`](https://github.com/wilsonborba/api_for_apps/commit/5589dc168cb9d8b98648e920238448f680936b12))
 - Merge Annotations registration (#53) ([`7bf05b5`](https://github.com/wilsonborba/api_for_apps/commit/7bf05b542cb3fb9f17c215ed169348e41f2fcd9c))
 - Enforce Annotations admin policy and stream temporary uploads (#54) ([`e7cae84`](https://github.com/wilsonborba/api_for_apps/commit/e7cae843d8f0341e7b837cb08f20edb9622684c4))

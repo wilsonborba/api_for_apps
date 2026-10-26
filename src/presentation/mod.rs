@@ -87,6 +87,14 @@ async fn dispatch(
         docs::asset(&path, &h)
     } else if path == "/apps/api/v1/logs/stream" && method == Method::GET {
         logs::stream(&s, &h).await
+    } else if let Some(app) = logs::app_stream_id(&path) {
+        if method != Method::GET {
+            detail(405, "Method Not Allowed")
+        } else {
+            logs::app_stream(&s, &h, app).await
+        }
+    } else if logs::recording_route(&path) {
+        logs::recording(&s, &method, &path, query.as_deref(), &h, body).await
     } else if let Some(suffix) = path.strip_prefix("/apps/annotations/v1") {
         annotations::forward(&s, &method, suffix, query.as_deref(), &h, body, addr.ip()).await
     } else {

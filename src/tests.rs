@@ -36,6 +36,7 @@ async fn state() -> domain::State {
         settings,
         client,
         logs,
+        recordings: std::sync::Arc::default(),
     }
 }
 async fn call(
@@ -674,4 +675,281 @@ async fn reports_public_parent_never_opens_protected_children() {
         assert_eq!(status, 403, "{method} {path} is admin only");
     }
     task.abort();
+}
+
+async fn log_state() -> domain::State {
+    let s = state().await;
+    if let dal::database::Database::Sqlite(pool) = &s.db {
+        sqlx::query("PRAGMA foreign_keys=ON")
+            .execute(pool)
+            .await
+            .unwrap();
+        let catalog = include_str!("../migrations/001_app_catalog.sql")
+            .replace("public.defaultdb_app", "defaultdb_app");
+        let logs = include_str!("../migrations/002_app_logs.sql")
+            .replace("public.defaultdb_app", "defaultdb_app")
+            .replace("BIGSERIAL PRIMARY KEY", "INTEGER PRIMARY KEY AUTOINCREMENT");
+        sqlx::raw_sql(&format!("{catalog}\n{logs}"))
+            .execute(pool)
+            .await
+            .unwrap();
+    }
+    s.db.sync_log_apps(&dal::remote::log_source::registered_apps())
+        .await
+        .unwrap();
+    s
+}
+#[tokio::test]
+async fn app_log_recording_is_admin_only_single_app_and_stop_preserves_streaming() {
+    let s = log_state().await;
+    for path in [
+        "/apps/reports/v1/logs/stream",
+        "/apps/annotations/v1/logs/stream",
+        "/apps/api/v1/logs",
+        "/apps/api/v1/logs/recordings",
+    ] {
+        assert_eq!(
+            call(s.clone(), "GET", path, json!({}), &[]).await.0,
+            403,
+            "{path}"
+        );
+    }
+    s.cache
+        .set(
+            "exchange_auth_app:regular",
+            json!({"access_level":3,"csrf_token":"c"}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/logs/recordings",
+            json!({"app_id":"api_for_apps"}),
+            &[("cookie", "sid=regular; csrf=c"), ("x-csrf-token", "c")]
+        )
+        .await
+        .0,
+        403
+    );
+    let admin = &[("authorization", "test-admin")][..];
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/logs/recordings",
+            json!({"app_id":"not-registered"}),
+            admin
+        )
+        .await
+        .0,
+        404
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/logs/recordings",
+            json!({"app_id":"api_for_apps"}),
+            admin
+        )
+        .await
+        .0,
+        200
+    );
+    let mut live = s.logs.subscribe();
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/api/v1/logs/recordings",
+            json!({"app_id":"reports"}),
+            admin
+        )
+        .await
+        .0,
+        409
+    );
+    s.logs
+        .send("2026-10-27T00:00:00Z WARNING api_for_apps tests saved line".into())
+        .unwrap();
+    for _ in 0..30 {
+        if !s
+            .db
+            .saved_logs(&Default::default())
+            .await
+            .unwrap()
+            .is_empty()
+        {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+    }
+    let rows = s.db.saved_logs(&Default::default()).await.unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].level, "WARNING");
+    assert_eq!(
+        call(
+            s.clone(),
+            "DELETE",
+            "/apps/api/v1/logs/recordings/api_for_apps",
+            json!({}),
+            admin
+        )
+        .await
+        .0,
+        200
+    );
+    s.logs.send("stream continues after stop".into()).unwrap();
+    assert!(live.recv().await.unwrap().contains("saved line"));
+    assert!(live.recv().await.unwrap().contains("continues"));
+    assert_eq!(s.recordings.list()["recordings"], json!([]));
+}
+#[tokio::test]
+async fn recordings_auto_stop_at_the_fixed_30_minute_deadline() {
+    let s = log_state().await;
+    tokio::time::pause();
+    s.recordings.start(s.clone(), "api_for_apps").await.unwrap();
+    tokio::task::yield_now().await;
+    tokio::time::advance(std::time::Duration::from_secs(
+        core::logs::RECORDING_MAX_SECONDS - 1,
+    ))
+    .await;
+    assert_eq!(
+        s.recordings.list()["recordings"].as_array().unwrap().len(),
+        1
+    );
+    // Tokio timers round to millisecond ticks. Cross that tick after the exact deadline.
+    tokio::time::advance(std::time::Duration::from_millis(1001)).await;
+    for _ in 0..5 {
+        tokio::task::yield_now().await;
+    }
+    assert_eq!(s.recordings.list()["recordings"], json!([]));
+}
+#[tokio::test]
+async fn saved_log_retention_removes_only_rows_older_than_15_days() {
+    let s = log_state().await;
+    let now = chrono::Utc::now();
+    let cutoff = now - chrono::Duration::days(core::logs::SAVED_LOG_RETENTION_DAYS);
+    s.db.insert_log(
+        "reports",
+        "INFO",
+        "expired",
+        cutoff - chrono::Duration::seconds(1),
+    )
+    .await
+    .unwrap();
+    s.db.insert_log("reports", "INFO", "boundary", cutoff)
+        .await
+        .unwrap();
+    s.db.insert_log("annotations", "ERROR", "recent", now)
+        .await
+        .unwrap();
+    assert_eq!(s.db.purge_logs_before(cutoff).await.unwrap(), 1);
+    let rows = s.db.saved_logs(&Default::default()).await.unwrap();
+    assert_eq!(rows.len(), 2);
+    assert!(rows.iter().all(|r| r.message != "expired"));
+    let (status, body) = call(
+        s,
+        "GET",
+        "/apps/api/v1/logs?app_id=annotations&level=ERROR",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200, "{body}");
+    assert_eq!(body["items"].as_array().unwrap().len(), 1);
+}
+#[tokio::test]
+async fn app_stream_proxy_preserves_utf8_split_frames_without_forwarding_credentials() {
+    use axum::body::Bytes;
+    use axum::{Router, routing::get};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let app = Router::new().route(
+        "/logs/stream",
+        get(|headers: axum::http::HeaderMap| async move {
+            assert!(!headers.contains_key("authorization"));
+            assert!(!headers.contains_key("cookie"));
+            let body =
+                b"event: log\r\ndata: 2026-10-27T00:00:00Z INFO reports test ol\xc3\xa1\r\n\r\n";
+            let chunks = vec![
+                Ok::<_, std::io::Error>(Bytes::copy_from_slice(
+                    &body[..body.iter().position(|byte| *byte == 0xc3).unwrap() + 1],
+                )),
+                Ok(Bytes::copy_from_slice(
+                    &body[body.iter().position(|byte| *byte == 0xc3).unwrap() + 1..],
+                )),
+            ];
+            (
+                [("content-type", "text/event-stream")],
+                Body::from_stream(futures_util::stream::iter(chunks)),
+            )
+        }),
+    );
+    let server = tokio::spawn(async move {
+        axum::serve(listener, app).await.unwrap();
+    });
+    let mut s = log_state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("REPORTS_UPSTREAM".into(), format!("http://{address}"));
+    let mut req = Request::builder()
+        .uri("/apps/reports/v1/logs/stream")
+        .header("authorization", "test-admin")
+        .body(Body::empty())
+        .unwrap();
+    req.extensions_mut().insert(ConnectInfo(
+        "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+    ));
+    let response = presentation::router(s).oneshot(req).await.unwrap();
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.headers()["cache-control"], "no-store");
+    let bytes = to_bytes(response.into_body(), 10000).await.unwrap();
+    assert!(String::from_utf8(bytes.to_vec()).unwrap().contains("olá"));
+    server.abort();
+}
+
+#[tokio::test]
+async fn app_log_foreign_keys_levels_and_inactive_flags_are_enforced() {
+    let s = log_state().await;
+    assert!(
+        s.db.insert_log("unknown-app", "INFO", "invalid", chrono::Utc::now())
+            .await
+            .is_err()
+    );
+    assert!(
+        s.db.insert_log("reports", "TRACE", "invalid", chrono::Utc::now())
+            .await
+            .is_err()
+    );
+    if let dal::database::Database::Sqlite(pool) = &s.db {
+        sqlx::query("UPDATE defaultdb_app SET is_active=FALSE WHERE id='reports'")
+            .execute(pool)
+            .await
+            .unwrap();
+    }
+    s.db.sync_log_apps(&dal::remote::log_source::registered_apps())
+        .await
+        .unwrap();
+    assert!(!s.db.log_app_active("reports").await.unwrap());
+    assert_eq!(
+        s.recordings
+            .start(s.clone(), "reports")
+            .await
+            .unwrap_err()
+            .0,
+        404
+    );
+    let (status, _) = call(
+        s,
+        "GET",
+        "/apps/api/v1/logs?level=TRACE",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 422);
 }

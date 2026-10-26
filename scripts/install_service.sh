@@ -24,14 +24,12 @@ WorkingDirectory=${PROJECT_DIR}
 ExecStart=${PROJECT_DIR}/scripts/app_prod_run.sh
 Restart=always
 RestartSec=5
-StandardOutput=append:/var/log/asodya-api.log
-StandardError=append:/var/log/asodya-api.log
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
 UNIT
-touch /var/log/asodya-api.log
-chmod 644 /var/log/asodya-api.log
 systemctl daemon-reload
 systemctl enable asodya-api.service
 systemctl restart asodya-api.service

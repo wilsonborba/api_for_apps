@@ -6,20 +6,16 @@ mod presentation;
 async fn main() -> anyhow::Result<()> {
     let settings = core::settings::Settings::load();
     let (logs, _) = tokio::sync::broadcast::channel(256);
-    tracing_subscriber::fmt()
-        .with_ansi(false)
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                if settings.production() {
-                    "info".into()
-                } else {
-                    "debug".into()
-                }
-            }),
-        )
-        .with_writer(core::logs::LogWriter(logs.clone()))
-        .init();
+    core::logs::init(&settings, logs.clone());
     let state = domain::State::new(settings.clone(), logs).await?;
+    if std::env::args().nth(1).as_deref() == Some("sync-log-apps") {
+        state
+            .db
+            .sync_log_apps(&dal::remote::log_source::registered_apps())
+            .await?;
+        println!("Registered app catalog synchronized. Existing inactive apps stay inactive.");
+        return Ok(());
+    }
     if std::env::args().nth(1).as_deref() == Some("check-storage")
         || std::env::args().nth(1).as_deref() == Some("migration-status")
     {
@@ -29,6 +25,7 @@ async fn main() -> anyhow::Result<()> {
         );
         return Ok(());
     }
+    let _purger = domain::services::app_logs::spawn_purger(state.clone());
     let bind = format!(
         "{}:{}",
         if settings.get("HOST").is_empty() {

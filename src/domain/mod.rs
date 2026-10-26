@@ -14,6 +14,7 @@ pub struct State {
     pub telemetry: Documents,
     pub client: reqwest::Client,
     pub logs: tokio::sync::broadcast::Sender<String>,
+    pub recordings: std::sync::Arc<services::app_logs::Recorder>,
 }
 impl State {
     pub async fn new(
@@ -76,6 +77,7 @@ impl State {
             settings,
             client,
             logs,
+            recordings: std::sync::Arc::default(),
         })
     }
 }

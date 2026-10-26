@@ -123,3 +123,57 @@ them. The dry run only inspects the schema. Application startup and installation
 never apply this migration. An existing table is inspected and left unchanged.
 Run the isolated schema and dry-run tests with
 `python -m unittest discover -s tools -p test_app_catalog.py`.
+
+## Live logs and recording
+
+`core/logs` provides `debug`, `info`, `warning` and `error`. Debug requires
+`settings.development()`; an explicit `DEVELOPMENT_MODE` overrides the mode derived
+from `ENVIRONMENT`. Info, warning and error remain enabled. Every emitted line has
+this format:
+
+```
+<RFC3339 timestamp> <LEVEL> api_for_apps <module> <message>
+```
+
+The same complete, redacted line goes to stderr/journald and the live broadcast.
+Multiline messages are escaped. Secrets, authorization values and cookies are
+removed before output. The installer uses journald and creates no rotating log
+files. Existing historical files are not deleted by installation.
+
+Administrators can read SSE at `/apps/api/v1/logs/stream` and
+`/apps/{registered-app}/v1/logs/stream`. Ordinary sessions and guests receive 403.
+Cortex and Certifications keep their existing WebSocket upgrades; the gateway can
+also adapt those streams to SSE without changing their backends. Other app streams
+use the LAN `/logs/stream` endpoint. An unavailable or not-yet-migrated source
+returns 503. App targets come from the server registry, never from a caller URL.
+The gateway does not forward browser cookies or credentials to the LAN stream.
+
+Explicit setup, after the read-only dry run:
+
+```
+python scripts/migrate_logs.py --env-file /path/to/canonical/.env --dry-run
+python scripts/migrate_logs.py --env-file /path/to/canonical/.env --yes
+# With the canonical environment loaded by the application:
+target/release/api-for-apps sync-log-apps
+```
+
+The SQL files contain schema only. The separate sync command registers the known
+apps, including `api_for_apps`, and preserves an existing inactive flag. Startup
+and installation do not migrate or populate the catalog.
+
+All recording and saved-log routes require administrator access:
+
+- `POST /apps/api/v1/logs/recordings` with `{"app_id":"reports"}` starts saving.
+- `GET /apps/api/v1/logs/recordings` lists active recordings and their expiry time.
+- `DELETE /apps/api/v1/logs/recordings/{app_id}` stops saving. Streaming continues.
+- `GET /apps/api/v1/logs?app_id=&level=&from=&to=&limit=` reads saved rows.
+
+Two deliberate safety locks are code constants in `core/logs`: recordings stop
+after **30 minutes (1800 seconds)**, and rows older than **15 days** are purged.
+Only one app can be recorded at a time. The monotonic recording deadline cannot
+be extended by activity. Recording stops on database failure; a disconnected
+source can reconnect within the same deadline. Cleanup runs every ten minutes. Saved-log reads always enforce the 15-day window,
+even before the next cleanup tick. A stream gap is stored as a warning.
+Retention uses the trusted gateway receipt time, not the source's clock. Removing
+these locks requires an explicit future decision. Backends never write `appdb`.
+The saved table is relational and contains no JSON columns.

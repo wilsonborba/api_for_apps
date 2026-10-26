@@ -4364,6 +4364,20 @@
         ],
         "type": "object"
       },
+      "LogRecordingStart": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "example": "reports",
+            "maxLength": 64,
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
       "LookupSpec": {
         "properties": {
           "collection": {
@@ -6556,6 +6570,42 @@
         },
         "required": [
           "is_project_admin"
+        ],
+        "type": "object"
+      },
+      "SavedAppLog": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Gateway receipt time. Retention uses this trusted timestamp.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "level": {
+            "enum": [
+              "DEBUG",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "app_id",
+          "level",
+          "message",
+          "created_at"
         ],
         "type": "object"
       },
@@ -9753,6 +9803,45 @@
         "x-source-tree-sha256": "6c9aebac8f2e9b0d0eccf874d95fa0926aae89ef518178f1c4514ac6335c16df"
       }
     },
+    "/apps/annotations/v1/logs/stream": {
+      "get": {
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_annotations_v1_logs_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live log stream."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Stream annotations logs",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
     "/apps/annotations/v1/media/{key}": {
       "get": {
         "description": "GET /media/{key}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -10468,25 +10557,262 @@
         "x-source": "api_for_apps/src/presentation/docs.rs"
       }
     },
+    "/apps/api/v1/logs": {
+      "get": {
+        "description": "Read relational saved logs. Safety locks: a recording auto-stops after 30 minutes (1800 seconds), and saved rows older than 15 days are purged. Only one app can be recorded at a time. These are deliberate code constants, not client settings. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_api_v1_logs",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "level",
+            "required": false,
+            "schema": {
+              "enum": [
+                "DEBUG",
+                "INFO",
+                "WARNING",
+                "ERROR"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation result."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Read saved app logs",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
+    "/apps/api/v1/logs/recordings": {
+      "get": {
+        "description": "Safety locks: a recording auto-stops after 30 minutes (1800 seconds), and saved rows older than 15 days are purged. Only one app can be recorded at a time. These are deliberate code constants, not client settings. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_api_v1_logs_recordings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation result."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "List active app log recordings",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
+      },
+      "post": {
+        "description": "Safety locks: a recording auto-stops after 30 minutes (1800 seconds), and saved rows older than 15 days are purged. Only one app can be recorded at a time. These are deliberate code constants, not client settings. The gateway records the stream in appdb.defaultdb_app_log; backends never write appdb. Register apps with the explicit sync-log-apps command first. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_post__apps_api_v1_logs_recordings",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogRecordingStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation result."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "409": {
+            "description": "Another app is already being recorded."
+          },
+          "422": {
+            "description": "Invalid recording request."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Start recording one registered app",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
+    "/apps/api/v1/logs/recordings/{app_id}": {
+      "delete": {
+        "description": "Stopping is idempotent and does not stop live streaming. Safety locks: a recording auto-stops after 30 minutes (1800 seconds), and saved rows older than 15 days are purged. Only one app can be recorded at a time. These are deliberate code constants, not client settings. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_delete__apps_api_v1_logs_recordings__app_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Operation result."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Stop saving an app log stream",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
     "/apps/api/v1/logs/stream": {
       "get": {
-        "description": "Stream gateway logs. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nServer-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.",
+        "description": "Live SSE. Authorization is rechecked during the stream; slow consumers receive gap events. No local rotating log files. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
         "operationId": "gateway_get__apps_api_v1_logs_stream",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "text/event-stream": {
-                "example": "event: log\ndata: gateway ready\n\n",
                 "schema": {
                   "type": "string"
                 }
               }
             },
-            "description": "Live SSE log stream."
+            "description": "Live log stream."
           },
           "403": {
-            "description": "Administrator authorization required."
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
           }
         },
         "security": [
@@ -10502,38 +10828,33 @@
           "gateway"
         ],
         "x-access-level": "administrator",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/api/v1/logs/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-python-baseline-source": "src/presentation/logs.rs",
         "x-source": "api_for_apps/src/presentation/logs.rs"
       }
     },
     "/apps/certifications/v1/logs/stream": {
       "get": {
-        "description": "Stream logs. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nStreams the certifications.log file live, line by line.\nClients connect and receive new log lines via WebSocket text messages.\n\nThis endpoint upgrades to WebSocket. Use wss://api.asodya.com with the same path. Authorize before connecting. It streams live log entries and does not create a log archive.",
-        "operationId": "certifications_get__logs_stream",
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_certifications_v1_logs_stream",
         "parameters": [],
         "responses": {
+          "101": {
+            "description": "Existing WebSocket upgrade remains supported."
+          },
           "200": {
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "schema": {
-                  "type": "null"
+                  "type": "string"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Live log stream."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Administrator access required."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "Log source or storage unavailable."
           }
         },
         "security": [
@@ -10544,20 +10865,12 @@
             "AdminKey": []
           }
         ],
-        "summary": "Stream logs",
+        "summary": "Stream certifications logs",
         "tags": [
-          "certifications"
+          "gateway"
         ],
         "x-access-level": "administrator",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/certifications/v1/logs/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "certifications_api/src/presentation/routes/logs_stream_route.py:12",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5",
+        "x-source": "api_for_apps/src/presentation/logs.rs",
         "x-websocket": true
       }
     },
@@ -13087,25 +13400,28 @@
     },
     "/apps/cortex/v1/logs/stream": {
       "get": {
-        "description": "Stream logs. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nStreams the log file live, line by line, as it is written.\nClients connect and receive new log frames via WebSocket text messages.\n\nThis endpoint upgrades to WebSocket. Use wss://api.asodya.com with the same path. Authorize before connecting. It streams live log entries and does not create a log archive.",
-        "operationId": "cortex_get__logs_stream",
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_cortex_v1_logs_stream",
         "parameters": [],
         "responses": {
+          "101": {
+            "description": "Existing WebSocket upgrade remains supported."
+          },
           "200": {
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "schema": {
-                  "type": "null"
+                  "type": "string"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Live log stream."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Administrator access required."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "Log source or storage unavailable."
           }
         },
         "security": [
@@ -13116,20 +13432,12 @@
             "AdminKey": []
           }
         ],
-        "summary": "Stream logs",
+        "summary": "Stream cortex logs",
         "tags": [
-          "cortex"
+          "gateway"
         ],
         "x-access-level": "administrator",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/logs/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/logs_stream.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4",
+        "x-source": "api_for_apps/src/presentation/logs.rs",
         "x-websocket": true
       }
     },
@@ -14780,6 +15088,45 @@
         ],
         "x-source": "domain_api/src/presentation/routes/legal_route.py:18",
         "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
+      }
+    },
+    "/apps/domain/v1/logs/stream": {
+      "get": {
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_domain_v1_logs_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live log stream."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Stream domain logs",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
       }
     },
     "/apps/domain/v1/projects": {
@@ -17954,6 +18301,45 @@
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:151",
         "x-source-tree-sha256": "57cbead40f1fd6d65194250220f2076b7fc6464eebdf05ab06bfbe14fb60e7d1"
+      }
+    },
+    "/apps/reports/v1/logs/stream": {
+      "get": {
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_reports_v1_logs_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live log stream."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Stream reports logs",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
       }
     },
     "/apps/reports/v1/me": {
@@ -23961,6 +24347,45 @@
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:107",
         "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
+      }
+    },
+    "/apps/wilson_borba/v1/logs/stream": {
+      "get": {
+        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "operationId": "gateway_get__apps_wilson_borba_v1_logs_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live log stream."
+          },
+          "403": {
+            "description": "Administrator access required."
+          },
+          "503": {
+            "description": "Log source or storage unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Stream wilson_borba logs",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/logs.rs"
       }
     },
     "/apps/wilson_borba/v1/media/upload": {

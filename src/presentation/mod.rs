@@ -1,3 +1,4 @@
+mod annotations;
 pub mod auth_routes;
 pub mod docs;
 pub mod logs;
@@ -86,6 +87,8 @@ async fn dispatch(
         docs::asset(&path, &h)
     } else if path == "/apps/api/v1/logs/stream" && method == Method::GET {
         logs::stream(&s, &h).await
+    } else if let Some(suffix) = path.strip_prefix("/apps/annotations/v1") {
+        annotations::forward(&s, &method, suffix, query.as_deref(), &h, body, addr.ip()).await
     } else {
         let bytes = match to_bytes(body, usize::MAX).await {
             Ok(v) => v,

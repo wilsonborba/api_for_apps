@@ -407,3 +407,114 @@ async fn documentation_assets_support_gzip_and_identity() {
             .contains_key("content-encoding")
     );
 }
+
+#[tokio::test]
+async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_writes() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let ip = request
+            .headers()
+            .get("x-forwarded-for")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let level = request
+            .headers()
+            .get("x-access-level")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let path = request.uri().to_string();
+        let bytes = to_bytes(request.into_body(), 51_000_000).await.unwrap();
+        axum::Json(json!({"ip":ip,"level":level,"path":path,"bytes":bytes.len()}))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("ANNOTATIONS_UPSTREAM".into(), format!("http://{address}"));
+    // Environment policy tables from older deployments cannot override this boundary.
+    Arc::make_mut(&mut s.settings.values).insert("PUBLIC_PROXY_ROUTES".into(), "{}".into());
+    let (_, v) = call(
+        s.clone(),
+        "GET",
+        "/apps/annotations/v1/posts?lang=th",
+        json!({}),
+        &[("cf-connecting-ip", "203.0.113.8"), ("x-access-level", "1")],
+    )
+    .await;
+    assert_eq!(v["path"], "/posts?lang=th");
+    assert_eq!(v["ip"], "203.0.113.8");
+    assert_eq!(v["level"], "");
+    assert_eq!(
+        call(
+            s.clone(),
+            "PUT",
+            "/apps/annotations/v1/admin/posts/a",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        403
+    );
+    s.cache
+        .set(
+            "exchange_auth_app:ordinary",
+            json!({"access_level":3,"csrf_token":"c"}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    assert_eq!(
+        call(
+            s.clone(),
+            "PUT",
+            "/apps/annotations/v1/admin/posts/a",
+            json!({}),
+            &[("cookie", "sid=ordinary; csrf=c"), ("x-csrf-token", "c")]
+        )
+        .await
+        .0,
+        403
+    );
+    let (status, admin) = call(
+        s.clone(),
+        "PUT",
+        "/apps/annotations/v1/admin/posts/a",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(admin["level"], "1");
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/annotations/v1/instant/phone/items",
+            json!({"text":"hello"}),
+            &[]
+        )
+        .await
+        .0,
+        200
+    );
+    assert_eq!(
+        call(
+            s,
+            "POST",
+            "/apps/annotations/v1/instant/phone/files?size=12",
+            json!({}),
+            &[("content-length", "51000000")]
+        )
+        .await
+        .0,
+        413
+    );
+    task.abort();
+}

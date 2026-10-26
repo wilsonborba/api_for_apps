@@ -518,3 +518,29 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
     );
     task.abort();
 }
+#[tokio::test]
+async fn user_list_requires_an_administrator() {
+    let s = state().await;
+    for (sid, level) in [("user", 3), ("admin", 1)] {
+        s.cache
+            .set(
+                &format!("exchange_auth_app:{sid}"),
+                json!({"user_uuid_id":sid,"access_level":level,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+    }
+    let list = |sid: &'static str| {
+        let s = s.clone();
+        async move {
+            call(s, "GET", "/user/info/v1/all", json!({}), &[("cookie", &format!("sid={sid}"))])
+                .await
+                .0
+        }
+    };
+    assert_eq!(list("user").await, 403);
+    assert_eq!(list("admin").await, 200);
+    assert_eq!(call(s.clone(), "GET", "/user/info/v1/all", json!({}), &[]).await.0, 403);
+}

@@ -407,3 +407,271 @@ async fn documentation_assets_support_gzip_and_identity() {
             .contains_key("content-encoding")
     );
 }
+
+#[tokio::test]
+async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_writes() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let ip = request
+            .headers()
+            .get("x-forwarded-for")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let level = request
+            .headers()
+            .get("x-access-level")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let path = request.uri().to_string();
+        let bytes = to_bytes(request.into_body(), 51_000_000).await.unwrap();
+        axum::Json(json!({"ip":ip,"level":level,"path":path,"bytes":bytes.len()}))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("ANNOTATIONS_UPSTREAM".into(), format!("http://{address}"));
+    // Environment policy tables from older deployments cannot override this boundary.
+    Arc::make_mut(&mut s.settings.values).insert("PUBLIC_PROXY_ROUTES".into(), "{}".into());
+    let (_, v) = call(
+        s.clone(),
+        "GET",
+        "/apps/annotations/v1/posts?lang=th",
+        json!({}),
+        &[("cf-connecting-ip", "203.0.113.8"), ("x-access-level", "1")],
+    )
+    .await;
+    assert_eq!(v["path"], "/posts?lang=th");
+    assert_eq!(v["ip"], "203.0.113.8");
+    assert_eq!(v["level"], "");
+    assert_eq!(
+        call(
+            s.clone(),
+            "PUT",
+            "/apps/annotations/v1/admin/posts/a",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        403
+    );
+    s.cache
+        .set(
+            "exchange_auth_app:ordinary",
+            json!({"access_level":3,"csrf_token":"c"}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    assert_eq!(
+        call(
+            s.clone(),
+            "PUT",
+            "/apps/annotations/v1/admin/posts/a",
+            json!({}),
+            &[("cookie", "sid=ordinary; csrf=c"), ("x-csrf-token", "c")]
+        )
+        .await
+        .0,
+        403
+    );
+    let (status, admin) = call(
+        s.clone(),
+        "PUT",
+        "/apps/annotations/v1/admin/posts/a",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(admin["level"], "1");
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/annotations/v1/instant/phone/items",
+            json!({"text":"hello"}),
+            &[]
+        )
+        .await
+        .0,
+        200
+    );
+    assert_eq!(
+        call(
+            s,
+            "POST",
+            "/apps/annotations/v1/instant/phone/files?size=12",
+            json!({}),
+            &[("content-length", "51000000")]
+        )
+        .await
+        .0,
+        413
+    );
+    task.abort();
+}
+#[tokio::test]
+async fn user_list_requires_an_administrator() {
+    let s = state().await;
+    for (sid, level) in [("user", 3), ("admin", 1)] {
+        s.cache
+            .set(
+                &format!("exchange_auth_app:{sid}"),
+                json!({"user_uuid_id":sid,"access_level":level,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+    }
+    let list = |sid: &'static str| {
+        let s = s.clone();
+        async move {
+            call(
+                s,
+                "GET",
+                "/user/info/v1/all",
+                json!({}),
+                &[("cookie", &format!("sid={sid}"))],
+            )
+            .await
+            .0
+        }
+    };
+    assert_eq!(list("user").await, 403);
+    assert_eq!(list("admin").await, 200);
+    assert_eq!(
+        call(s.clone(), "GET", "/user/info/v1/all", json!({}), &[])
+            .await
+            .0,
+        403
+    );
+}
+#[tokio::test]
+async fn proxied_backends_never_receive_client_credentials() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let h = request.headers();
+        axum::Json(json!({
+            "authorization": h.contains_key("authorization"),
+            "cookie": h.contains_key("cookie"),
+            "forwarded": h.contains_key("x-forwarded-for"),
+        }))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("DOMAIN_UPSTREAM".into(), format!("http://{address}"));
+    let (status, v) = call(
+        s,
+        "GET",
+        "/apps/domain/v1/projects",
+        json!({}),
+        &[("authorization", "test-admin"), ("cookie", "sid=anything")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(
+        v,
+        json!({"authorization":false,"cookie":false,"forwarded":true})
+    );
+    task.abort();
+}
+#[test]
+fn secret_comparison_is_exact() {
+    use domain::auth::same_secret;
+    assert!(same_secret("test-admin", "test-admin"));
+    assert!(!same_secret("test-admin", "test-admiN"));
+    assert!(!same_secret("test-admin", "test-admin "));
+    assert!(!same_secret("", "test-admin"));
+}
+
+#[tokio::test]
+async fn reports_public_parent_never_opens_protected_children() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        axum::Json(json!({"path": request.uri().to_string()}))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("REPORTS_UPSTREAM".into(), format!("http://{address}"));
+    // Guest routes under the public "/projects/*" rule reach the engine.
+    for path in [
+        "/catalog",
+        "/projects/cortex",
+        "/projects/cortex/theme",
+        "/projects/cortex/reports",
+        "/projects/cortex/showcase/model-usage",
+        "/projects/cortex/showcase/model-usage/cards/tokens",
+        "/projects/cortex/showcase/model-usage/cards/tokens/embed",
+    ] {
+        let (status, v) = call(
+            s.clone(),
+            "GET",
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[],
+        )
+        .await;
+        assert_eq!(status, 200, "{path} is public");
+        assert_eq!(v["path"], path);
+    }
+    // Carved-out children of the public parent need a session, also with faked identity headers.
+    for path in [
+        "/projects/cortex/reports/model-usage",
+        "/projects/cortex/reports/model-usage/cards/tokens",
+        "/projects/cortex/reports/model-usage/datasets/tokens",
+        "/projects/cortex/datasets/tokens",
+        "/me",
+        "/admin/projects/cortex/grants",
+    ] {
+        let (status, v) = call(
+            s.clone(),
+            "GET",
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[
+                ("x-access-level", "1"),
+                ("x-uuid", "fake"),
+                ("x-project-admin", "true"),
+            ],
+        )
+        .await;
+        assert_eq!(status, 403, "{path} needs a session");
+        assert!(v.get("path").is_none(), "{path} never reaches the engine");
+    }
+    // Admin writes need the administrator rule.
+    for (method, path) in [
+        ("PUT", "/projects/cortex/admin/project"),
+        ("POST", "/projects/cortex/admin/ingest/telemetry_event"),
+        ("DELETE", "/admin/fixtures/sample-v1-cortex"),
+    ] {
+        let (status, _) = call(
+            s.clone(),
+            method,
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[],
+        )
+        .await;
+        assert_eq!(status, 403, "{method} {path} is admin only");
+    }
+    task.abort();
+}

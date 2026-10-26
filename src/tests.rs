@@ -535,14 +535,25 @@ async fn user_list_requires_an_administrator() {
     let list = |sid: &'static str| {
         let s = s.clone();
         async move {
-            call(s, "GET", "/user/info/v1/all", json!({}), &[("cookie", &format!("sid={sid}"))])
-                .await
-                .0
+            call(
+                s,
+                "GET",
+                "/user/info/v1/all",
+                json!({}),
+                &[("cookie", &format!("sid={sid}"))],
+            )
+            .await
+            .0
         }
     };
     assert_eq!(list("user").await, 403);
     assert_eq!(list("admin").await, 200);
-    assert_eq!(call(s.clone(), "GET", "/user/info/v1/all", json!({}), &[]).await.0, 403);
+    assert_eq!(
+        call(s.clone(), "GET", "/user/info/v1/all", json!({}), &[])
+            .await
+            .0,
+        403
+    );
 }
 #[tokio::test]
 async fn proxied_backends_never_receive_client_credentials() {
@@ -572,7 +583,10 @@ async fn proxied_backends_never_receive_client_credentials() {
     )
     .await;
     assert_eq!(status, 200);
-    assert_eq!(v, json!({"authorization":false,"cookie":false,"forwarded":true}));
+    assert_eq!(
+        v,
+        json!({"authorization":false,"cookie":false,"forwarded":true})
+    );
     task.abort();
 }
 #[test]
@@ -582,4 +596,82 @@ fn secret_comparison_is_exact() {
     assert!(!same_secret("test-admin", "test-admiN"));
     assert!(!same_secret("test-admin", "test-admin "));
     assert!(!same_secret("", "test-admin"));
+}
+
+#[tokio::test]
+async fn reports_public_parent_never_opens_protected_children() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        axum::Json(json!({"path": request.uri().to_string()}))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("REPORTS_UPSTREAM".into(), format!("http://{address}"));
+    // Guest routes under the public "/projects/*" rule reach the engine.
+    for path in [
+        "/catalog",
+        "/projects/cortex",
+        "/projects/cortex/theme",
+        "/projects/cortex/reports",
+        "/projects/cortex/showcase/model-usage",
+        "/projects/cortex/showcase/model-usage/cards/tokens",
+        "/projects/cortex/showcase/model-usage/cards/tokens/embed",
+    ] {
+        let (status, v) = call(
+            s.clone(),
+            "GET",
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[],
+        )
+        .await;
+        assert_eq!(status, 200, "{path} is public");
+        assert_eq!(v["path"], path);
+    }
+    // Carved-out children of the public parent need a session, also with faked identity headers.
+    for path in [
+        "/projects/cortex/reports/model-usage",
+        "/projects/cortex/reports/model-usage/cards/tokens",
+        "/projects/cortex/reports/model-usage/datasets/tokens",
+        "/projects/cortex/datasets/tokens",
+        "/me",
+        "/admin/projects/cortex/grants",
+    ] {
+        let (status, v) = call(
+            s.clone(),
+            "GET",
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[
+                ("x-access-level", "1"),
+                ("x-uuid", "fake"),
+                ("x-project-admin", "true"),
+            ],
+        )
+        .await;
+        assert_eq!(status, 403, "{path} needs a session");
+        assert!(v.get("path").is_none(), "{path} never reaches the engine");
+    }
+    // Admin writes need the administrator rule.
+    for (method, path) in [
+        ("PUT", "/projects/cortex/admin/project"),
+        ("POST", "/projects/cortex/admin/ingest/telemetry_event"),
+        ("DELETE", "/admin/fixtures/sample-v1-cortex"),
+    ] {
+        let (status, _) = call(
+            s.clone(),
+            method,
+            &format!("/apps/reports/v1{path}"),
+            json!({}),
+            &[],
+        )
+        .await;
+        assert_eq!(status, 403, "{method} {path} is admin only");
+    }
+    task.abort();
 }

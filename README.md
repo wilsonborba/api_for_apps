@@ -85,3 +85,20 @@ The previous Python runtime remains recoverable from Git tag `v1.1.0`. Temporary
 Scalar 1.76.0 and Ubuntu fonts are bundled under `src/presentation/assets/vendor/`, with source/license notices. `/docs` loads its browser assets from this API, without CDN or external font requests. The Scalar script is gzip-compressed and cached. The page displays a readable error if its API description cannot load.
 
 Browser verification uses `tools/test_docs_browser.py` with an optional Playwright installation and an existing Chrome executable; it blocks external requests, checks rendered routes, captures a screenshot and verifies schema-load failure feedback.
+
+## Annotations integration
+
+Annotations is registered on listener 8111 (`ANNOTATIONS_API_PORT` or an explicit
+`ANNOTATIONS_UPSTREAM` override). Its route boundary is explicit even when an older
+`.env` overrides the shared proxy policy tables. Public catalog/post/media reads,
+link previews, waitlist registration and temporary room operations are anonymous.
+All `/admin/` operations require existing administrator authentication; an ordinary
+session from another application grants no publishing/private-read access.
+
+Temporary multipart uploads stream through the gateway with a bounded byte count;
+JSON bodies are limited to 2 MiB. Client identity headers supplied by a browser are
+removed. Client IP comes from the socket, except that a loopback reverse proxy may
+supply a validated `CF-Connecting-IP`. Annotations receives the resulting IP for
+its aggregate temporary upload quota. No downstream service credential or LAN
+authentication system was introduced. Central source discovery includes the
+Annotations Rust `lib/presentation` routes and namespaced request contracts.

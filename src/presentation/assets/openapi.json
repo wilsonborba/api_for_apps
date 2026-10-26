@@ -27,6 +27,175 @@
         ],
         "type": "object"
       },
+      "AnnotationsDraft": {
+        "properties": {
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/AnnotationsField"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "fields"
+        ],
+        "type": "object"
+      },
+      "AnnotationsEdit": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ],
+        "type": "object"
+      },
+      "AnnotationsField": {
+        "properties": {
+          "field_type": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "field_type"
+        ],
+        "type": "object"
+      },
+      "AnnotationsQuery": {
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "lang": {
+            "type": "string"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "q": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "AnnotationsTranslation": {
+        "properties": {
+          "body": {},
+          "language": {
+            "type": "string"
+          },
+          "schema_name": {
+            "type": "string"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "language",
+          "title",
+          "body"
+        ],
+        "type": "object"
+      },
+      "AnnotationsWritePost": {
+        "properties": {
+          "channels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cover_url": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "translations": {
+            "items": {
+              "$ref": "#/components/schemas/AnnotationsTranslation"
+            },
+            "type": "array"
+          },
+          "visibility": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner_id",
+          "slug",
+          "channels",
+          "translations"
+        ],
+        "type": "object"
+      },
       "AnswerSubmission": {
         "properties": {
           "choice_index": {
@@ -2852,6 +3021,41 @@
         },
         "required": [
           "email"
+        ],
+        "type": "object"
+      },
+      "EmbedDescriptor": {
+        "properties": {
+          "embed_url": {
+            "type": "string"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "html": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "thumbnail_url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "source_url",
+          "embed_url",
+          "thumbnail_url",
+          "html",
+          "width",
+          "height"
         ],
         "type": "object"
       },
@@ -8249,10 +8453,1534 @@
   "info": {
     "description": "Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.",
     "title": "Asodya Application Gateway API",
-    "version": "1.2.1"
+    "version": "1.3.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/apps/annotations/v1/admin/catalog": {
+      "put": {
+        "description": "PUT /admin/catalog. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_put__admin_catalog",
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Normalized owners, channels, languages and topics collections. Each entry has id/name; owners use display_name; languages use code/label.",
+                "properties": {
+                  "channels": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "languages": {
+                    "items": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "label"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "owners": {
+                    "items": {
+                      "properties": {
+                        "display_name": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "display_name"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "topics": {
+                    "items": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "PUT /admin/catalog",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/catalog' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"owners\": [], \"channels\": [], \"topics\": [], \"languages\": []}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:18",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/images": {
+      "post": {
+        "description": "POST /admin/images. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__admin_images",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "owner_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "POST /admin/images",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/images' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/media.rs:22",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/images/{key}": {
+      "get": {
+        "description": "GET /admin/images/{key}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__admin_images__key_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "GET /admin/images/{key}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/admin/images/{key}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/media.rs:27",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/posts/{id}": {
+      "get": {
+        "description": "GET /admin/posts/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__admin_posts__id_",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lang",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "channel",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "GET /admin/posts/{id}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/admin/posts/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:19",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      },
+      "put": {
+        "description": "PUT /admin/posts/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_put__admin_posts__id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotationsWritePost"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "PUT /admin/posts/{id}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/posts/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"owner_id\": \"example\", \"slug\": \"example\", \"visibility\": \"example\", \"cover_url\": \"example\", \"channels\": [], \"topics\": [], \"translations\": []}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:19",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/posts/{id}/publish": {
+      "post": {
+        "description": "POST /admin/posts/{id}/publish. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__admin_posts__id__publish",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "POST /admin/posts/{id}/publish",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/posts/{id}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:20",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/schemas": {
+      "get": {
+        "description": "GET /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__admin_schemas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "GET /admin/schemas",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/mod.rs:20",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      },
+      "post": {
+        "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__admin_schemas",
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotationsDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "POST /admin/schemas",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"version\": 1, \"fields\": []}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/mod.rs:20",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
+      "post": {
+        "description": "POST /admin/schemas/{name}/versions/{version}/publish. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__admin_schemas__name__versions__version__publish",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "POST /admin/schemas/{name}/versions/{version}/publish",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "administrator",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/mod.rs:21",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/catalog": {
+      "get": {
+        "description": "GET /catalog. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__catalog",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /catalog",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/catalog'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:13",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/health": {
+      "get": {
+        "description": "GET /health. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /health",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/health'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/mod.rs:15",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/instant/{code}": {
+      "get": {
+        "description": "GET /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__instant__code_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /instant/{code}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/instant/{code}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:13",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      },
+      "put": {
+        "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_put__instant__code_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "PUT /instant/{code}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/instant/{code}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:13",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/instant/{code}/files": {
+      "post": {
+        "description": "POST /instant/{code}/files. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__instant__code__files",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "size",
+            "required": true,
+            "schema": {
+              "maximum": 50000000,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "POST /instant/{code}/files",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/instant/{code}/files'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:15",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/instant/{code}/files/{id}": {
+      "get": {
+        "description": "GET /instant/{code}/files/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__instant__code__files__id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /instant/{code}/files/{id}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/instant/{code}/files/{id}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:21",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/instant/{code}/items": {
+      "post": {
+        "description": "POST /instant/{code}/items. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__instant__code__items",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnotationsEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "409": {
+            "description": "Stale revision; reload before editing."
+          },
+          "410": {
+            "description": "Room expired 15 minutes after creation."
+          },
+          "413": {
+            "description": "50,000,000-byte per-file or aggregate active IP quota exceeded."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "POST /instant/{code}/items",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/instant/{code}/items' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"id\": \"example\", \"revision\": 1, \"kind\": \"example\", \"text\": \"example\"}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/rooms.rs:14",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/links/preview": {
+      "get": {
+        "description": "GET /links/preview. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__links_preview",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "url",
+            "required": true,
+            "schema": {
+              "format": "uri",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /links/preview",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/links/preview'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:15",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/media/{key}": {
+      "get": {
+        "description": "GET /media/{key}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__media__key_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /media/{key}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/media/{key}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/media.rs:26",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/posts": {
+      "get": {
+        "description": "GET /posts. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__posts",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "channel",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /posts",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/posts'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:16",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/posts/{key}": {
+      "get": {
+        "description": "GET /posts/{key}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__posts__key_",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lang",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "channel",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /posts/{key}",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/posts/{key}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:17",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/ready": {
+      "get": {
+        "description": "GET /ready. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_get__ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "GET /ready",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/ready'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/mod.rs:19",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
+    "/apps/annotations/v1/waitlist": {
+      "post": {
+        "description": "POST /waitlist. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
+        "operationId": "annotations_post__waitlist",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "message": {
+                    "maxLength": 2000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage service is unavailable."
+          }
+        },
+        "security": [],
+        "summary": "POST /waitlist",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/waitlist' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"email\": \"user@example.com\", \"message\": \"example\"}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/posts.rs:14",
+        "x-source-tree-sha256": "9d392d9948202862c3319012f9f765422b1311e7556d16e4e408afbb43de2fe3"
+      }
+    },
     "/apps/api/v1/client-error": {
       "get": {
         "description": "List recent frontend error reports. Administrator authorization is required. Use limit from 1 to 200 and non-negative skip for pagination. The response contains total for this result page and an errors array. Error records can contain operational details and user context, so this operation is not available to ordinary sessions.",
@@ -14030,7 +15758,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "reports/engine/src/presentation/api/server.rs:150",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/fixtures/{manifest}": {
@@ -14097,8 +15825,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/fixtures/{manifest}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:172",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:174",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/operations": {
@@ -14147,8 +15875,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/admin/operations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:173",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:175",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations": {
@@ -14194,7 +15922,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "post": {
         "description": "Create or replace a draft calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOmit `version` to create the next version. A published version cannot change.",
@@ -14259,7 +15987,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/publish": {
@@ -14336,7 +16064,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:124",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/retire": {
@@ -14410,7 +16138,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:125",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/validate": {
@@ -14481,7 +16209,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:123",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/grants": {
@@ -14543,7 +16271,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "post": {
         "description": "Grant read access to a restricted report or card. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nSuper admin or project admin of this project. The same grant twice returns the first one. Also under `/projects/{project}/admin/grants` (super admin).",
@@ -14628,7 +16356,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/grants/{grant}": {
@@ -14691,7 +16419,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:128",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/ingest/{schema}": {
@@ -14790,7 +16518,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/project": {
@@ -14920,7 +16648,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:134",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}": {
@@ -14980,7 +16708,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Create or update a report. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nSaved report",
@@ -15091,7 +16819,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}": {
@@ -15159,7 +16887,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Bind a dataset card to a published calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThe card shows the result of one published calculation version. Dataset references must stay in the report and form no cycle.",
@@ -15242,7 +16970,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/snapshots": {
@@ -15298,7 +17026,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "post": {
         "description": "Store a durable snapshot of the current result in CouchDB. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nThe snapshot keeps the rows and the lineage (calculation version, input schema versions, source watermark, time).",
@@ -15377,7 +17105,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/roles": {
@@ -15423,7 +17151,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/roles/{user}": {
@@ -15483,7 +17211,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Set the project admin role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAsodya user UUID",
@@ -15566,7 +17294,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas": {
@@ -15612,7 +17340,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "post": {
         "description": "Create or replace a draft schema version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOmit `version` to create the next version. A published version cannot change.",
@@ -15698,7 +17426,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/publish": {
@@ -15783,7 +17511,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:142",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/retire": {
@@ -15868,7 +17596,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:143",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/admin/projects/{project}/theme": {
@@ -15966,7 +17694,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/catalog": {
@@ -16091,7 +17819,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:154",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/health": {
@@ -16137,7 +17865,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:151",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/me": {
@@ -16183,8 +17911,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/me' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:164",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:166",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/me/projects/{project}/reports": {
@@ -16323,8 +18051,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/me/projects/{project}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:165",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:167",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects": {
@@ -16449,7 +18177,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}": {
@@ -16581,7 +18309,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:156",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations": {
@@ -16651,7 +18379,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:122",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/publish": {
@@ -16731,7 +18459,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:124",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/retire": {
@@ -16808,7 +18536,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:125",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/validate": {
@@ -16882,7 +18610,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:123",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/grants": {
@@ -16972,7 +18700,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/grants/{grant}": {
@@ -17038,7 +18766,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:128",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/ingest/{schema}": {
@@ -17140,7 +18868,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/project": {
@@ -17273,7 +19001,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:134",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}": {
@@ -17336,7 +19064,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Create or update a report. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nSaved report",
@@ -17450,7 +19178,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:136",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}": {
@@ -17521,7 +19249,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Bind a dataset card to a published calculation version. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nThe card shows the result of one published calculation version. Dataset references must stay in the report and form no cycle.",
@@ -17607,7 +19335,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:137",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/snapshots": {
@@ -17691,7 +19419,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/roles": {
@@ -17733,7 +19461,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/roles/{user}": {
@@ -17796,7 +19524,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       },
       "put": {
         "description": "Set the project admin role of a user (super admin). This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAsodya user UUID",
@@ -17882,7 +19610,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:129",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas": {
@@ -17973,7 +19701,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:141",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/publish": {
@@ -18061,7 +19789,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:142",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/retire": {
@@ -18149,7 +19877,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:143",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/admin/theme": {
@@ -18250,7 +19978,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/reports": {
@@ -18386,7 +20114,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:158",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}": {
@@ -18502,8 +20230,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:166",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:168",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}": {
@@ -18604,8 +20332,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:168",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:170",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/reports/{report}/datasets/{dataset}": {
@@ -18706,8 +20434,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:167",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:169",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}": {
@@ -18815,7 +20543,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:160",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{card}": {
@@ -18907,7 +20635,129 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:161",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+      }
+    },
+    "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/embed": {
+      "get": {
+        "description": "Embed descriptor of one public chart or table. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nCopyable embed and thumbnail URLs",
+        "operationId": "reports_get__projects__project__showcase__report__cards__dataset__embed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "report",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": "example",
+                "schema": {}
+              }
+            },
+            "description": "Copyable embed and thumbnail URLs"
+          },
+          "401": {
+            "description": "Gated content is not public"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [],
+        "summary": "Embed descriptor of one public chart or table",
+        "tags": [
+          "reports"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/embed'"
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:162",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
+      }
+    },
+    "/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/thumbnail.png": {
+      "get": {
+        "description": "PNG preview of one public chart or table. This operation belongs to reports. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nPNG image",
+        "operationId": "reports_get__projects__project__showcase__report__cards__dataset__thumbnail_png",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "report",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "dataset",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PNG image"
+          },
+          "401": {
+            "description": "Gated content is not public"
+          },
+          "404": {
+            "description": "Item not found"
+          }
+        },
+        "security": [],
+        "summary": "PNG preview of one public chart or table",
+        "tags": [
+          "reports"
+        ],
+        "x-access-level": "public",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/projects/{project}/showcase/{report}/cards/{dataset}/thumbnail.png'"
+          }
+        ],
+        "x-source": "reports/engine/src/presentation/api/server.rs:163",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/stats": {
@@ -18983,7 +20833,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:159",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/projects/{project}/theme": {
@@ -19065,7 +20915,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:157",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/ready": {
@@ -19133,7 +20983,7 @@
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:152",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/reports/v1/stats": {
@@ -19191,8 +21041,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/reports/v1/stats'"
           }
         ],
-        "x-source": "reports/engine/src/presentation/api/server.rs:162",
-        "x-source-tree-sha256": "60103b8c9086a8af02894c329013a6ccd003d8e732982bcb029e2258ae256662"
+        "x-source": "reports/engine/src/presentation/api/server.rs:164",
+        "x-source-tree-sha256": "1fda0a99549e3b4b574c269ec316b0d0a9559dedff9c2d7de8a8bdb02d6b0f89"
       }
     },
     "/apps/support/v1/attachments": {

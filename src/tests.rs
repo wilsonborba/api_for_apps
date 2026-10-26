@@ -575,3 +575,11 @@ async fn proxied_backends_never_receive_client_credentials() {
     assert_eq!(v, json!({"authorization":false,"cookie":false,"forwarded":true}));
     task.abort();
 }
+#[test]
+fn secret_comparison_is_exact() {
+    use domain::auth::same_secret;
+    assert!(same_secret("test-admin", "test-admin"));
+    assert!(!same_secret("test-admin", "test-admiN"));
+    assert!(!same_secret("test-admin", "test-admin "));
+    assert!(!same_secret("", "test-admin"));
+}

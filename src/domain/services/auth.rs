@@ -23,6 +23,12 @@ pub fn cookie(h: &HeaderMap, name: &str) -> Option<String> {
                 .map(|(_, v)| v.to_owned())
         })
 }
+/// Constant-time secret comparison: both sides are hashed to fixed-length digests and
+/// every byte is folded, so timing does not reveal the matching prefix or the length.
+pub fn same_secret(a: &str, b: &str) -> bool {
+    let (x, y) = (Sha256::digest(a.as_bytes()), Sha256::digest(b.as_bytes()));
+    x.iter().zip(y.iter()).fold(0u8, |acc, (p, q)| acc | (p ^ q)) == 0
+}
 pub fn header<'a>(h: &'a HeaderMap, k: &str) -> &'a str {
     h.get(k).and_then(|v| v.to_str().ok()).unwrap_or("")
 }
@@ -40,7 +46,8 @@ pub async fn session(s: &State, h: &HeaderMap) -> Result<Option<Value>> {
 }
 pub async fn verify(s: &State, h: &HeaderMap, method: &str, admin: bool) -> Result<Option<Value>> {
     let key = header(h, &s.settings.get("API_ADMIN_KEY_NAME"));
-    if !key.is_empty() && key == s.settings.get("API_KEY_SECRET") {
+    let secret = s.settings.get("API_KEY_SECRET");
+    if !key.is_empty() && !secret.is_empty() && same_secret(key, &secret) {
         return Ok(None);
     }
     let u = session(s, h)
@@ -48,7 +55,10 @@ pub async fn verify(s: &State, h: &HeaderMap, method: &str, admin: bool) -> Resu
         .ok_or_else(|| anyhow!("Missing Authentications Parameters..."))?;
     if matches!(method, "POST" | "PUT" | "PATCH" | "DELETE") {
         let c = cookie(h, &s.settings.get("CSRF_COOKIE_KEY_NAME")).unwrap_or_default();
-        if c.is_empty() || header(h, "x-csrf-token") != c || u["csrf_token"] != c {
+        if c.is_empty()
+            || !same_secret(header(h, "x-csrf-token"), &c)
+            || !same_secret(u["csrf_token"].as_str().unwrap_or(""), &c)
+        {
             bail!("Missing Authentications Parameters...")
         }
     }

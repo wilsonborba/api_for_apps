@@ -9,7 +9,7 @@
     "port": 8003,
     "port_setting": "CORTEX_API_PORT",
     "source": "cortex_api",
-    "language": "python",
+    "language": "rust",
     "live_logs": "sse"
   },
   "domain": {

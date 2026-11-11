@@ -1752,6 +1752,543 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_models_chat_history_ChatPatch": {},
+      "Cortex_src_domain_models_chat_history_ListStatus": {
+        "enum": [
+          "running"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_chat_session_NewChat": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "file_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "memory_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "needs_web": {
+            "type": "boolean"
+          },
+          "persona_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "temporary": {
+            "type": "boolean"
+          },
+          "text": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "use_memory": {
+            "type": "boolean"
+          },
+          "web_mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_WebMode"
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_chat_session_NextInput": {
+        "additionalProperties": false,
+        "properties": {
+          "file_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "memory_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "needs_web": {
+            "type": "boolean"
+          },
+          "stream": {
+            "type": "boolean"
+          },
+          "text": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "use_memory": {
+            "type": "boolean"
+          },
+          "web_mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_WebMode"
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_domain_models_model_catalog_ActiveModel": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "tier",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_model_catalog_ModelsData": {
+        "properties": {
+          "estimate_rule": {},
+          "max_input_tokens": {
+            "type": "integer"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_model_catalog_ActiveModel"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "models",
+          "max_input_tokens",
+          "estimate_rule"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_personas_NewPersona": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "attributes": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_self": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_personas_PersonaType"
+          }
+        },
+        "required": [
+          "type",
+          "name"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_personas_Persona": {
+        "properties": {
+          "aliases": {},
+          "attributes": {},
+          "is_self": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "persona_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "persona_id",
+          "type",
+          "name",
+          "aliases",
+          "is_self",
+          "attributes"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_personas_PersonaChange": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attributes": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_self": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_domain_models_personas_PersonaType": {
+        "enum": [
+          "person",
+          "bot"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_run_record_RunMode": {
+        "additionalProperties": false,
+        "properties": {
+          "thinking": {
+            "type": "boolean"
+          },
+          "web_mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_WebMode"
+          }
+        },
+        "required": [
+          "web_mode",
+          "thinking"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_run_record_WebMode": {
+        "enum": [
+          "fast",
+          "medium",
+          "deep"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_telemetry_Items": {
+        "properties": {
+          "audio": {
+            "type": "integer"
+          },
+          "images": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "images",
+          "audio"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_LoyaltyWeight": {
+        "properties": {
+          "account_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sign_in_days_90": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_Tokens": {
+        "properties": {
+          "input": {
+            "type": "integer"
+          },
+          "output": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input",
+          "output",
+          "total"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_UsageData": {
+        "properties": {
+          "formula": {
+            "type": "string"
+          },
+          "items": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_Items"
+          },
+          "loyalty_weight": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_LoyaltyWeight"
+          },
+          "tokens": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_Tokens"
+          },
+          "window_hours": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "window_hours",
+          "tokens",
+          "items",
+          "loyalty_weight",
+          "formula"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_reads_CallEvent": {
+        "properties": {
+          "finished_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "input_tokens": {
+            "type": "integer"
+          },
+          "model": {
+            "type": "string"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "output_tokens": {
+            "type": "integer"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "total_tokens": {
+            "type": "integer"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "output_id",
+          "model",
+          "role",
+          "input_tokens",
+          "output_tokens",
+          "total_tokens",
+          "started_at",
+          "finished_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_reads_GroupStats": {
+        "properties": {
+          "avg_input_tokens": {
+            "type": "number"
+          },
+          "avg_latency_ms": {
+            "type": "number"
+          },
+          "avg_latency_seconds": {
+            "type": "number"
+          },
+          "avg_output_tokens": {
+            "type": "number"
+          },
+          "avg_total_tokens": {
+            "type": "number"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_RunMode"
+          },
+          "success_rate": {
+            "type": "number"
+          },
+          "total_runs": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "total_runs",
+          "avg_latency_seconds",
+          "avg_latency_ms",
+          "avg_input_tokens",
+          "avg_output_tokens",
+          "avg_total_tokens",
+          "success_rate"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_reads_TimingAverage": {
+        "properties": {
+          "expected_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_RunMode"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_chat_inputs_OutputPatch": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "thinking": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "CouchDocuments": {
         "properties": {},
         "type": "object"
@@ -13357,453 +13894,19 @@
         "x-source": "api_for_apps/src/presentation/mod.rs"
       }
     },
-    "/apps/cortex/v1/attachments/video": {
-      "post": {
-        "description": "Submit video. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_post__attachments_video",
-        "parameters": [
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "data_base64": "example",
-                "filename": "example",
-                "mime_type": "example"
-              },
-              "schema": {
-                "$ref": "#/components/schemas/Attachment"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoJobCreated"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Submit video",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/attachments/video' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"filename\": \"example\", \"mime_type\": \"example\", \"data_base64\": \"example\"}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/video.py:17",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/attachments/video/{attachment_id}": {
+    "/apps/cortex/v1/chats": {
       "get": {
-        "description": "Get video job. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__attachments_video__attachment_id_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "attachment_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VideoJobStatus"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get video job",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/attachments/video/{attachment_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/video.py:34",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/conversations": {
-      "get": {
-        "description": "List conversations. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nLists conversations for the authenticated user: metadata (title/pin)\nfrom the local store, message stats (count/preview/last activity)\nderived from Hippocampus turns tagged `conversation_turn` for them.",
-        "operationId": "cortex_get__conversations",
+        "description": "GET /chats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__chats",
         "parameters": [
           {
             "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "maximum": 200,
-              "minimum": 1,
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ConversationSummaryOut"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "List conversations",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/conversations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/conversations.py:41",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      },
-      "post": {
-        "description": "Create conversation. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCreates a new, empty conversation's metadata row. No message turns\nexist yet, so it will not appear from Hippocampus alone until the first\nturn is recorded, this row is what makes it visible in the meantime.",
-        "operationId": "cortex_post__conversations",
-        "parameters": [
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "id": "example",
-                "tenant_id": "default",
-                "title": "New Conversation"
-              },
-              "schema": {
-                "$ref": "#/components/schemas/ConversationCreateIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConversationSummaryOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Create conversation",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/conversations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"id\": \"example\", \"tenant_id\": \"default\", \"title\": \"New Conversation\"}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/conversations.py:133",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/conversations/{conversation_id}": {
-      "delete": {
-        "description": "Delete conversation. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nSoft-deletes a conversation's local metadata row (stops appearing in\n`list_conversations`, see its \"never resurrect\" lazy-adoption check) and\nalso forgets every turn this conversation has in Hippocampus, so\n\"delete\"/\"clear all\" genuinely removes the user's message content, not\njust this API's own bookkeeping of it. Forgetting is logical, not a hard\ndelete (matches Hippocampus's own forget/hard_delete distinction) --\nprovenance/history still exist for audit purposes, the memory just stops\nbeing active/recallable. Each forget call is independently tenant-scoped\n(`HippocampusClient.forget_memory`'s `workspace_id`), so even if this\nlookup somehow returned a foreign id it could never forget it.",
-        "operationId": "cortex_delete__conversations__conversation_id_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "null"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Delete conversation",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/conversations/{conversation_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/conversations.py:195",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      },
-      "get": {
-        "description": "Get conversation. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nRetrieves full conversation turn history for conversation_id from Hippocampus.",
-        "operationId": "cortex_get__conversations__conversation_id_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConversationDetailOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get conversation",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/conversations/{conversation_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/conversations.py:221",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      },
-      "patch": {
-        "description": "Patch conversation. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nRenames and/or pins/unpins a conversation. Adopts (creates) the local\nmetadata row on first write if it doesn't exist yet.",
-        "operationId": "cortex_patch__conversations__conversation_id_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "conversation_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "is_pinned": true,
-                "title": "example"
-              },
-              "schema": {
-                "$ref": "#/components/schemas/ConversationPatchIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConversationSummaryOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Patch conversation",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/conversations/{conversation_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"is_pinned\": true}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/conversations.py:161",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/docs/scalar": {
-      "get": {
-        "description": "Scalar html. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__docs_scalar",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "lang",
+            "name": "status",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_ListStatus"
                 },
                 {
                   "type": "null"
@@ -13815,13 +13918,32 @@
         "responses": {
           "200": {
             "content": {
-              "text/html": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Existing backend documentation HTML. Gateway documentation is served at /docs."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -13829,7 +13951,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Scalar html",
+        "summary": "GET /chats",
         "tags": [
           "cortex"
         ],
@@ -13838,18 +13960,18 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/docs/scalar' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/chats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-discovery-gaps": [],
-        "x-source": "cortex_api/lib/presentation/api/app.py:152",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/execute": {
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chats.rs:26",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
       "post": {
-        "description": "Execute. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_post__execute",
+        "description": "POST /chats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_post__chats",
         "parameters": [
           {
             "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
@@ -13864,36 +13986,283 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": {
-                "attachment_job_id": "example",
-                "attachments": [],
-                "auto_retrieval": false,
-                "capabilities": {
-                  "memory": false,
-                  "tasks": false,
-                  "temporary": false,
-                  "thinking": false,
-                  "web": false
-                },
-                "conversation_id": "example",
-                "force_context_format": "example",
-                "force_model": "example",
-                "force_provider": "example",
-                "memory_topic": "example",
-                "needs_web": false,
-                "normalize_prompt": true,
-                "override_strategy": "example",
-                "prompt": "example",
-                "skip_security": false,
-                "task_type": "general",
-                "tenant_id": "example",
-                "thinking": false,
-                "tier": "example",
-                "timeout": 1.0,
-                "use_memory": false
-              },
               "schema": {
-                "$ref": "#/components/schemas/ExecuteRequest"
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_session_NewChat"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "When stream=true, live progress, answer and terminal SSE events."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "POST /chats",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_id\": \"example\", \"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"persona_id\": \"example\", \"temporary\": true}'"
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chat_inputs.rs:33",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/chats/{session_id}": {
+      "delete": {
+        "description": "DELETE /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_delete__chats__session_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "DELETE /chats/{session_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chat_delete.rs:20",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
+      "get": {
+        "description": "GET /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__chats__session_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /chats/{session_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chats.rs:27",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
+      "patch": {
+        "description": "PATCH /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_patch__chats__session_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_ChatPatch"
               }
             }
           },
@@ -13904,17 +14273,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExecuteResponse"
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -13922,7 +14304,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Execute",
+        "summary": "PATCH /chats/{session_id}",
         "tags": [
           "cortex"
         ],
@@ -13931,22 +14313,51 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/execute' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"prompt\": \"example\", \"tenant_id\": \"example\", \"tier\": \"example\", \"task_type\": \"general\", \"normalize_prompt\": true, \"thinking\": false, \"needs_web\": false, \"use_memory\": false, \"capabilities\": {\"memory\": false, \"tasks\": false, \"thinking\": false, \"web\": false, \"temporary\": false}, \"conversation_id\": \"example\", \"auto_retrieval\": false, \"memory_topic\": \"example\", \"force_model\": \"example\", \"force_provider\": \"example\", \"override_strategy\": \"example\", \"force_context_format\": \"example\", \"attachments\": [], \"attachment_job_id\": \"example\", \"timeout\": 1.0, \"skip_security\": false}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/execute.py:25",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chats.rs:27",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
-    "/apps/cortex/v1/logs/stream": {
-      "get": {
-        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
-        "operationId": "gateway_get__apps_cortex_v1_logs_stream",
-        "parameters": [],
-        "responses": {
-          "101": {
-            "description": "Existing WebSocket upgrade remains supported."
+    "/apps/cortex/v1/chats/{session_id}/inputs": {
+      "post": {
+        "description": "POST /chats/{session_id}/inputs. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_post__chats__session_id__inputs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
           },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_session_NextInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
           "200": {
             "content": {
               "text/event-stream": {
@@ -13955,13 +14366,509 @@
                 }
               }
             },
-            "description": "Live log stream."
+            "description": "When stream=true, live progress, answer and terminal SSE events."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Administrator access required."
+            "description": "Gateway session or administrator authorization failed."
           },
           "503": {
-            "description": "Log source or storage unavailable."
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "POST /chats/{session_id}/inputs",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/inputs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true}'"
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chat_inputs.rs:34",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}": {
+      "get": {
+        "description": "GET /chats/{session_id}/outputs/{output_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__chats__session_id__outputs__output_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "output_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /chats/{session_id}/outputs/{output_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chats.rs:28",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
+      "patch": {
+        "description": "PATCH /chats/{session_id}/outputs/{output_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_patch__chats__session_id__outputs__output_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "output_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cortex_src_presentation_chat_inputs_OutputPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "PATCH /chats/{session_id}/outputs/{output_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\", \"thinking\": true}'"
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chat_inputs.rs:39",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/events": {
+      "get": {
+        "description": "GET /chats/{session_id}/outputs/{output_id}/events. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__chats__session_id__outputs__output_id__events",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "output_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live SSE events. Logs require administrator access."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /chats/{session_id}/outputs/{output_id}/events",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "cortex_api/src/presentation/chat_inputs.rs:35",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/files": {
+      "post": {
+        "description": "POST /files. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_post__files",
+        "parameters": [
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "app_id": {
+                    "example": "cortex",
+                    "type": "string"
+                  },
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  },
+                  "temporary": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "file",
+                  "app_id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Upload could not be saved. The notice number explains why; no file_id is returned."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "POST /files",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/files.rs:25",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/files/{file_id}/content": {
+      "get": {
+        "description": "GET /files/{file_id}/content. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__files__file_id__content",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "file_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Stored file bytes. Content-Type follows the stored file."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /files/{file_id}/content",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/files/{file_id}/content' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "cortex_api/src/presentation/files.rs:26",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/logs/stream": {
+      "get": {
+        "description": "GET /logs/stream. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__logs_stream",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Live SSE events. Logs require administrator access."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -13972,28 +14879,48 @@
             "AdminKey": []
           }
         ],
-        "summary": "Stream cortex logs",
+        "summary": "GET /logs/stream",
         "tags": [
-          "gateway"
+          "cortex"
         ],
         "x-access-level": "administrator",
-        "x-source": "api_for_apps/src/presentation/logs.rs",
-        "x-websocket": true
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/logs/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "cortex_api/src/presentation/logs.rs:14",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
     "/apps/cortex/v1/memory-graph": {
       "get": {
-        "description": "Get workspace memory graph. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nWhole-workspace \"second brain\" overview: memories, tags, entities,\nresources and conversation attachments belonging to *only* the\nrequesting tenant, assembled from hippocampus's per-memory graph route\n(see `build_workspace_memory_graph` for why this has to be aggregated\nclient-side rather than requested in one call).",
+        "description": "GET /memory-graph. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
         "operationId": "cortex_get__memory_graph",
         "parameters": [
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
-              "maximum": 150,
-              "minimum": 1,
-              "type": "integer"
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           {
@@ -14001,9 +14928,14 @@
             "name": "depth",
             "required": false,
             "schema": {
-              "maximum": 3,
-              "minimum": 1,
-              "type": "integer"
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         ],
@@ -14012,17 +14944,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MemoryGraphOut"
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -14030,7 +14975,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Get workspace memory graph",
+        "summary": "GET /memory-graph",
         "tags": [
           "cortex"
         ],
@@ -14042,14 +14987,17 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/memory-graph' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/memory_graph.py:22",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:22",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
-    "/apps/cortex/v1/memory-graph/nodes/{node_id}/context": {
+    "/apps/cortex/v1/memory-graph/nodes/{node_id}": {
       "get": {
-        "description": "Get node context. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nResolves a graph node back to the text used to seed a brand-new\nconversation when the user clicks it. Memory/attachment nodes carry\ntheir own bare hippocampus memory id (fetched tenant-scoped, so a\nguessed/observed id belonging to another tenant 404s here just like\neverywhere else in this API); tag/entity/resource nodes have no content\nof their own, so a short recall query against that tag/entity/resource\nname is used instead.",
-        "operationId": "cortex_get__memory_graph_nodes__node_id__context",
+        "description": "GET /memory-graph/nodes/{node_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__memory_graph_nodes__node_id_",
         "parameters": [
           {
             "in": "path",
@@ -14058,70 +15006,18 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NodeContextOut"
-                }
-              }
-            },
-            "description": "Successful operation."
           },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get node context",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/memory-graph/nodes/{node_id}/context' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/memory_graph.py:42",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/models": {
-      "get": {
-        "description": "List models. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__models",
-        "parameters": [
           {
             "in": "query",
-            "name": "provider",
-            "required": false,
+            "name": "app_id",
+            "required": true,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
+              "type": "string"
             }
           },
           {
             "in": "query",
-            "name": "tier",
+            "name": "limit",
             "required": false,
             "schema": {
               "anyOf": [
@@ -14136,12 +15032,12 @@
           },
           {
             "in": "query",
-            "name": "status",
+            "name": "depth",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "integer"
                 },
                 {
                   "type": "null"
@@ -14155,20 +15051,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ModelOut"
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
                   },
-                  "type": "array"
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -14176,7 +15082,69 @@
             "SessionCookie": []
           }
         ],
-        "summary": "List models",
+        "summary": "GET /memory-graph/nodes/{node_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/memory-graph/nodes/{node_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:23",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/models": {
+      "get": {
+        "description": "GET /models. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__models",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_models_model_catalog_ModelsData"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /models",
         "tags": [
           "cortex"
         ],
@@ -14188,446 +15156,26 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/models' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/models.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/models.rs:15",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
-    "/apps/cortex/v1/models/sync": {
-      "post": {
-        "description": "Sync models. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_post__models_sync",
-        "parameters": [
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ModelOut"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Sync models",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/models/sync' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/models.py:26",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/models/{model_id}": {
+    "/apps/cortex/v1/personas": {
       "get": {
-        "description": "Get model. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__models__model_id_",
+        "description": "GET /personas. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__personas",
         "parameters": [
           {
             "in": "query",
-            "name": "model_id",
+            "name": "app_id",
             "required": true,
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "model_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get model",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/models/{model_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/models.py:31",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      },
-      "patch": {
-        "description": "Configure model. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_patch__models__model_id_",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "model_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "model_id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "context_format_pin": "example",
-                "context_format_pin_ttl_seconds": 1,
-                "is_enabled": true,
-                "is_vision_capable": true,
-                "tier_eligibility": []
-              },
-              "schema": {
-                "$ref": "#/components/schemas/ModelConfigRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ModelOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Configure model",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/models/{model_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"tier_eligibility\": [], \"is_enabled\": true, \"is_vision_capable\": true, \"context_format_pin\": \"example\", \"context_format_pin_ttl_seconds\": 1}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/models.py:39",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/openapi-en.json": {
-      "get": {
-        "description": "Openapi en. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__openapi_en_json",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Openapi en",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/openapi-en.json' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-discovery-gaps": [],
-        "x-source": "cortex_api/lib/presentation/api/app.py:138",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/openapi-pt.json": {
-      "get": {
-        "description": "Openapi pt. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__openapi_pt_json",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Openapi pt",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/openapi-pt.json' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-discovery-gaps": [],
-        "x-source": "cortex_api/lib/presentation/api/app.py:142",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/openapi-th.json": {
-      "get": {
-        "description": "Openapi th. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__openapi_th_json",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Existing backend OpenAPI document. The central gateway documentation does not consume this endpoint."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Openapi th",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/openapi-th.json' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-discovery-gaps": [],
-        "x-source": "cortex_api/lib/presentation/api/app.py:146",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/quota": {
-      "get": {
-        "description": "Get quota summary. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__quota",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/QuotaOut"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get quota summary",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/quota' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/quota.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/quota/{provider}": {
-      "get": {
-        "description": "Get quota for provider. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__quota__provider_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "provider",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/QuotaOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get quota for provider",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/quota/{provider}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/quota.py:20",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/routing/pins": {
-      "delete": {
-        "description": "Delete pin. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_delete__routing_pins",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "tier",
-            "required": true,
-            "schema": {
-              "type": "integer"
             }
           },
           {
             "in": "query",
-            "name": "task",
+            "name": "q",
             "required": false,
             "schema": {
               "anyOf": [
@@ -14641,64 +15189,55 @@
             }
           },
           {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
+            "in": "query",
+            "name": "type",
             "required": false,
             "schema": {
-              "type": "string"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Cortex_src_domain_models_personas_PersonaType"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         ],
-        "responses": {
-          "204": {
-            "description": "Operation completed. The response has no body."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Delete pin",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/routing/pins' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-discovery-gaps": [],
-        "x-source": "cortex_api/lib/presentation/api/routes/pins.py:29",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      },
-      "get": {
-        "description": "List pins. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__routing_pins",
-        "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/PinOut"
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/Cortex_src_domain_models_personas_Persona"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   },
-                  "type": "array"
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -14706,7 +15245,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "List pins",
+        "summary": "GET /personas",
         "tags": [
           "cortex"
         ],
@@ -14715,16 +15254,24 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/routing/pins' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/personas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/pins.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/personas.rs:19",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       },
       "post": {
-        "description": "Create pin. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_post__routing_pins",
+        "description": "POST /personas. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_post__personas",
         "parameters": [
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
             "in": "header",
@@ -14738,15 +15285,8 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": {
-                "model_id": "example",
-                "pinned_by": "example",
-                "strategy_id": "example",
-                "task": "example",
-                "tier": 1
-              },
               "schema": {
-                "$ref": "#/components/schemas/PinCreateRequest"
+                "$ref": "#/components/schemas/Cortex_src_domain_models_personas_NewPersona"
               }
             }
           },
@@ -14757,110 +15297,30 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PinOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Create pin",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/routing/pins' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"tier\": 1, \"task\": \"example\", \"strategy_id\": \"example\", \"model_id\": \"example\", \"pinned_by\": \"example\"}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/pins.py:20",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/system/capabilities": {
-      "get": {
-        "description": "Get capabilities. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nReturns the installed Cortex profile, detected hardware capabilities,\nand availability of optional extensions and integrations.",
-        "operationId": "cortex_get__system_capabilities",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Get capabilities",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/system/capabilities' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/system.py:29",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/system/status": {
-      "get": {
-        "description": "Get status. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nWhen this process last started, to confirm a deploy/restart took.",
-        "operationId": "cortex_get__system_status",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
                   "properties": {
-                    "started_at": {}
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
                   },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
                   "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -14868,7 +15328,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Get status",
+        "summary": "POST /personas",
         "tags": [
           "cortex"
         ],
@@ -14877,67 +15337,369 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/system/status' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/personas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"type\": \"example\", \"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/system.py:23",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/personas.rs:19",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/personas/schemas/{type}": {
+      "get": {
+        "description": "GET /personas/schemas/{type}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__personas_schemas__type_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /personas/schemas/{type}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/personas/schemas/{type}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/personas.rs:20",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      }
+    },
+    "/apps/cortex/v1/personas/{persona_id}": {
+      "delete": {
+        "description": "DELETE /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_delete__personas__persona_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "persona_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "DELETE /personas/{persona_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/personas.rs:21",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
+      "get": {
+        "description": "GET /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__personas__persona_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "persona_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_models_personas_Persona"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /personas/{persona_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "cortex_api/src/presentation/personas.rs:21",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+      },
+      "patch": {
+        "description": "PATCH /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_patch__personas__persona_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "persona_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_personas_PersonaChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_models_personas_Persona"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "PATCH /personas/{persona_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
+          }
+        ],
+        "x-source": "cortex_api/src/presentation/personas.rs:21",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
     "/apps/cortex/v1/telemetry/events": {
       "get": {
-        "description": "Telemetry events. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
+        "description": "GET /telemetry/events. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
         "operationId": "cortex_get__telemetry_events",
         "parameters": [
           {
             "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "in": "query",
             "name": "limit",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "strategy_id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "in": "query",
-            "name": "task",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "in": "query",
-            "name": "tier",
             "required": false,
             "schema": {
               "anyOf": [
@@ -14956,20 +15718,35 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TelemetryEventOut"
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_reads_CallEvent"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   },
-                  "type": "array"
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -14977,7 +15754,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Telemetry events",
+        "summary": "GET /telemetry/events",
         "tags": [
           "cortex"
         ],
@@ -14989,80 +15766,49 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/telemetry/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/telemetry.py:26",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/telemetry_reads.rs:20",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
     "/apps/cortex/v1/telemetry/stats": {
       "get": {
-        "description": "Telemetry stats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
+        "description": "GET /telemetry/stats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
         "operationId": "cortex_get__telemetry_stats",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "tier",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "in": "query",
-            "name": "task",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          },
-          {
-            "in": "query",
-            "name": "strategy_id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TelemetryStatsOut"
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_reads_GroupStats"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   },
-                  "type": "array"
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -15070,7 +15816,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "Telemetry stats",
+        "summary": "GET /telemetry/stats",
         "tags": [
           "cortex"
         ],
@@ -15082,34 +15828,49 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/telemetry/stats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/telemetry.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/telemetry_reads.rs:19",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
-    "/apps/cortex/v1/tiers": {
+    "/apps/cortex/v1/telemetry/timing": {
       "get": {
-        "description": "List tiers. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__tiers",
+        "description": "GET /telemetry/timing. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__telemetry_timing",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/TierOut"
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_reads_TimingAverage"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   },
-                  "type": "array"
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -15117,7 +15878,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "List tiers",
+        "summary": "GET /telemetry/timing",
         "tags": [
           "cortex"
         ],
@@ -15126,195 +15887,49 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/tiers' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/telemetry/timing' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/tiers.py:15",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/telemetry_reads.rs:18",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
-    "/apps/cortex/v1/tiers/{tier}": {
-      "patch": {
-        "description": "Configure tier. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_patch__tiers__tier_",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "tier",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "allow_external": true,
-                "allow_multi_model": true,
-                "allowed_models": [],
-                "max_latency_seconds": 1,
-                "max_model_calls": 1,
-                "require_verification": true,
-                "retrieval_mode": "example"
-              },
-              "schema": {
-                "$ref": "#/components/schemas/TierConfigRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TierOut"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Configure tier",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/tiers/{tier}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"max_latency_seconds\": 1, \"allow_multi_model\": true, \"allow_external\": true, \"retrieval_mode\": \"example\", \"require_verification\": true, \"max_model_calls\": 1, \"allowed_models\": []}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/tiers.py:20",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/v1/chat/completions": {
-      "post": {
-        "description": "Chat completions. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_post__v1_chat_completions",
-        "parameters": [
-          {
-            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
-            "in": "header",
-            "name": "X-CSRF-Token",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "auto_retrieval": false,
-                "conversation_id": "example",
-                "max_tokens": 1,
-                "memory_topic": "example",
-                "messages": [],
-                "model": "example",
-                "needs_web": false,
-                "normalize_prompt": true,
-                "stream": false,
-                "temperature": 1.0,
-                "temporary": false,
-                "tenant_id": "example",
-                "thinking": false,
-                "use_memory": false
-              },
-              "schema": {
-                "$ref": "#/components/schemas/ChatCompletionRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChatCompletionResponse"
-                }
-              }
-            },
-            "description": "Successful operation."
-          },
-          "403": {
-            "description": "Authentication or permission requirement not satisfied."
-          },
-          "422": {
-            "description": "Request validation failed."
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Chat completions",
-        "tags": [
-          "cortex"
-        ],
-        "x-access-level": "session",
-        "x-codeSamples": [
-          {
-            "label": "cURL",
-            "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/v1/chat/completions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"model\": \"example\", \"messages\": [], \"temperature\": 1.0, \"max_tokens\": 1, \"stream\": false, \"normalize_prompt\": true, \"thinking\": false, \"needs_web\": false, \"use_memory\": false, \"auto_retrieval\": false, \"memory_topic\": \"example\", \"conversation_id\": \"example\", \"temporary\": false, \"tenant_id\": \"example\"}'"
-          }
-        ],
-        "x-source": "cortex_api/lib/presentation/api/routes/openai_facade.py:45",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
-      }
-    },
-    "/apps/cortex/v1/v1/models": {
+    "/apps/cortex/v1/telemetry/usage": {
       "get": {
-        "description": "List virtual models. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
-        "operationId": "cortex_get__v1_models",
+        "description": "GET /telemetry/usage. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__telemetry_usage",
         "parameters": [],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ModelList"
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_models_telemetry_UsageData"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
                 }
               }
             },
-            "description": "Successful operation."
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
           },
           "403": {
-            "description": "Authentication or permission requirement not satisfied."
+            "description": "Gateway session or administrator authorization failed."
           },
-          "422": {
-            "description": "Request validation failed."
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
           }
         },
         "security": [
@@ -15322,7 +15937,7 @@
             "SessionCookie": []
           }
         ],
-        "summary": "List virtual models",
+        "summary": "GET /telemetry/usage",
         "tags": [
           "cortex"
         ],
@@ -15331,11 +15946,11 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/v1/models' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/telemetry/usage' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "cortex_api/lib/presentation/api/routes/openai_facade.py:39",
-        "x-source-tree-sha256": "f8ef7e5b1f7f5fb3df6a5e7513f3e3fa4ee1d6dbc83f5d0027668ae0b49d71c4"
+        "x-source": "cortex_api/src/presentation/telemetry.rs:27",
+        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
       }
     },
     "/apps/domain/v1/categories": {
@@ -26997,5 +27612,104 @@
       "url": "https://api.asodya.com"
     }
   ],
-  "x-discovery-gaps": []
+  "x-discovery-gaps": [
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "post",
+      "path": "/apps/cortex/v1/chats"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "post",
+      "path": "/apps/cortex/v1/chats/{session_id}/inputs"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "patch",
+      "path": "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "post",
+      "path": "/apps/cortex/v1/personas"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/personas/schemas/{type}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "delete",
+      "path": "/apps/cortex/v1/personas/{persona_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "delete",
+      "path": "/apps/cortex/v1/chats/{session_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "post",
+      "path": "/apps/cortex/v1/files"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/memory-graph"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/memory-graph/nodes/{node_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/chats"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/chats/{session_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "patch",
+      "path": "/apps/cortex/v1/chats/{session_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}"
+    }
+  ]
 }

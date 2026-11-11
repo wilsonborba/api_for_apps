@@ -306,6 +306,138 @@ def rust_annotations(repo):
     if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
     operation('annotations',path,method,method.upper()+' '+path,'Annotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
 
+def rust_cortex(repo):
+ source=repo/'src/presentation'
+ if not source.exists():return set(),set()
+ main=repo/'src/main.rs'
+ selected=set(re.findall(r'cortex_api::presentation::(\w+)::router',main.read_text())) if main.exists() else set()
+ if not selected:
+  gaps.append({'app':'cortex','gaps':['Cortex router composition is unresolved; source review is required.']})
+  return set(),set()
+ # Only the public API/model source tree is inspected. DAL credentials are not models.
+ texts={f:f.read_text().split('#[cfg(test)]',1)[0] for base in [source,repo/'src/domain/models'] for f in base.rglob('*.rs')}
+ declarations={};names={};local={};new=set()
+ def block(text,start,left='{',right='}'):
+  depth=1;i=start;quoted=False
+  while i<len(text) and depth:
+   if text[i]=='"' and (i==0 or text[i-1]!='\\'):quoted=not quoted
+   if not quoted:
+    if text[i]==left:depth+=1
+    elif text[i]==right:depth-=1
+   i+=1
+  return text[start:i-1],i
+ for f,text in texts.items():
+  for m in re.finditer(r'(?P<attrs>(?:(?:#\[[^\]]*\]|///[^\n]*)\s*)*)(?:pub\s+)?(?P<kind>struct|enum)\s+(?P<name>\w+)(?:<[^>]*>)?\s*\{',text):
+   attrs=m['attrs']
+   if 'Deserialize' not in attrs and 'Serialize' not in attrs:continue
+   body,_=block(text,m.end());name=m['name'];key='Cortex_'+str(f.relative_to(repo).with_suffix('')).replace('/','_')+'_'+name
+   declarations[key]=(f,m['kind'],attrs,body);local[f,name]=key;names.setdefault(name,key);new.add(key)
+   components[key]={}
+ def typ(value,f):
+  value=re.sub(r"^&(?:'\w+\s+)?",'',value.strip())
+  value=re.sub(r'\s+','',value).replace('serde_json::','')
+  if value.startswith('Option<'):return {'anyOf':[typ(value[7:-1],f),{'type':'null'}]}
+  if value.startswith('Vec<'):return {'type':'array','items':typ(value[4:-1],f)}
+  if value in ['String','str']:return {'type':'string'}
+  if value=='Uuid':return {'type':'string','format':'uuid'}
+  if value.startswith('DateTime<'):return {'type':'string','format':'date-time'}
+  if value in ['u8','u16','u32','u64','usize','i16','i32','i64']:return {'type':'integer'}
+  if value in ['f32','f64']:return {'type':'number'}
+  if value=='bool':return {'type':'boolean'}
+  name=value.split('::')[-1];key=local.get((f,name),names.get(name))
+  return {'$ref':'#/components/schemas/'+key} if key else {}
+ for key,(f,kind,attrs,body) in declarations.items():
+  if kind=='enum':
+   clean=re.sub(r'#\[[^\]]*\]|//[^\n]*','',body)
+   if re.fullmatch(r'[\w\s,]+',clean):
+    values=[v.strip() for v in clean.split(',') if v.strip()]
+    if 'rename_all = "snake_case"' in attrs:values=[re.sub(r'(?<!^)(?=[A-Z])','_',v).lower() for v in values]
+    components[key]={'type':'string','enum':values}
+   continue
+  props={};required=[];field_attrs=''
+  for line in body.splitlines():
+   line=line.strip()
+   if line.startswith('#['):field_attrs+=line;continue
+   match=re.match(r'(?:pub\s+)?(\w+):\s*(.+),$',line)
+   if not match:continue
+   name,value=match.groups();rename=re.search(r'rename\s*=\s*"([^"]+)"',field_attrs)
+   if rename:name=rename[1]
+   if 'flatten' in field_attrs:
+    # Flattened shapes cannot be claimed as an extra JSON field.
+    components[key].setdefault('x-discovery-gaps',[]).append('Flattened fields need central review.')
+    field_attrs='';continue
+   props[name]=typ(value,f)
+   if not value.startswith('Option<') and 'default' not in field_attrs:required.append(name)
+   field_attrs=''
+  model={'type':'object','properties':props,**({'required':required} if required else {})}
+  if 'deny_unknown_fields' in attrs:model['additionalProperties']=False
+  if components[key].get('x-discovery-gaps'):model['x-discovery-gaps']=components[key]['x-discovery-gaps']
+  components[key]=model
+ old_doc=json.loads(OUT.read_text()) if OUT.exists() else {}
+ def refs(value):
+  if isinstance(value,dict):
+   ref=value.get('$ref','')
+   if ref.startswith('#/components/schemas/'):yield ref.rsplit('/',1)[-1]
+   for child in value.values():yield from refs(child)
+  elif isinstance(value,list):
+   for child in value:yield from refs(child)
+ old=set(refs({p:v for p,v in old_doc.get('paths',{}).items() if p.startswith('/apps/cortex/v1/')}))
+ pending=list(old)
+ while pending:
+  for ref in refs(old_doc.get('components',{}).get('schemas',{}).get(pending.pop(),{})):
+   if ref not in old:old.add(ref);pending.append(ref)
+ for path in list(operations):
+  if path.startswith('/apps/cortex/v1/'):
+   operations.pop(path);seen.difference_update({entry for entry in seen if entry[0]==path})
+ for f,text in texts.items():
+  if f.parent!=source or f.stem not in selected:continue
+  handlers={}
+  for match in re.finditer(r'async fn (\w+)\s*\(',text):
+   signature,end=block(text,match.end(),'(',')');tail=text[end:text.find('{',end)];handlers[match[1]]=(signature,tail)
+  for match in re.finditer(r'\.route\(\s*"([^"]+)"\s*,',text):
+   path=match[1];expr,_=block(text,match.end(),'(',')')
+   for method_match in re.finditer(r'\b(get|post|put|patch|delete|head|options)\(',expr):
+    method=method_match[1];rest=expr[method_match.end():].lstrip();handler_match=re.match(r'(?:\w+::)*(\w+)',rest)
+    signature,tail=handlers.get(handler_match[1],('','')) if handler_match else ('','')
+    if rest.startswith('|'):signature=rest[1:rest.find('|',1)]
+    params=[];body=None
+    for name in re.findall(r'\{(\w+)\}',path):
+     params.append({'name':name,'in':'path','required':True,'schema':{'type':'string',**({'format':'uuid'} if 'Path<' in signature and 'Uuid' in signature else {})}})
+    query=re.search(r'Query<([^>]+)>',signature)
+    if query:
+     schema_ref=typ(query[1],f).get('$ref','').rsplit('/',1)[-1];model=components.get(schema_ref,{})
+     params += [{'name':name,'in':'query','required':name in model.get('required',[]),'schema':value} for name,value in model.get('properties',{}).items()]
+    data=re.search(r'Json<([^>]+)>',signature)
+    if data:body={'required':True,'content':{'application/json':{'schema':typ(data[1],f)}}}
+    if 'Multipart' in signature:
+     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file','app_id'],'additionalProperties':False,'properties':{'file':{'type':'string','format':'binary'},'app_id':{'type':'string','example':'cortex'},'temporary':{'type':'boolean','default':False}}}}}}
+    unknown=['Response data is built by Cortex code; detailed data shape requires central review.']
+    responses={'200':{'description':'Cortex result in the message/data envelope. Consult the linked handler for the data shape.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{}}}}}},'400':{'description':'Cortex validation or business error. data.error_number identifies the process.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable. data.error_number identifies the process.'}}
+    if method=='post':responses['201']=responses.pop('200');responses['201']['description']='Resource or chat created. A streaming chat uses an SSE response instead.'
+    declared=re.search(r'Envelope<',tail)
+    known=None
+    if declared:
+     data_type,_=block(tail,declared.end(),'<','>');known=typ(data_type,f)
+    elif rest.startswith('|'):
+     constructor=re.search(r'Envelope::new\(\s*"[^"]*"\s*,\s*(\w+)::(?:from|new)\(',rest)
+     if constructor:known=typ(constructor[1],f)
+    if known:
+     for response in responses.values():
+      content=response.get('content',{}).get('application/json')
+      if content:content['schema']['properties']['data']=known
+     unknown=[]
+    if method=='post' and path=='/files':
+     responses['200']={'description':'Upload could not be saved. The notice number explains why; no file_id is returned.'}
+    if path=='/logs/stream' or path.endswith('/events') and path.startswith('/chats/'):
+     responses['200']={'description':'Live SSE events. Logs require administrator access.','content':{'text/event-stream':{'schema':{'type':'string'}}}};unknown=[]
+    elif method=='get' and path=='/files/{file_id}/content':
+     responses['200']={'description':'Stored file bytes. Content-Type follows the stored file.','content':{'*/*':{'schema':{'type':'string','format':'binary'}}}};unknown=[]
+    if method=='post' and path in ['/chats','/chats/{session_id}/inputs']:
+     responses['200']={'description':'When stream=true, live progress, answer and terminal SSE events.','content':{'text/event-stream':{'schema':{'type':'string'}}}}
+    operation('cortex',path,method,method.upper()+' '+path,'Cortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1),unknown=unknown)
+ return new,old
+
+
 registry=json.loads((ROOT/'src/core/apps.json').read_text())
 for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in registry.items() if v['language']=='python']:
  repo=a.workspace/folder
@@ -315,6 +447,7 @@ for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in r
  else:gaps.append({'app':app,'gaps':['Source repository not available']})
 rust_reports(a.workspace/'reports')
 rust_annotations(a.workspace/'annotations_api')
+cortex_new,cortex_old=rust_cortex(a.workspace/'cortex_api')
 operation('gateway','/apps/api/v1/logs/stream','get','Stream gateway logs','Server-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.',[],None,{'200':{'description':'Live SSE log stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: gateway ready\n\n'}}},'403':{'description':'Administrator authorization required.'}},'src/presentation/logs.rs')
 if OVERRIDE.exists():
  for key,override in json.loads(OVERRIDE.read_text()).items():
@@ -324,7 +457,7 @@ if OVERRIDE.exists():
 previous=json.loads(OUT.read_text()) if OUT.exists() else {}
 for app,entry in registry.items():
  repo=a.workspace/entry['source']
- if not repo.exists() or entry['language']=='rust' and not (repo/('lib/presentation/mod.rs' if app=='annotations' else 'engine/src/presentation/api/server.rs')).exists():
+ if not repo.exists() or entry['language']=='rust' and not (repo/('src/presentation' if app=='cortex' else 'lib/presentation/mod.rs' if app=='annotations' else 'engine/src/presentation/api/server.rs')).exists():
   for path,ms in previous.get('paths',{}).items():
    for method,op in ms.items():
     if op.get('tags')==[app]:operations.setdefault(path,{})[method]=op
@@ -335,6 +468,20 @@ for app,entry in registry.items():
  for path,ms in operations.items():
   for method,op in ms.items():
    if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
+# Remove only obsolete Cortex models after all live operation references settle.
+def component_refs(value):
+ if isinstance(value,dict):
+  ref=value.get('$ref','')
+  if ref.startswith('#/components/schemas/'):yield ref.rsplit('/',1)[-1]
+  for child in value.values():yield from component_refs(child)
+ elif isinstance(value,list):
+  for child in value:yield from component_refs(child)
+used=set(component_refs(operations));pending=list(used)
+while pending:
+ for ref in component_refs(components.get(pending.pop(),{})):
+  if ref not in used:used.add(ref);pending.append(ref)
+for name in cortex_new|cortex_old:
+ if name not in used:components.pop(name,None)
 gaps=[g for g in gaps if g.get('path') not in operations or operations[g['path']].get(g.get('method',''),{}).get('x-discovery-gaps')]
 result={'openapi':'3.1.0','info':{'title':'Asodya Application Gateway API','version':__import__('tomllib').loads((ROOT/'Cargo.toml').read_text())['package']['version'],'description':'Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.'},'servers':[{'url':'https://api.asodya.com'}],'paths':dict(sorted(operations.items())),'components':{'schemas':components,'securitySchemes':{'SessionCookie':{'type':'apiKey','in':'cookie','name':'sid'},'AdminKey':{'type':'apiKey','in':'header','name':'Authorization'}}},'x-discovery-gaps':gaps}
 rendered=json.dumps(result,indent=2,sort_keys=True)+'\n'

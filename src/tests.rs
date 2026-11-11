@@ -1276,3 +1276,41 @@ fn telemetry_does_not_trust_forwarded_ip_from_direct_peers() {
         "198.51.100.6"
     );
 }
+
+#[tokio::test]
+async fn cortex_log_source_reads_sse_without_websocket_upgrade() {
+    use axum::{Router, http::HeaderMap, routing::get};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let upstream = Router::new().route(
+        "/logs/stream",
+        get(|headers: HeaderMap| async move {
+            assert!(!headers.contains_key("upgrade"));
+            assert!(!headers.contains_key("authorization"));
+            assert!(!headers.contains_key("cookie"));
+            assert_eq!(headers["accept"], "text/event-stream");
+            (
+                [("content-type", "text/event-stream")],
+                "event: log\ndata: ready\n\nevent: gap\ndata: 3 missed\n\n",
+            )
+        }),
+    );
+    let task = tokio::spawn(async move { axum::serve(listener, upstream).await.unwrap() });
+    let mut s = state().await;
+    let mut values = (*s.settings.values).clone();
+    values.insert("CORTEX_UPSTREAM".into(), format!("http://{address}"));
+    s.settings.values = Arc::new(values);
+    let mut source = dal::remote::log_source::open(&s, "cortex").await.unwrap();
+    assert!(matches!(
+        source,
+        dal::remote::log_source::Source::Sse { .. }
+    ));
+    let first = source.next().await.unwrap().unwrap();
+    assert!(!first.gap);
+    assert_eq!(first.line, "ready");
+    let second = source.next().await.unwrap().unwrap();
+    assert!(second.gap);
+    assert_eq!(second.line, "3 missed");
+    assert!(source.next().await.unwrap().is_none());
+    task.abort();
+}

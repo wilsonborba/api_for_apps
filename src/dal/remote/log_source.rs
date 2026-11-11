@@ -38,7 +38,7 @@ pub async fn open(state: &State, app: &str) -> Result<Source> {
         .settings
         .target(app)
         .ok_or_else(|| anyhow::anyhow!("Unknown log source"))?;
-    if matches!(app, "certifications" | "cortex") {
+    if app == "certifications" {
         let url = format!(
             "{}/logs/stream",
             target

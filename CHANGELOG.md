@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(logs)* Redact service keys and specify saved log responses (#58) ([`1d54d01`](https://github.com/wilsonborba/api_for_apps/commit/1d54d01fd34d44c181643f1df3159dc0d029f3bb))
 - *(logs)* Merge complete secret filtering and response contracts (#58) ([`14709eb`](https://github.com/wilsonborba/api_for_apps/commit/14709eb3ba5fb8827bb065811a08b72c7c7c90aa))
 - *(v2)* Read Cortex v2 logs through SSE (#61) ([`dc2f392`](https://github.com/wilsonborba/api_for_apps/commit/dc2f392c5a55d8732d4b088499c3fb8f4985379c))
-- *(v2)* Discover-cortex-rust-contracts (#62)
+- *(v2)* Discover-cortex-rust-contracts (#62) ([`2733d02`](https://github.com/wilsonborba/api_for_apps/commit/2733d02869b392172a85607865e7ea79d4b76ff5))
+- *(v2)* Refresh-final-contract-source-hashes (#62)
 
 ### 💼 Other Changes
 
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(release)* Synchronize v1.3.0 back to feature main ([`a7ef9a9`](https://github.com/wilsonborba/api_for_apps/commit/a7ef9a9c2b11a48fe8fd8cb050687884fd18d64f))
 - Synchronize app catalog with the completed release ([`107bf9d`](https://github.com/wilsonborba/api_for_apps/commit/107bf9db3b41e8aacb30cc8ce7070afc38b973d0))
 - *(v2)* Merge #61 read Cortex v2 logs through SSE ([`3b2d9f9`](https://github.com/wilsonborba/api_for_apps/commit/3b2d9f911bb62bf74d5c473fe7ddac81d0cf4871))
+- *(v2)* Merge #62 discover-cortex-rust-contracts ([`054168b`](https://github.com/wilsonborba/api_for_apps/commit/054168bca6dc6b973b3db35a67d03ffac95318ea))
 ## [1.3.0] - 2026-10-26
 
 ### 🚀 Features

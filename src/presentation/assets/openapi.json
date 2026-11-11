@@ -11996,7 +11996,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:141",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       },
       "post": {
         "description": "Save completed quiz. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
@@ -12082,7 +12082,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:101",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/completed/{quiz_id}": {
@@ -12132,7 +12132,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:209",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       },
       "get": {
         "description": "Get completed quiz. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
@@ -12202,7 +12202,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:168",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/completed/{quiz_id}/leaderboard": {
@@ -12259,7 +12259,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:427",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/completed/{quiz_id}/share": {
@@ -12351,7 +12351,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:229",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/completed/{quiz_id}/visibility": {
@@ -12441,7 +12441,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:194",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/shared/{token}": {
@@ -12509,7 +12509,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:265",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/shared/{token}/attempt": {
@@ -12605,7 +12605,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:292",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/shared/{token}/grade": {
@@ -12698,7 +12698,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:341",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/quizzes/shared/{token}/questions/{question_id}/visual": {
@@ -12761,7 +12761,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "certifications_api/src/presentation/routes/quiz_governance_route.py:395",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies": {
@@ -12813,7 +12813,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:90",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       },
       "post": {
         "description": "Create study. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
@@ -12886,7 +12886,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:77",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}": {
@@ -12948,7 +12948,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:258",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       },
       "get": {
         "description": "Get study. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.",
@@ -13007,7 +13007,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:105",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/complete": {
@@ -13077,7 +13077,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_lifecycle_route.py:23",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/memory": {
@@ -13138,7 +13138,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_lifecycle_route.py:42",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/questions": {
@@ -13199,7 +13199,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/question_route.py:75",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/questions/generate": {
@@ -13285,7 +13285,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/question_route.py:45",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/questions/progress": {
@@ -13342,7 +13342,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/question_route.py:90",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/questions/submit": {
@@ -13435,7 +13435,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/question_route.py:111",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual": {
@@ -13498,7 +13498,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "certifications_api/src/presentation/routes/question_route.py:154",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/sources": {
@@ -13590,7 +13590,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:120",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/sources/{source_id}": {
@@ -13660,7 +13660,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:238",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/sources/{source_id}/ingest": {
@@ -13738,7 +13738,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:195",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/studies/{study_id}/sources/{source_id}/selection": {
@@ -13836,7 +13836,7 @@
           }
         ],
         "x-source": "certifications_api/src/presentation/routes/study_route.py:175",
-        "x-source-tree-sha256": "fd5937e96f3bb7e5791cf29fcaa05aa00211d218088f04fa5763afe3414659c5"
+        "x-source-tree-sha256": "507764f73afb5c66e6a98513cd8fe9b3fd6255b420f0584c3387575d3878f5c0"
       }
     },
     "/apps/certifications/v1/waitlist": {
@@ -13967,7 +13967,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:26",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "post": {
         "description": "POST /chats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14055,7 +14055,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:33",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/chats/{session_id}": {
@@ -14134,7 +14134,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_delete.rs:20",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "get": {
         "description": "GET /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14233,7 +14233,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:27",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "patch": {
         "description": "PATCH /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14320,7 +14320,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:27",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/inputs": {
@@ -14419,7 +14419,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:34",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}": {
@@ -14498,7 +14498,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:28",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "patch": {
         "description": "PATCH /chats/{session_id}/outputs/{output_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14594,7 +14594,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:39",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/events": {
@@ -14675,7 +14675,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:35",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/files": {
@@ -14777,7 +14777,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/files.rs:25",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/files/{file_id}/content": {
@@ -14842,7 +14842,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/files.rs:26",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/logs/stream": {
@@ -14892,7 +14892,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/logs.rs:14",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/memory-graph": {
@@ -14991,7 +14991,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/memory_graph.rs:22",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/memory-graph/nodes/{node_id}": {
@@ -15098,7 +15098,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/memory_graph.rs:23",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/models": {
@@ -15157,7 +15157,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/models.rs:15",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/personas": {
@@ -15258,7 +15258,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:19",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "post": {
         "description": "POST /personas. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15344,7 +15344,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:19",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/personas/schemas/{type}": {
@@ -15421,7 +15421,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:20",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/personas/{persona_id}": {
@@ -15507,7 +15507,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "get": {
         "description": "GET /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15581,7 +15581,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       },
       "patch": {
         "description": "PATCH /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15674,7 +15674,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/telemetry/events": {
@@ -15767,7 +15767,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:20",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/telemetry/stats": {
@@ -15829,7 +15829,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:19",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/telemetry/timing": {
@@ -15891,7 +15891,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:18",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/cortex/v1/telemetry/usage": {
@@ -15950,7 +15950,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry.rs:27",
-        "x-source-tree-sha256": "bec2afc3b731093b52f802fbd1fb1aefd188badd750aa7d6f21a75d2b1f5f378"
+        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
       }
     },
     "/apps/domain/v1/categories": {

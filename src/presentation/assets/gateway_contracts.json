@@ -1919,16 +1919,17 @@
           "gateway"
         ],
         "summary": "Stream cortex logs",
-        "description": "Live SSE from a fixed registered LAN source. Authorization is rechecked while connected. No caller credentials are forwarded upstream. Existing Cortex and Certifications WebSocket upgrades remain supported until their issue-only migrations ship. Administrator access (access_level 1) is required. Cookie-authenticated mutations also require the CSRF cookie and matching X-CSRF-Token header. Administrative API-key calls use the existing Authorization header.",
+        "description": "Stream Cortex v2 backend log and gap events over SSE through the gateway. Administrator authorization is required. No log text is persisted by this operation.",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Live log stream.",
+            "description": "Cortex v2 log and gap SSE events. Administrator access is required.",
             "content": {
               "text/event-stream": {
                 "schema": {
                   "type": "string"
-                }
+                },
+                "example": "event: log\\ndata: ready\\n\\n"
               }
             }
           },
@@ -1937,9 +1938,6 @@
           },
           "503": {
             "description": "Log source or storage unavailable."
-          },
-          "101": {
-            "description": "Existing WebSocket upgrade remains supported."
           }
         },
         "security": [
@@ -1951,8 +1949,7 @@
           }
         ],
         "x-access-level": "administrator",
-        "x-source": "api_for_apps/src/presentation/logs.rs",
-        "x-websocket": true
+        "x-source": "api_for_apps/src/presentation/logs.rs"
       }
     },
     "/apps/domain/v1/logs/stream": {

@@ -2285,3 +2285,626 @@ mod valkey_handoff {
         v.cleanup().await;
     }
 }
+
+mod browser_continuation {
+    use super::*;
+    use axum::http::HeaderMap;
+    use domain::services::browser_handoff::{self, Failure};
+    const ORIGIN: &str = "https://auth.asodya.com";
+    const CSRF: &str = "source-csrf";
+    fn headers(sid: Option<&str>, csrf: Option<&str>) -> HeaderMap {
+        let mut h = HeaderMap::new();
+        h.insert("origin", ORIGIN.parse().unwrap());
+        let mut cookie = String::new();
+        if let Some(sid) = sid {
+            cookie.push_str(&format!("sid={sid}; "));
+        }
+        if let Some(csrf) = csrf {
+            cookie.push_str(&format!("csrf={csrf}; "));
+            h.insert("x-csrf-token", csrf.parse().unwrap());
+        }
+        h.insert("cookie", cookie.parse().unwrap());
+        h
+    }
+    async fn setup() -> domain::State {
+        let mut s = state().await;
+        let mut values = (*s.settings.values).clone();
+        values.insert("ENVIRONMENT".into(), "production".into());
+        s.settings.values = Arc::new(values);
+        let at = domain::auth::now();
+        s.cache.set("exchange_auth_app:native-a", json!({"session_id":"native-a","native":true,"created_at":at,"last_used_at":at,"user_id":1,"user_uuid_id":"user-a","email":"a@example.test","provider_user_id":"provider-a","access_level":3,"csrf_token":CSRF}), 90000, false).await.unwrap();
+        s
+    }
+    async fn web(s: &domain::State, user: &str) {
+        s.cache.set("exchange_auth_app:web", json!({"session_id":"web","user_id":2,"user_uuid_id":user,"email":"browser@example.test","provider_user_id":"provider-web","access_level":3,"csrf_token":"web-csrf"}), 90000, false).await.unwrap();
+    }
+    async fn create(s: &domain::State) -> (String, Value) {
+        let result = browser_handoff::create(s, &headers(Some("native-a"), Some(CSRF)), &json!({"action":"create_browser_handoff","target_app":"certifications","study_id":"prepared-study"})).await.unwrap();
+        let url = url::Url::parse(result["launch_url"].as_str().unwrap()).unwrap();
+        assert_eq!(url.path(), "/continue");
+        assert_eq!(url.query_pairs().count(), 1);
+        let (name, handoff) = url.query_pairs().next().unwrap();
+        assert_eq!(name, "handoff_id");
+        assert!(url.fragment().is_none());
+        assert!(!result.to_string().contains("native-a"));
+        (handoff.into_owned(), result)
+    }
+    fn browser_headers(preview: &browser_handoff::Preview, initial: &HeaderMap) -> HeaderMap {
+        let mut h = initial.clone();
+        h.insert(
+            "cookie",
+            format!(
+                "{}; browser_handoff={}; csrf={}",
+                domain::auth::header(initial, "cookie"),
+                preview.browser_cookie,
+                preview.csrf_cookie
+            )
+            .parse()
+            .unwrap(),
+        );
+        h.insert("x-csrf-token", preview.csrf_cookie.parse().unwrap());
+        h
+    }
+    fn redeem(id: &str, preview: &browser_handoff::Preview) -> Value {
+        json!({"action":"redeem_browser_handoff","handoff_id":id,"browser_state":preview.data["browser_state"]})
+    }
+    fn failed(error: anyhow::Error, failure: Failure) {
+        assert_eq!(error.downcast_ref::<Failure>(), Some(&failure), "{error}");
+    }
+    async fn mutate(s: &domain::State, id: &str, field: &str, value: Value) {
+        let key = format!("handoff:browser:{id}");
+        let mut record = s.cache.get(&key, false).await.unwrap().unwrap();
+        record[field] = value;
+        s.cache.set(&key, record, 1800, false).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn anonymous_preview_then_one_use_normal_web_session() {
+        let s = setup().await;
+        let (id, created) = create(&s).await;
+        assert!(created["expires_at"].as_i64().unwrap() <= domain::auth::now() + 300);
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        assert_eq!(preview.data["account"]["email"], "a@example.test");
+        assert_eq!(preview.data["account_mismatch"], false);
+        assert!(preview.data["current_account"].is_null());
+        for forbidden in ["session_id", "csrf_token", "source_session", "sources"] {
+            assert!(preview.data.get(forbidden).is_none());
+        }
+        let h = browser_headers(&preview, &initial);
+        let body = redeem(&id, &preview);
+        let result = browser_handoff::redeem(&s, &h, &body).await.unwrap();
+        assert_eq!(
+            result.target_url,
+            "https://certifications.asodya.com/studies/prepared-study"
+        );
+        let u = result.session.unwrap();
+        assert_eq!(u["user_uuid_id"], "user-a");
+        assert!(u.get("native").is_none());
+        assert!(
+            s.cache
+                .get(
+                    &format!("exchange_auth_app:{}", u["session_id"].as_str().unwrap()),
+                    false
+                )
+                .await
+                .unwrap()
+                .is_some()
+        );
+        failed(
+            browser_handoff::redeem(&s, &h, &body).await.err().unwrap(),
+            Failure::Used,
+        );
+        assert!(
+            s.cache
+                .get("exchange_auth_app:native-a", false)
+                .await
+                .unwrap()
+                .is_some()
+        );
+    }
+    #[tokio::test]
+    async fn same_account_reuses_browser_session_and_different_account_requires_confirmation() {
+        let s = setup().await;
+        for (user, mismatch) in [("user-a", false), ("user-b", true)] {
+            web(&s, user).await;
+            let (id, _) = create(&s).await;
+            let initial = headers(Some("web"), Some("web-csrf"));
+            let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+            assert_eq!(preview.data["account_mismatch"], mismatch);
+            let h = browser_headers(&preview, &initial);
+            let mut body = redeem(&id, &preview);
+            if mismatch {
+                failed(
+                    browser_handoff::redeem(&s, &h, &body).await.err().unwrap(),
+                    Failure::AccountMismatch,
+                );
+                assert_eq!(
+                    s.cache
+                        .get("exchange_auth_app:web", false)
+                        .await
+                        .unwrap()
+                        .unwrap()["user_uuid_id"],
+                    "user-b"
+                );
+                body["confirm_account_switch"] = json!(true);
+            }
+            let result = browser_handoff::redeem(&s, &h, &body).await.unwrap();
+            assert_eq!(result.session.is_some(), mismatch);
+            if mismatch {
+                assert_eq!(result.session.unwrap()["user_uuid_id"], "user-a");
+            }
+        }
+    }
+    #[tokio::test]
+    async fn source_session_csrf_native_type_and_request_bindings_are_required() {
+        let s = setup().await;
+        let body =
+            json!({"action":"create_browser_handoff","target_app":"certifications","study_id":"s"});
+        failed(
+            browser_handoff::create(&s, &headers(None, None), &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Authentication,
+        );
+        failed(
+            browser_handoff::create(&s, &headers(Some("native-a"), None), &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Authentication,
+        );
+        web(&s, "user-a").await;
+        failed(
+            browser_handoff::create(&s, &headers(Some("web"), Some("web-csrf")), &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Authentication,
+        );
+        for (field, value) in [
+            ("target_app", json!("reports")),
+            ("study_id", json!("../other?owner=attacker")),
+            ("user_id", json!(99)),
+        ] {
+            let mut changed = body.clone();
+            changed[field] = value;
+            failed(
+                browser_handoff::create(&s, &headers(Some("native-a"), Some(CSRF)), &changed)
+                    .await
+                    .err()
+                    .unwrap(),
+                Failure::Invalid,
+            );
+        }
+        let (id, _) = create(&s).await;
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        let good = browser_headers(&preview, &initial);
+        let body = redeem(&id, &preview);
+        let mut bad = good.clone();
+        bad.insert("origin", "https://reports.asodya.com".parse().unwrap());
+        failed(
+            browser_handoff::redeem(&s, &bad, &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Origin,
+        );
+        let mut bad = good.clone();
+        bad.remove("x-csrf-token");
+        failed(
+            browser_handoff::redeem(&s, &bad, &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        let mut bad = good.clone();
+        bad.insert(
+            "cookie",
+            format!("csrf={}", preview.csrf_cookie).parse().unwrap(),
+        );
+        failed(
+            browser_handoff::redeem(&s, &bad, &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        let mut bad_body = body.clone();
+        bad_body["browser_state"] = json!(domain::auth::token(32));
+        failed(
+            browser_handoff::redeem(&s, &good, &bad_body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        bad_body = body.clone();
+        bad_body["target_app"] = json!("reports");
+        failed(
+            browser_handoff::redeem(&s, &good, &bad_body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Invalid,
+        );
+        // Preview may refresh a binding only in the same cookie store.
+        failed(
+            browser_handoff::preview(&s, &initial, &id)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        let renewed = browser_handoff::preview(&s, &good, &id).await.unwrap();
+        failed(
+            browser_handoff::redeem(&s, &good, &body)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        let h = browser_headers(&renewed, &initial);
+        assert!(
+            browser_handoff::redeem(&s, &h, &redeem(&id, &renewed))
+                .await
+                .is_ok()
+        );
+    }
+    #[tokio::test]
+    async fn revoked_source_expiry_purpose_and_target_changes_are_refused() {
+        let s = setup().await;
+        for (field, value, expected) in [
+            ("expires_at", json!(0), Failure::Expired),
+            ("purpose", json!("native_login"), Failure::Invalid),
+            ("target_app", json!("reports"), Failure::Invalid),
+            (
+                "target_url",
+                json!("https://evil.example/"),
+                Failure::Invalid,
+            ),
+            ("user_uuid_id", json!("wrong-user"), Failure::Authentication),
+        ] {
+            let (id, _) = create(&s).await;
+            mutate(&s, &id, field, value).await;
+            failed(
+                browser_handoff::preview(&s, &headers(None, None), &id)
+                    .await
+                    .err()
+                    .unwrap(),
+                expected,
+            );
+        }
+        let (id, _) = create(&s).await;
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        s.cache.delete("exchange_auth_app:native-a").await.unwrap();
+        failed(
+            browser_handoff::redeem(
+                &s,
+                &browser_headers(&preview, &initial),
+                &redeem(&id, &preview),
+            )
+            .await
+            .err()
+            .unwrap(),
+            Failure::Authentication,
+        );
+    }
+    #[tokio::test]
+    async fn native_and_bound_browser_cancellation_are_terminal_and_user_scoped() {
+        let s = setup().await;
+        for from_browser in [false, true] {
+            let (id, _) = create(&s).await;
+            let initial = headers(None, None);
+            let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+            let h = browser_headers(&preview, &initial);
+            let mut cancel = json!({"action":"cancel_browser_handoff","handoff_id":id});
+            if from_browser {
+                cancel["browser_state"] = preview.data["browser_state"].clone();
+            }
+            let native_headers = headers(Some("native-a"), Some(CSRF));
+            browser_handoff::cancel(&s, if from_browser { &h } else { &native_headers }, &cancel)
+                .await
+                .unwrap();
+            failed(
+                browser_handoff::redeem(&s, &h, &redeem(&id, &preview))
+                    .await
+                    .err()
+                    .unwrap(),
+                Failure::Cancelled,
+            );
+        }
+        let (id, _) = create(&s).await;
+        web(&s, "wrong-user").await;
+        failed(
+            browser_handoff::cancel(
+                &s,
+                &headers(Some("web"), Some("web-csrf")),
+                &json!({"action":"cancel_browser_handoff","handoff_id":id}),
+            )
+            .await
+            .err()
+            .unwrap(),
+            Failure::Authentication,
+        );
+    }
+    #[tokio::test]
+    async fn changed_browser_identity_needs_a_fresh_preview_and_concurrent_redeem_has_one_winner() {
+        let s = setup().await;
+        let (id, _) = create(&s).await;
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        let mut h = browser_headers(&preview, &initial);
+        web(&s, "user-b").await;
+        h.insert(
+            "cookie",
+            format!(
+                "sid=web; browser_handoff={}; csrf={}",
+                preview.browser_cookie, preview.csrf_cookie
+            )
+            .parse()
+            .unwrap(),
+        );
+        failed(
+            browser_handoff::redeem(&s, &h, &redeem(&id, &preview))
+                .await
+                .err()
+                .unwrap(),
+            Failure::Binding,
+        );
+        let h = browser_headers(&preview, &initial);
+        let body = redeem(&id, &preview);
+        let (a, b) = tokio::join!(
+            browser_handoff::redeem(&s, &h, &body),
+            browser_handoff::redeem(&s, &h, &body)
+        );
+        assert_ne!(a.is_ok(), b.is_ok());
+    }
+    #[tokio::test]
+    async fn disabled_flag_and_native_artifact_namespace_do_not_fall_through() {
+        let mut s = setup().await;
+        let (id, _) = create(&s).await;
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        let mut values = (*s.settings.values).clone();
+        values.insert("NATIVE_HANDOFF_ENABLED".into(), "false".into());
+        s.settings.values = Arc::new(values);
+        failed(
+            browser_handoff::preview(&s, &initial, &id)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Disabled,
+        );
+        failed(
+            browser_handoff::redeem(
+                &s,
+                &browser_headers(&preview, &initial),
+                &redeem(&id, &preview),
+            )
+            .await
+            .err()
+            .unwrap(),
+            Failure::Disabled,
+        );
+        failed(
+            browser_handoff::cancel(
+                &s,
+                &headers(Some("native-a"), Some(CSRF)),
+                &json!({"action":"cancel_browser_handoff","handoff_id":id}),
+            )
+            .await
+            .err()
+            .unwrap(),
+            Failure::Disabled,
+        );
+        let s = setup().await;
+        let native_id = domain::auth::token(32);
+        s.cache
+            .set(
+                &format!("handoff:{native_id}"),
+                json!({"status":"done","purpose":"native_login"}),
+                1800,
+                false,
+            )
+            .await
+            .unwrap();
+        failed(
+            browser_handoff::preview(&s, &initial, &native_id)
+                .await
+                .err()
+                .unwrap(),
+            Failure::Expired,
+        );
+        // The delivered native Finish still reads only its own namespace.
+        let (browser_id, _) = create(&s).await;
+        let result = domain::auth::finish_handoff(
+            &s,
+            &json!({"app":"annotations","handoff_id":browser_id,"secret":domain::auth::token(32)}),
+            &HeaderMap::new(),
+            "127.0.0.1",
+        )
+        .await
+        .err()
+        .unwrap();
+        assert_eq!(
+            result.downcast_ref::<domain::auth::HandoffFailure>(),
+            Some(&domain::auth::HandoffFailure::NotFinished)
+        );
+    }
+
+    #[tokio::test]
+    async fn browser_continuation_valkey_atomic_redeem_and_original_ttl() {
+        let Ok(url) = std::env::var("TEST_VALKEY_URL") else {
+            return;
+        };
+        let parsed = url::Url::parse(&url).unwrap();
+        assert_eq!(parsed.host_str(), Some("127.0.0.1"));
+        assert!(
+            parsed
+                .port()
+                .is_some_and(|port| port >= 1024 && port != 6379)
+        );
+        let mut s = setup().await;
+        let source = s
+            .cache
+            .get("exchange_auth_app:native-a", false)
+            .await
+            .unwrap()
+            .unwrap();
+        let namespace = format!("test65:{}:", domain::auth::token(12));
+        s.cache = dal::cache::Cache::new(&url, &namespace).await.unwrap();
+        s.cache
+            .set("exchange_auth_app:native-a", source, 90000, true)
+            .await
+            .unwrap();
+        let mut raw = redis::Client::open(url)
+            .unwrap()
+            .get_connection_manager()
+            .await
+            .unwrap();
+        let (id, _) = create(&s).await;
+        let handoff_key = format!("{namespace}handoff:browser:{id}");
+        let before: i64 = redis::cmd("TTL")
+            .arg(&handoff_key)
+            .query_async(&mut raw)
+            .await
+            .unwrap();
+        assert!((1790..=1800).contains(&before));
+        let initial = headers(None, None);
+        let preview = browser_handoff::preview(&s, &initial, &id).await.unwrap();
+        let h = browser_headers(&preview, &initial);
+        let body = redeem(&id, &preview);
+        let mut tasks = tokio::task::JoinSet::new();
+        for _ in 0..16 {
+            let (s, h, body) = (s.clone(), h.clone(), body.clone());
+            tasks.spawn(async move { browser_handoff::redeem(&s, &h, &body).await });
+        }
+        let mut winners = 0;
+        while let Some(result) = tasks.join_next().await {
+            match result.unwrap() {
+                Ok(_) => winners += 1,
+                Err(error) => failed(error, Failure::Used),
+            }
+        }
+        assert_eq!(winners, 1);
+        let after: i64 = redis::cmd("TTL")
+            .arg(&handoff_key)
+            .query_async(&mut raw)
+            .await
+            .unwrap();
+        assert!(after <= before && after >= before - 5);
+        let keys: Vec<String> = redis::cmd("KEYS")
+            .arg(format!("{namespace}exchange_auth_app:*"))
+            .query_async(&mut raw)
+            .await
+            .unwrap();
+        assert_eq!(keys.len(), 2, "one native and one new browser session");
+        let record = s
+            .cache
+            .get(&format!("handoff:browser:{id}"), false)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(record["status"], "used");
+        // Remove only this test's unique namespace; never flush the instance.
+        let keys: Vec<String> = redis::cmd("KEYS")
+            .arg(format!("{namespace}*"))
+            .query_async(&mut raw)
+            .await
+            .unwrap();
+        let _: u64 = redis::cmd("DEL")
+            .arg(keys)
+            .query_async(&mut raw)
+            .await
+            .unwrap();
+    }
+
+    async fn request(
+        s: domain::State,
+        method: &str,
+        path: &str,
+        body: Value,
+        h: &HeaderMap,
+    ) -> (StatusCode, HeaderMap, Value) {
+        let mut req = Request::builder()
+            .method(method)
+            .uri(path)
+            .header("host", "api.asodya.com")
+            .header("x-forwarded-proto", "https");
+        for (k, v) in h {
+            req = req.header(k, v);
+        }
+        let mut req = req
+            .body(Body::from(serde_json::to_vec(&body).unwrap()))
+            .unwrap();
+        req.extensions_mut().insert(ConnectInfo(
+            "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+        ));
+        let r = presentation::router(s).oneshot(req).await.unwrap();
+        let status = r.status();
+        let headers = r.headers().clone();
+        let body: Value =
+            serde_json::from_slice(&to_bytes(r.into_body(), 65536).await.unwrap()).unwrap();
+        (status, headers, body)
+    }
+    #[tokio::test]
+    async fn http_preview_sets_binding_cookies_and_redeem_sets_only_web_credentials_in_cookies() {
+        let s = setup().await;
+        let (status,_,created)=request(s.clone(),"POST","/apps/api/v1/exchange",json!({"action":"create_browser_handoff","target_app":"certifications","study_id":"study"}),&headers(Some("native-a"),Some(CSRF))).await;
+        assert_eq!(status, 200);
+        let launch = url::Url::parse(created["data"]["launch_url"].as_str().unwrap()).unwrap();
+        let query = launch.query().unwrap();
+        let path = format!("/apps/api/v1/exchange?{query}");
+        let (status, response_headers, preview) =
+            request(s.clone(), "GET", &path, Value::Null, &headers(None, None)).await;
+        assert_eq!(status, 200, "{preview}");
+        assert_eq!(response_headers["cache-control"], "no-store");
+        assert_eq!(response_headers["referrer-policy"], "no-referrer");
+        let cookies: Vec<&str> = response_headers
+            .get_all("set-cookie")
+            .iter()
+            .map(|v| v.to_str().unwrap())
+            .collect();
+        assert!(cookies.iter().any(|c| c.starts_with("browser_handoff=")
+            && c.contains("HttpOnly")
+            && c.contains("Secure")));
+        assert!(
+            cookies
+                .iter()
+                .any(|c| c.starts_with("csrf=") && !c.contains("HttpOnly"))
+        );
+        let mut h = headers(None, None);
+        let cookie = cookies
+            .iter()
+            .map(|c| c.split(';').next().unwrap())
+            .collect::<Vec<_>>()
+            .join("; ");
+        h.insert("cookie", cookie.parse().unwrap());
+        let csrf = domain::auth::cookie(&h, "csrf").unwrap();
+        h.insert("x-csrf-token", csrf.parse().unwrap());
+        let id = launch.query_pairs().next().unwrap().1.into_owned();
+        let (status,response_headers,result)=request(s,"POST","/apps/api/v1/exchange",json!({"action":"redeem_browser_handoff","handoff_id":id,"browser_state":preview["data"]["browser_state"]}),&h).await;
+        assert_eq!(status, 200, "{result}");
+        assert_eq!(
+            result["data"]["target_url"],
+            "https://certifications.asodya.com/studies/study"
+        );
+        assert_eq!(result["data"].as_object().unwrap().len(), 1);
+        let cookies: Vec<&str> = response_headers
+            .get_all("set-cookie")
+            .iter()
+            .map(|v| v.to_str().unwrap())
+            .collect();
+        assert!(
+            cookies
+                .iter()
+                .any(|c| c.starts_with("sid=") && c.contains("HttpOnly"))
+        );
+        assert_eq!(response_headers["cache-control"], "no-store");
+    }
+}

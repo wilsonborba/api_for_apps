@@ -315,7 +315,7 @@
     "x-discovery-gaps": []
   },
   "POST /apps/api/v1/exchange": {
-    "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data. Installed-app branch: when handoff_id is present the body is {\"app\", \"handoff_id\", \"secret\"} and no Origin header is needed. The gateway checks that the handoff exists, its status is done and the login is less than 5 minutes old, SHA256(secret) equals the challenge (constant-time), app matches, and the app network equals the browser network at login (IPv4 /24, IPv6 /64). It then marks the handoff used, keeps the record for 30 minutes and returns {\"session_id\", \"csrf_token\", \"expires_in\"} without cookies. The app stores both values in OS secure storage and sends Cookie: sid=<session_id>; csrf=<csrf_token>, plus X-CSRF-Token on changes; POST /user/sync/v1/log-out ends only that device session. Native sessions renew a 30 day idle limit on each use and end 90 days after creation. Answers (data.code): HANDOFF_NOT_FINISHED 409 (no record yet: finish the login in the browser), HANDOFF_EXPIRED 410 (login older than 5 minutes; the status stays expired), LOGIN_REFUSED_NETWORK 403 (correct secret and app, but the app network differs from the browser network at login; message \"Login refused. The login came from a different location.\"; only the first such finish gets this answer, the handoff is then used and kept), HANDOFF_USED 409 (already used outside the retry window, wrong secret, wrong app, or any finish after a network refusal; the handoff cannot be used again), INVALID_HANDOFF 400, NATIVE_HANDOFF_DISABLED 403, RATE_LIMITED 429 (IP limits as for log-in). Retry: for 2 minutes after a successful finish the same handoff_id, secret and network return the same session, only while that session still exists. NATIVE_HANDOFF_ENABLED=false turns the installed-app path off, including existing native sessions.",
+    "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data. Installed-app branch: when handoff_id is present the body is {\"app\", \"handoff_id\", \"secret\"} and no Origin header is needed. The gateway checks that the handoff exists, its status is done and the login is less than 5 minutes old, SHA256(secret) equals the challenge (constant-time), app matches, and the app network equals the browser network at login (IPv4 /24, IPv6 /64). It then marks the handoff used, keeps the record for 30 minutes and returns {\"session_id\", \"csrf_token\", \"expires_in\"} without cookies. The app stores both values in OS secure storage and sends Cookie: sid=<session_id>; csrf=<csrf_token>, plus X-CSRF-Token on changes; POST /user/sync/v1/log-out ends only that device session. Native sessions renew a 30 day idle limit on each use and end 90 days after creation. Answers (data.code): HANDOFF_NOT_FINISHED 409 (no record yet: finish the login in the browser), HANDOFF_EXPIRED 410 (login older than 5 minutes; the status stays expired), LOGIN_REFUSED_NETWORK 403 (correct secret and app, but the app network differs from the browser network at login; message \"Login refused. The login came from a different location.\"; only the first such finish gets this answer, the handoff is then used and kept), HANDOFF_USED 409 (already used outside the retry window, wrong secret, wrong app, or any finish after a network refusal; the handoff cannot be used again), INVALID_HANDOFF 400, NATIVE_HANDOFF_DISABLED 403, RATE_LIMITED 429 (IP limits as for log-in). Retry: for 2 minutes after a successful finish the same handoff_id, secret and network return the same session, only while that session still exists. NATIVE_HANDOFF_ENABLED=false turns the installed-app path off, including existing native sessions. Browser continuation uses explicit action modes on this same route. create_browser_handoff requires a valid native sid session with its csrf cookie and X-CSRF-Token; JSON has only action,target_app=certifications,study_id. It binds the trusted source user/session, purpose and opaque study reference. It returns launch_url (<configured auth app>/continue?handoff_id=<opaque id>) and expires_at; this URL has no reusable credentials or source data. Validity is HANDOFF_VALID_SECONDS (300), record retention HANDOFF_RECORD_TTL_SECONDS (1800); its namespace is separate from native login. The target is constructed from the registered Certifications origin as /studies/<study_id>. Certifications independently checks study ownership; a continuation never grants resource access. The auth_apps continuation page first uses GET on this route with only handoff_id. Preview creates a host-only HttpOnly browser_handoff cookie, reuses or sets the shared csrf cookie, and returns browser_state and account/target metadata. Preview does not consume the continuation. Retain cookies with credentials on every call. Browser Origin must be the configured auth-app origin or a registered origin of the bound target app. Redeem/cancel also match the exact preview Origin, browser cookie, browser_state, csrf cookie and X-CSRF-Token, and the browser session seen at preview. A fresh preview in the same cookie store rotates browser_state; another cookie store cannot rebind it. redeem_browser_handoff takes handoff_id,browser_state and optional confirm_account_switch. A different current browser account returns BROWSER_HANDOFF_ACCOUNT_MISMATCH409 without consuming or switching. Only an explicit confirm_account_switch:true permits that switch. A same-account web session is reused; otherwise the gateway atomically consumes the continuation and creates the normal25-hour web session with Set-Cookie, returning only target_url in data. No session credentials are returned in JSON or URLs. A revoked/expired source native session refuses redemption; the native session is not copied or restored. Redemption is strictly one-use, with no saved-result retry. cancel_browser_handoff takes handoff_id and either the source native session plus CSRF, or browser_state plus the same browser binding. Cancelled continuations cannot be redeemed. All continuation responses use Cache-Control:no-store and Referrer-Policy:no-referrer. Codes: INVALID_BROWSER_HANDOFF400; BROWSER_HANDOFF_AUTH_REQUIRED401; BROWSER_HANDOFF_ORIGIN_REFUSED403; BROWSER_HANDOFF_BINDING_REFUSED403; BROWSER_HANDOFF_ACCOUNT_MISMATCH409; BROWSER_HANDOFF_USED409; BROWSER_HANDOFF_CANCELLED409; BROWSER_HANDOFF_EXPIRED410; NATIVE_HANDOFF_DISABLED403; SERVICE_UNAVAILABLE503. No polling or additional auth provider is introduced.",
     "parameters": [
       {
         "name": "Origin",
@@ -326,7 +326,16 @@
           "format": "uri"
         },
         "example": "https://reports.asodya.com",
-        "description": "Required for the web artifact branch: must identify the registered application that receives the session. Not used by the installed-app branch."
+        "description": "Required for the web artifact branch: must identify the registered application that receives the session. Not used by the installed-app branch. Continuation preview/redeem/browser-cancel require the configured auth-app origin or a registered bound-target origin; redeem/cancel must equal preview Origin."
+      },
+      {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Required for continuation create/redeem/cancel. Must match the csrf cookie and the authenticated session or preview binding."
       }
     ],
     "x-codeSamples": [
@@ -343,7 +352,7 @@
     ],
     "responses": {
       "200": {
-        "description": "Web branch: session established, inspect Set-Cookie headers. Installed-app branch: data holds session_id, csrf_token and expires_in (seconds), no cookies.",
+        "description": "Web branch: session established, inspect Set-Cookie headers. Installed-app branch: data holds session_id, csrf_token and expires_in (seconds), no cookies. Browser continuation create returns launch_url and expires_at; redeem returns target_url with optional normal web Set-Cookie; cancel returns null data.",
         "content": {
           "application/json": {
             "schema": {
@@ -357,22 +366,80 @@
         }
       },
       "400": {
-        "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin. Installed-app branch: INVALID_HANDOFF."
+        "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin. Installed-app branch: INVALID_HANDOFF. Continuation: INVALID_BROWSER_HANDOFF."
       },
       "503": {
         "description": "Exchange processing failed."
       },
       "403": {
-        "description": "Installed-app branch: NATIVE_HANDOFF_DISABLED, or LOGIN_REFUSED_NETWORK on the first finish from a different network (see data.code)."
+        "description": "Installed-app branch: NATIVE_HANDOFF_DISABLED, or LOGIN_REFUSED_NETWORK on the first finish from a different network (see data.code). Continuation: BROWSER_HANDOFF_ORIGIN_REFUSED,BROWSER_HANDOFF_BINDING_REFUSED or NATIVE_HANDOFF_DISABLED."
       },
       "409": {
-        "description": "Installed-app branch: HANDOFF_NOT_FINISHED or HANDOFF_USED (see data.code)."
+        "description": "Installed-app branch: HANDOFF_NOT_FINISHED or HANDOFF_USED (see data.code). Continuation: BROWSER_HANDOFF_ACCOUNT_MISMATCH,BROWSER_HANDOFF_USED or BROWSER_HANDOFF_CANCELLED."
       },
       "410": {
-        "description": "Installed-app branch: HANDOFF_EXPIRED."
+        "description": "Installed-app branch: HANDOFF_EXPIRED. Continuation: BROWSER_HANDOFF_EXPIRED."
       },
       "429": {
         "description": "Installed-app branch: RATE_LIMITED."
+      },
+      "401": {
+        "description": " Continuation: BROWSER_HANDOFF_AUTH_REQUIRED."
+      }
+    },
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExchangeRequest"
+              },
+              {
+                "$ref": "#/components/schemas/NativeFinishRequest"
+              },
+              {
+                "$ref": "#/components/schemas/BrowserHandoffCreate"
+              },
+              {
+                "$ref": "#/components/schemas/BrowserHandoffRedeem"
+              },
+              {
+                "$ref": "#/components/schemas/BrowserHandoffCancel"
+              }
+            ]
+          },
+          "examples": {
+            "web": {
+              "value": {
+                "auth_exchange_token": "<one-use-artifact>",
+                "app": "reports"
+              }
+            },
+            "create_browser_handoff": {
+              "value": {
+                "action": "create_browser_handoff",
+                "target_app": "certifications",
+                "study_id": "<opaque-study-id>"
+              }
+            },
+            "redeem_browser_handoff": {
+              "value": {
+                "action": "redeem_browser_handoff",
+                "handoff_id": "<opaque-id>",
+                "browser_state": "<state-from-preview>"
+              }
+            },
+            "cancel_browser_handoff": {
+              "value": {
+                "action": "cancel_browser_handoff",
+                "handoff_id": "<opaque-id>",
+                "browser_state": "<state-from-preview>"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -396,5 +463,8 @@
   },
   "GET /apps/api/v1/client-error": {
     "description": "List recent frontend error reports. Administrator authorization is required. Use limit from 1 to 200 and non-negative skip for pagination. The response contains total for this result page and an errors array. Error records can contain operational details and user context, so this operation is not available to ordinary sessions."
+  },
+  "GET /apps/api/v1/exchange": {
+    "description": "Non-consuming browser continuation preview. Supply only the opaque handoff_id query parameter and an allowed Origin (configured auth-app origin or a registered bound-target origin), and include credentials. Returns data.account (email),current_account (email or null),account_mismatch,target_app,study_id,browser_state,expires_at. It returns no session credentials or source content. It sets a host-only HttpOnly browser_handoff cookie and, when absent, the shared readable csrf cookie. Keep browser_state in browser memory; never place it in a URL. For redeem/cancel send that state in JSON and csrf in X-CSRF-Token, retaining cookies and the same Origin. A second preview in the same cookie store rotates the state without extending the continuation expiry. Another cookie store cannot claim an existing binding. An existing different browser account requires explicit user confirmation before redemption. Expired,used,cancelled or revoked-source continuations refuse. Responses prohibit caching and referrer propagation. No polling is required."
   }
 }

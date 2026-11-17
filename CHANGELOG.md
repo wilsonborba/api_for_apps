@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(logs)* Merge protected streams and recording (#58) ([`5d925ec`](https://github.com/wilsonborba/api_for_apps/commit/5d925ec70ee1fe2a99d078c9858f169bcfe8ae4d))
 - *(telemetry)* Store frontend errors and usage in relational appdb tables ([`d419aa9`](https://github.com/wilsonborba/api_for_apps/commit/d419aa900678846f835e8c566dffee787892c227))
 - *(auth)* Add the installed-app login handoff (#64) ([`b0d04e5`](https://github.com/wilsonborba/api_for_apps/commit/b0d04e5a81a234670013aae51d36342854118378))
+- *(auth)* Add purpose-bound browser continuation (#65)
 
 ### 🐛 Bug Fixes
 

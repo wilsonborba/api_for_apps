@@ -344,6 +344,65 @@
           }
         },
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/exchange_auth_app_route.py:34"
+      },
+      "get": {
+        "operationId": "gateway_get__apps_api_v1_exchange",
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Preview a browser continuation",
+        "description": "Non-consuming preview of an installed-app continuation. Only the opaque handoff id is supplied in the query. Requires a permitted browser Origin. Returns account/target metadata and browser_state, and binds a browser cookie and CSRF cookie. No source contents or session credentials are returned.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "handoff_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 43
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Preview and binding created; include credentials and retain browser_state for redeem/cancel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyResponseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid continuation."
+          },
+          "401": {
+            "description": "Source installed-app session is no longer valid."
+          },
+          "403": {
+            "description": "Origin or browser binding refused, or native handoff disabled."
+          },
+          "409": {
+            "description": "Already used or cancelled."
+          },
+          "410": {
+            "description": "Expired continuation."
+          }
+        },
+        "security": [],
+        "x-source": "api_for_apps/src/presentation/auth_routes.rs",
+        "x-access-level": "public"
       }
     },
     "/apps/api/v1/hello_apps": {
@@ -10907,6 +10966,113 @@
         "events"
       ],
       "additionalProperties": false
+    },
+    "BrowserHandoffCreate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "target_app",
+        "study_id"
+      ],
+      "properties": {
+        "action": {
+          "const": "create_browser_handoff"
+        },
+        "target_app": {
+          "const": "certifications"
+        },
+        "study_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "description": "Opaque prepared-study reference. This does not authorize access; Certifications checks ownership when opening."
+        }
+      }
+    },
+    "BrowserHandoffRedeem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "handoff_id",
+        "browser_state"
+      ],
+      "properties": {
+        "action": {
+          "const": "redeem_browser_handoff"
+        },
+        "handoff_id": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "browser_state": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "confirm_account_switch": {
+          "type": "boolean",
+          "default": false,
+          "description": "Required true only after the user confirms switching from a different browser account."
+        }
+      }
+    },
+    "BrowserHandoffCancel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "handoff_id"
+      ],
+      "properties": {
+        "action": {
+          "const": "cancel_browser_handoff"
+        },
+        "handoff_id": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "browser_state": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "description": "Required for browser cancellation. Omit for cancellation by the source native session with its CSRF header."
+        }
+      }
+    },
+    "NativeFinishRequest": {
+      "type": "object",
+      "required": [
+        "app",
+        "handoff_id",
+        "secret"
+      ],
+      "properties": {
+        "app": {
+          "type": "string"
+        },
+        "handoff_id": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "secret": {
+          "type": "string",
+          "minLength": 43,
+          "maxLength": 43,
+          "pattern": "^[A-Za-z0-9_-]{43}$",
+          "description": "Device-only raw32-byte secret encoded as unpadded base64url."
+        }
+      }
     }
   }
 }

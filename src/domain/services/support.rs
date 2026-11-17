@@ -17,10 +17,16 @@ pub async fn require(s: &State, id: &str, user: &str, admin: bool) -> Result<Val
     }
     Ok(t)
 }
-pub async fn create(s: &State, u: &Value, b: &Value) -> Result<Value> {
+/// Opens a ticket for a registered application; `None` when `source_app` is
+/// not in the central app catalog (the database foreign key enforces the same).
+pub async fn create(s: &State, u: &Value, b: &Value) -> Result<Option<Value>> {
+    let source_app = b["source_app"].as_str().unwrap_or("").trim().to_lowercase();
+    if !crate::dal::local::plans::app_exists(&s.db, &source_app).await? {
+        return Ok(None);
+    }
     let id = uuid::Uuid::new_v4().to_string();
     let now = timestamp();
-    let mut t=s.db.insert("defaultdb_support_ticket",&json!({"id":id,"user_id":u["user_uuid_id"],"source_app":b["source_app"].as_str().unwrap_or("").trim().to_lowercase(),"status":"open","created_at":now,"updated_at":now})).await?;
+    let mut t=s.db.insert("defaultdb_support_ticket",&json!({"id":id,"user_id":u["user_uuid_id"],"source_app":source_app,"status":"open","created_at":now,"updated_at":now})).await?;
     let m = message(b, false);
     let doc = json!({"ticket_id":id,"subject":b["subject"].as_str().map(str::trim),"messages":[m],"extra":{}});
     if !s.support.put(&id, doc.clone()).await {
@@ -28,7 +34,7 @@ pub async fn create(s: &State, u: &Value, b: &Value) -> Result<Value> {
     };
     t["subject"] = doc["subject"].clone();
     t["messages"] = doc["messages"].clone();
-    Ok(t)
+    Ok(Some(t))
 }
 pub async fn get(s: &State, id: &str, u: &Value) -> Result<Value> {
     let mut t = require(

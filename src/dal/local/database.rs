@@ -2,6 +2,32 @@ use crate::core::settings::Settings;
 use anyhow::{Result, bail};
 use serde_json::{Value, json};
 use sqlx::{Column, Row};
+// Typed query helpers shared by the normalized central tables.
+macro_rules! all {
+    ($db:expr,$kind:ty,$sql:expr $(,$value:expr)* $(,)?) => {{
+        match $db {
+            Database::Pg(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_all(pool).await?,
+            Database::Sqlite(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_all(pool).await?,
+        }
+    }};
+}
+macro_rules! one {
+    ($db:expr,$kind:ty,$sql:expr $(,$value:expr)* $(,)?) => {{
+        match $db {
+            Database::Pg(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_optional(pool).await?,
+            Database::Sqlite(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_optional(pool).await?,
+        }
+    }};
+}
+macro_rules! execute {
+    ($db:expr,$sql:expr $(,$value:expr)* $(,)?) => {{
+        match $db {
+            Database::Pg(pool) => sqlx::query($sql)$(.bind($value))*.execute(pool).await?.rows_affected(),
+            Database::Sqlite(pool) => sqlx::query($sql)$(.bind($value))*.execute(pool).await?.rows_affected(),
+        }
+    }};
+}
+pub(crate) use {all, execute, one};
 #[derive(Clone)]
 pub enum Database {
     Pg(sqlx::PgPool),
@@ -52,31 +78,46 @@ impl Database {
                 let rows = sqlx::query(&format!("SELECT * FROM {table}"))
                     .fetch_all(p)
                     .await?;
+                Ok(rows.iter().map(|r| sqlite_row(table, r)).collect())
+            }
+        }
+    }
+    /// One bounded, filtered page of support tickets, newest activity first.
+    /// `user` restricts the page to that owner; `None` is the administrator view.
+    pub async fn support_tickets(
+        &self,
+        user: Option<&str>,
+        source_app: Option<&str>,
+        status: Option<&str>,
+        limit: i64,
+        offset: i64,
+    ) -> Result<Vec<Value>> {
+        const FILTER: &str = "WHERE (CAST($1 AS TEXT) IS NULL OR t.user_id=$1) AND (CAST($2 AS TEXT) IS NULL OR t.source_app=$2) AND (CAST($3 AS TEXT) IS NULL OR t.status=$3) ORDER BY t.updated_at DESC,t.id LIMIT $4 OFFSET $5";
+        match self {
+            Self::Pg(p) => Ok(sqlx::query_scalar::<_, Value>(&format!(
+                "SELECT to_jsonb(t) FROM defaultdb_support_ticket t {FILTER}"
+            ))
+            .bind(user)
+            .bind(source_app)
+            .bind(status)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(p)
+            .await?),
+            Self::Sqlite(p) => {
+                let rows = sqlx::query(&format!(
+                    "SELECT * FROM defaultdb_support_ticket t {FILTER}"
+                ))
+                .bind(user)
+                .bind(source_app)
+                .bind(status)
+                .bind(limit)
+                .bind(offset)
+                .fetch_all(p)
+                .await?;
                 Ok(rows
-                    .into_iter()
-                    .map(|r| {
-                        let mut o = serde_json::Map::new();
-                        for c in r.columns() {
-                            let k = c.name();
-                            let v = if k == "is_active" {
-                                r.try_get::<i64, _>(k)
-                                    .map(|x| json!(x != 0))
-                                    .unwrap_or(Value::Null)
-                            } else if matches!(k, "id" | "access_level")
-                                && table == "defaultdb_user"
-                            {
-                                r.try_get::<i64, _>(k)
-                                    .map(Value::from)
-                                    .unwrap_or(Value::Null)
-                            } else {
-                                r.try_get::<String, _>(k)
-                                    .map(Value::from)
-                                    .unwrap_or(Value::Null)
-                            };
-                            o.insert(k.into(), v);
-                        }
-                        Value::Object(o)
-                    })
+                    .iter()
+                    .map(|r| sqlite_row("defaultdb_support_ticket", r))
                     .collect())
             }
         }
@@ -289,4 +330,25 @@ impl Database {
             Ok(json!({}))
         }
     }
+}
+fn sqlite_row(table: &str, r: &sqlx::sqlite::SqliteRow) -> Value {
+    let mut o = serde_json::Map::new();
+    for c in r.columns() {
+        let k = c.name();
+        let v = if k == "is_active" {
+            r.try_get::<i64, _>(k)
+                .map(|x| json!(x != 0))
+                .unwrap_or(Value::Null)
+        } else if matches!(k, "id" | "access_level") && table == "defaultdb_user" {
+            r.try_get::<i64, _>(k)
+                .map(Value::from)
+                .unwrap_or(Value::Null)
+        } else {
+            r.try_get::<String, _>(k)
+                .map(Value::from)
+                .unwrap_or(Value::Null)
+        };
+        o.insert(k.into(), v);
+    }
+    Value::Object(o)
 }

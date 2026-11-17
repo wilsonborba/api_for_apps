@@ -105,10 +105,9 @@ Annotations Rust `lib/presentation` routes and namespaced request contracts.
 
 ## App catalog schema foundation
 
-Issue #57 currently provides only `appdb.public.defaultdb_app`: `id`, `name` and
-`is_active`. This table is the relational target for later app-scoped features.
-The waitlist, support-ticket changes and data transfers from #57 remain deferred
-until the owner requests them. The migration contains schema only and adds no rows.
+`appdb.public.defaultdb_app` (`id`, `name`, `is_active`) is the relational target
+for app-scoped features such as plans, waitlists and support tickets. The
+migration contains schema only and adds no rows.
 
 Use an operations Python environment with `python-dotenv` and PostgreSQL `psql`:
 
@@ -143,6 +142,35 @@ plans, features and their memberships through `/apps/api/v1/admin/...`.
 and active linked features for an active application. The API reads SQL directly
 and disables response caching, so changes are visible on the next read.
 The central API documentation lists the request and response contracts.
+
+## Central waitlist and support tickets
+
+`app_waitlist_entries` stores one row per application, target and email. The
+target is a plan or a feature of the same application (composite foreign keys)
+or a stated communication-interest code. Status is `pending`, `contacted`,
+`converted` or `declined`. There are no JSON columns, seed rows or legacy data
+copies; each application moves its own waitlist data at its own cutover.
+Support tickets get a foreign key from `source_app` to `defaultdb_app` and a
+status check (`open`, `pending`, `resolved`, `closed`).
+
+```sh
+python scripts/migrate_waitlist_support.py --env-file /path/to/canonical/.env --dry-run
+python scripts/migrate_waitlist_support.py --env-file /path/to/canonical/.env --yes
+```
+
+The dry run only reads and lists existing tickets that would violate the new
+constraints (for example a `source_app` that is not registered). The apply refuses
+while such rows exist; it never deletes or rewrites rows. Register the
+applications, or resolve the listed rows explicitly, before applying.
+
+`POST /apps/api/v1/waitlist` is public and rate limited. Repeated sign-ups are
+no-ops, and the response is the same whether or not the email was already listed.
+Administrators list entries with filters and bounded pagination and update their
+status under `/apps/api/v1/admin/waitlist`. `GET /apps/support/v1/tickets` filters
+and paginates in the database (`limit` up to 100, `offset` up to 10000). The
+existing app-specific waitlist routes keep working until each app switches.
+Run the isolated tests with
+`python -m unittest discover -s tools -p test_waitlist_support_migration.py`.
 
 ## Live logs and recording
 

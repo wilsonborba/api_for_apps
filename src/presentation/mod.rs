@@ -6,6 +6,7 @@ pub mod plans;
 pub mod support_routes;
 pub mod telemetry;
 pub mod validation;
+pub mod waitlist;
 use crate::domain::{State, auth, proxy};
 use axum::{
     Router,
@@ -191,6 +192,9 @@ async fn handle(
     }
     if plans::route(path) {
         return plans::handle(s, m, path, q, h, b).await;
+    }
+    if waitlist::route(path) {
+        return waitlist::handle(s, m, path, q, h, b, ip).await;
     }
     if validation::method_allowed(m.as_str(), path) == Some(false) {
         return detail(405, "Method Not Allowed");

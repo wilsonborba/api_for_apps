@@ -1,32 +1,8 @@
 //! Typed SQL operations over normalized central plan rows. No cached plan data.
-use super::database::Database;
+use super::database::{Database, all, execute, one};
 use crate::domain::models::plans::{Feature, Plan};
 use anyhow::Result;
 
-macro_rules! all {
-    ($db:expr,$kind:ty,$sql:expr $(,$value:expr)* $(,)?) => {{
-        match $db {
-            Database::Pg(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_all(pool).await?,
-            Database::Sqlite(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_all(pool).await?,
-        }
-    }};
-}
-macro_rules! one {
-    ($db:expr,$kind:ty,$sql:expr $(,$value:expr)* $(,)?) => {{
-        match $db {
-            Database::Pg(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_optional(pool).await?,
-            Database::Sqlite(pool) => sqlx::query_as::<_, $kind>($sql)$(.bind($value))*.fetch_optional(pool).await?,
-        }
-    }};
-}
-macro_rules! execute {
-    ($db:expr,$sql:expr $(,$value:expr)* $(,)?) => {{
-        match $db {
-            Database::Pg(pool) => sqlx::query($sql)$(.bind($value))*.execute(pool).await?.rows_affected(),
-            Database::Sqlite(pool) => sqlx::query($sql)$(.bind($value))*.execute(pool).await?.rows_affected(),
-        }
-    }};
-}
 const PLAN_COLUMNS: &str = "id,app_id,code,name,description,is_active";
 // Query text is static. All identifiers and values from API calls are bound.
 pub async fn app_exists(db: &Database, app: &str) -> Result<bool> {

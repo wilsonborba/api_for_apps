@@ -53,20 +53,34 @@ pub async fn handle(
                 Value::Null,
             );
         }
-        return match s.db.all("defaultdb_support_ticket").await {
-            Ok(mut ts) => {
-                ts.retain(|t| {
-                    (admin || t["user_id"] == u["user_uuid_id"])
-                        && params.get("source_app").is_none_or(|a| {
-                            a.trim().is_empty() || t["source_app"] == a.trim().to_lowercase()
-                        })
-                        && params
-                            .get("status")
-                            .is_none_or(|a| a.is_empty() || t["status"] == *a)
-                });
-                ts.sort_by(|a, b| text(b, "updated_at").cmp(text(a, "updated_at")));
-                response(200, "Support tickets retrieved successfully.", json!(ts))
-            }
+        let page = |key: &str, default: i64, range: std::ops::RangeInclusive<i64>| {
+            params.get(key).map_or(Some(default), |v| {
+                v.parse::<i64>().ok().filter(|v| range.contains(v))
+            })
+        };
+        let (Some(limit), Some(offset)) =
+            (page("limit", 50, 1..=100), page("offset", 0, 0..=10_000))
+        else {
+            return detail(422, "Support pagination is outside the allowed range");
+        };
+        let source_app = params
+            .get("source_app")
+            .map(|a| a.trim().to_lowercase())
+            .filter(|a| !a.is_empty());
+        let status = params.get("status").filter(|a| !a.is_empty());
+        let owner = (!admin).then(|| text(&u, "user_uuid_id"));
+        return match s
+            .db
+            .support_tickets(
+                owner,
+                source_app.as_deref(),
+                status.map(String::as_str),
+                limit,
+                offset,
+            )
+            .await
+        {
+            Ok(ts) => response(200, "Support tickets retrieved successfully.", json!(ts)),
             Err(_) => response(400, "Failed to retrieve support tickets.", Value::Null),
         };
     }
@@ -91,11 +105,10 @@ pub async fn handle(
             {
                 return Ok((422, "Invalid support ticket", Value::Null));
             }
-            return Ok((
-                201,
-                "Support ticket created successfully.",
-                support::create(s, &u, &body).await?,
-            ));
+            return Ok(match support::create(s, &u, &body).await? {
+                Some(ticket) => (201, "Support ticket created successfully.", ticket),
+                None => (422, "Unknown source application.", Value::Null),
+            });
         }
         let id = *parts
             .get(1)

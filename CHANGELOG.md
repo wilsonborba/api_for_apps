@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(auth)* Add the installed-app login handoff (#64) ([`b0d04e5`](https://github.com/wilsonborba/api_for_apps/commit/b0d04e5a81a234670013aae51d36342854118378))
 - *(auth)* Add purpose-bound browser continuation (#65)
 - *(plans)* Add normalized central Free plan catalog (#66)
+- *(waitlist)* Add central waitlist and FK-backed support tickets (#57)
 
 ### 🐛 Bug Fixes
 

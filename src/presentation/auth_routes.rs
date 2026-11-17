@@ -500,7 +500,7 @@ fn handoff_error(error: anyhow::Error) -> Response {
     match error.downcast_ref::<auth::HandoffFailure>() {
         Some(failure) => response(
             match failure {
-                auth::HandoffFailure::Disabled => 403,
+                auth::HandoffFailure::Disabled | auth::HandoffFailure::RefusedNetwork => 403,
                 auth::HandoffFailure::Invalid => 400,
                 auth::HandoffFailure::Expired => 410,
                 _ => 409,

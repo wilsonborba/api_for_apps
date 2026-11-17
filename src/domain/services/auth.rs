@@ -330,6 +330,7 @@ pub enum HandoffFailure {
     NotFinished,
     Expired,
     Used,
+    RefusedNetwork,
 }
 impl HandoffFailure {
     pub fn code(self) -> &'static str {
@@ -339,6 +340,7 @@ impl HandoffFailure {
             Self::NotFinished => "HANDOFF_NOT_FINISHED",
             Self::Expired => "HANDOFF_EXPIRED",
             Self::Used => "HANDOFF_USED",
+            Self::RefusedNetwork => "LOGIN_REFUSED_NETWORK",
         }
     }
     pub fn message(self) -> &'static str {
@@ -350,6 +352,7 @@ impl HandoffFailure {
             }
             Self::Expired => "This login expired. Start again.",
             Self::Used => "Start again.",
+            Self::RefusedNetwork => "Login refused. The login came from a different location.",
         }
     }
 }
@@ -513,9 +516,11 @@ pub async fn finish_handoff(
             bail!(HandoffFailure::NotFinished)
         };
         let at = now();
-        let valid = same_secret(&challenge, old["challenge"].as_str().unwrap_or(""))
-            && old["app"] == app
-            && old["network"] == net;
+        // The secret and app prove the caller is the app that started the login; only then
+        // does a network mismatch get its own answer (section 4.3) instead of plain used.
+        let owner =
+            same_secret(&challenge, old["challenge"].as_str().unwrap_or("")) && old["app"] == app;
+        let valid = owner && old["network"] == net;
         match old["status"].as_str() {
             Some("used") => {
                 if valid
@@ -568,7 +573,12 @@ pub async fn finish_handoff(
                 .compare_and_swap(&key, &old, next, None, None)
                 .await?
             {
-                bail!(HandoffFailure::Used)
+                // Only this first refused finish tells the app why; the record now answers used.
+                bail!(if owner {
+                    HandoffFailure::RefusedNetwork
+                } else {
+                    HandoffFailure::Used
+                })
             }
             continue;
         }

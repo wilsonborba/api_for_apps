@@ -3457,7 +3457,7 @@ mod central_waitlist {
         ip: &str,
         extra: &[(&str, &str)],
     ) -> (StatusCode, Value) {
-        let mut headers = vec![("x-forwarded-for", ip)];
+        let mut headers = vec![("cf-connecting-ip", ip)];
         headers.extend_from_slice(extra);
         call(s.clone(), "POST", PUBLIC, body, &headers).await
     }
@@ -3673,6 +3673,138 @@ mod central_waitlist {
             .await
             .0,
             429
+        );
+    }
+    /// Sends a public join from a chosen socket peer, so the trusted client IP rule is tested.
+    async fn post_from(
+        s: &domain::State,
+        email: &str,
+        peer: &str,
+        headers: &[(&str, &str)],
+    ) -> (StatusCode, Value) {
+        let mut req = Request::builder().method("POST").uri(PUBLIC);
+        for (k, v) in headers {
+            req = req.header(*k, *v)
+        }
+        let mut req = req
+            .body(Body::from(
+                join("certifications", "interest", "news", email).to_string(),
+            ))
+            .unwrap();
+        req.extensions_mut()
+            .insert(ConnectInfo(std::net::SocketAddr::new(
+                peer.parse().unwrap(),
+                5000,
+            )));
+        let r = presentation::router(s.clone()).oneshot(req).await.unwrap();
+        let status = r.status();
+        let b = to_bytes(r.into_body(), 65536).await.unwrap();
+        (status, serde_json::from_slice(&b).unwrap_or(Value::Null))
+    }
+    #[tokio::test]
+    async fn direct_client_cannot_escape_the_ip_limit_with_x_forwarded_for() {
+        let s = setup().await;
+        for n in 0..5 {
+            let forwarded = format!("192.0.2.{n}");
+            let (status, body) = post_from(
+                &s,
+                &format!("direct{n}@example.test"),
+                "198.51.100.20",
+                &[("x-forwarded-for", forwarded.as_str())],
+            )
+            .await;
+            assert_eq!(status, 202, "{body}");
+        }
+        let (status, body) = post_from(
+            &s,
+            "direct9@example.test",
+            "198.51.100.20",
+            &[("x-forwarded-for", "192.0.2.99")],
+        )
+        .await;
+        assert_eq!(status, 429);
+        assert_eq!(body["data"]["code"], "WAITLIST_RATE_LIMITED");
+        // The same spoofed header from the local tunnel is ignored too.
+        for n in 0..5 {
+            let forwarded = format!("192.0.2.{}", 100 + n);
+            let email = format!("tunnel{n}@example.test");
+            let headers = [("x-forwarded-for", forwarded.as_str())];
+            assert_eq!(post_from(&s, &email, "127.0.0.1", &headers).await.0, 202);
+        }
+        let headers = [("x-forwarded-for", "192.0.2.200")];
+        let blocked = post_from(&s, "tunnel9@example.test", "127.0.0.1", &headers).await;
+        assert_eq!(blocked.0, 429);
+    }
+    #[tokio::test]
+    async fn loopback_proxy_keys_the_limit_by_cf_connecting_ip() {
+        let s = setup().await;
+        for n in 0..5 {
+            let email = format!("proxied{n}@example.test");
+            let headers = [("cf-connecting-ip", "203.0.113.60")];
+            assert_eq!(post_from(&s, &email, "127.0.0.1", &headers).await.0, 202);
+        }
+        let headers = [("cf-connecting-ip", "203.0.113.60")];
+        let blocked = post_from(&s, "proxied9@example.test", "127.0.0.1", &headers).await;
+        assert_eq!(blocked.0, 429);
+        assert_eq!(blocked.1["data"]["code"], "WAITLIST_RATE_LIMITED");
+        // Another client behind the same tunnel has its own key.
+        let headers = [("cf-connecting-ip", "203.0.113.61")];
+        let other = post_from(&s, "other-client@example.test", "127.0.0.1", &headers).await;
+        assert_eq!(other.0, 202, "{}", other.1);
+        let ipv6 = [("cf-connecting-ip", "2001:db8::61")];
+        let other = post_from(&s, "ipv6-client@example.test", "::1", &ipv6).await;
+        assert_eq!(other.0, 202, "{}", other.1);
+    }
+    #[tokio::test]
+    async fn non_loopback_peer_is_keyed_by_its_socket_address() {
+        let s = setup().await;
+        for n in 0..5 {
+            let claimed = format!("203.0.113.{}", 70 + n);
+            let email = format!("remote{n}@example.test");
+            let headers = [("cf-connecting-ip", claimed.as_str())];
+            let (status, body) = post_from(&s, &email, "198.51.100.30", &headers).await;
+            assert_eq!(status, 202, "{body}");
+        }
+        let headers = [("cf-connecting-ip", "203.0.113.99")];
+        let blocked = post_from(&s, "remote9@example.test", "198.51.100.30", &headers).await;
+        assert_eq!(blocked.0, 429);
+        assert_eq!(blocked.1["data"]["code"], "WAITLIST_RATE_LIMITED");
+        // A different socket peer still has its own budget.
+        let other = post_from(&s, "remote-other@example.test", "198.51.100.31", &headers).await;
+        assert_eq!(other.0, 202, "{}", other.1);
+    }
+    #[tokio::test]
+    async fn sign_in_rate_key_uses_the_trusted_client_ip() {
+        use axum::http::HeaderMap;
+        let s = state().await;
+        let mut spoofed = HeaderMap::new();
+        for n in 0..5 {
+            spoofed.insert("x-forwarded-for", format!("192.0.2.{n}").parse().unwrap());
+            domain::auth::rate(&s, &spoofed, "198.51.100.40", "login", None, false)
+                .await
+                .unwrap();
+        }
+        spoofed.insert("x-forwarded-for", "192.0.2.77".parse().unwrap());
+        let error = domain::auth::rate(&s, &spoofed, "198.51.100.40", "login", None, false)
+            .await
+            .unwrap_err();
+        assert!(error.to_string().starts_with("Too many login"));
+        let mut tunnel = HeaderMap::new();
+        tunnel.insert("cf-connecting-ip", "203.0.113.80".parse().unwrap());
+        domain::auth::rate(&s, &tunnel, "127.0.0.1", "login", None, false)
+            .await
+            .unwrap();
+        assert_eq!(
+            domain::auth::request_ip(&tunnel, "127.0.0.1".parse().unwrap()).to_string(),
+            "203.0.113.80"
+        );
+        assert_eq!(
+            domain::auth::request_ip(&tunnel, "198.51.100.40".parse().unwrap()).to_string(),
+            "198.51.100.40"
+        );
+        assert_eq!(
+            domain::auth::request_ip(&spoofed, "127.0.0.1".parse().unwrap()).to_string(),
+            "127.0.0.1"
         );
     }
     #[tokio::test]

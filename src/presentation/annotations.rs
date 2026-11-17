@@ -23,13 +23,7 @@ pub(super) fn public(method: &Method, path: &str) -> bool {
     )
 }
 pub(super) fn client_ip(peer: IpAddr, headers: &HeaderMap) -> IpAddr {
-    if peer.is_loopback() {
-        auth::header(headers, "cf-connecting-ip")
-            .parse()
-            .unwrap_or(peer)
-    } else {
-        peer
-    }
+    auth::request_ip(headers, peer)
 }
 
 #[allow(clippy::too_many_arguments)]

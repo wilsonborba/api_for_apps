@@ -209,9 +209,11 @@ and normal startup never create schemas or populate application data.
 - PostgreSQL has relational tables and foreign keys, with no JSON, JSONB or array
   columns. Unit tests use the equivalent SQLite schema only.
 
-The shared Flutter package is `wilsonborba/asodya_tracking`. Each app commits a
-manifest of its screens and stable dot-path elements. Sensitive input values are
-dropped on the device before queueing. Routes omit query strings and fragments.
+The shared Flutter package is [`screen_trail`](https://pub.dev/packages/screen_trail).
+Each app passes the gateway events and errors URLs to `HttpTrailTransport`.
+Each app commits a manifest of its screens and stable dot-path elements.
+Sensitive input values are dropped on the device before queueing. Routes omit
+query strings and fragments.
 The gateway adds a defensive sensitive-name check and redacts credentials.
 Existing consent remains unchanged. No additional banner is required.
 

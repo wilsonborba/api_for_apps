@@ -4224,6 +4224,14 @@ mod central_waitlist {
                 .is_err()
         );
         assert!(ticket(&app, "archived").execute(&pool).await.is_err());
+        assert!(
+            sqlx::query("INSERT INTO defaultdb_support_ticket(id,user_id,source_app,status) VALUES(CAST($1 AS UUID),'missing-user',$2,'open')")
+                .bind(uuid::Uuid::new_v4().to_string())
+                .bind(&app)
+                .execute(&pool)
+                .await
+                .is_err()
+        );
         let page =
             s.db.support_tickets(Some(&user), Some(&app), Some("open"), 50, 0)
                 .await

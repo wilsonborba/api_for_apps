@@ -6,7 +6,8 @@ if not a.url.startswith('http://127.0.0.1:18'):raise SystemExit('Require isolate
 results=[]
 run_id=uuid.uuid4().hex
 input_email='fixture-'+run_id+'@example.test'
-c=httpx.Client(base_url=a.url,timeout=10,headers={'X-Forwarded-For':'2001:db8:'+':'.join(run_id[i:i+4] for i in range(0,24,4))})
+# The gateway trusts CF-Connecting-IP only from a loopback client (the local tunnel path); one address per run.
+c=httpx.Client(base_url=a.url,timeout=10,headers={'CF-Connecting-IP':'2001:db8:'+':'.join(run_id[i:i+4] for i in range(0,24,4))})
 def check(name,method,path,status,body=None,headers=None,test=None):
  r=c.request(method,path,json=body,headers=headers or {});ok=(r.status_code in status if isinstance(status,(tuple,list)) else r.status_code==status) and (test(r) if test else True);results.append({'case':name,'method':method,'path':path,'expected_status':status,'actual_status':r.status_code,'passed':bool(ok)});print('PASS' if ok else 'FAIL',name,r.status_code, r.text[:140] if not ok else '');return r
 origin={'Origin':'https://reports.asodya.com'}

@@ -54,6 +54,23 @@ pub async fn handle(
         }
     };
     if path == "/apps/api/v1/exchange" && m == Method::POST {
+        // Installed-app finish: native branch, no Origin check. The web branch below is unchanged.
+        if v.get("handoff_id").is_some_and(|id| !id.is_null()) {
+            if !auth::native_enabled(s) {
+                return handoff_error(auth::HandoffFailure::Disabled.into());
+            }
+            if let Err(e) = auth::rate(s, h, ip, "exchange", None, false).await {
+                return if e.to_string().starts_with("Too many") {
+                    response(429, &e.to_string(), json!({"code":"RATE_LIMITED"}))
+                } else {
+                    handoff_error(e)
+                };
+            }
+            return match auth::finish_handoff(s, &v, h, ip).await {
+                Ok(data) => response(200, "Success", data),
+                Err(e) => handoff_error(e),
+            };
+        }
         let token = v["auth_exchange_token"]
             .as_str()
             .filter(|t| !t.is_empty())
@@ -98,11 +115,21 @@ pub async fn handle(
         return oauth_start(s, &v).await;
     }
     if action == "oauth/callback" && m == Method::POST {
-        return oauth_callback(s, &v).await;
+        return oauth_callback(s, &v, h, ip).await;
     }
     let login = action == "log-in" && m == Method::PATCH;
     let signup = action == "sign-up" && m == Method::POST;
     if login || signup {
+        let default_app = s.settings.get("DEFAULT_EXCHANGE_APP");
+        let app = v["app"]
+            .as_str()
+            .unwrap_or(&default_app)
+            .trim()
+            .to_lowercase();
+        let handoff = match auth::handoff_request(s, &app, &v) {
+            Ok(handoff) => handoff,
+            Err(e) => return handoff_error(e),
+        };
         let action = if signup { "signup" } else { "login" };
         let access = text(&v, "access_token");
         let email = text(&v, "email");
@@ -128,13 +155,7 @@ pub async fn handle(
                 &e.to_string(),
             );
         }
-        let default_app = s.settings.get("DEFAULT_EXCHANGE_APP");
-        let app = v["app"]
-            .as_str()
-            .unwrap_or(&default_app)
-            .trim()
-            .to_lowercase();
-        let res: anyhow::Result<Option<String>> = async {
+        let res: anyhow::Result<Option<Value>> = async {
             let access = if !access.is_empty() {
                 access.to_owned()
             } else {
@@ -165,24 +186,29 @@ pub async fn handle(
                     _ => anyhow::bail!("Supabase did not return an authenticated session"),
                 }
             };
-            Ok(Some(auth::issue(s, &access, &app).await?))
+            Ok(Some(
+                auth::complete_login(s, &access, &app, handoff.as_ref(), h, ip).await?,
+            ))
         }
         .await;
         return match res {
             Ok(Some(t)) => response(
                 if signup { 201 } else { 200 },
-                if signup {
+                if handoff.is_some() {
+                    "Login complete. Return to the app."
+                } else if signup {
                     "User signed up successfully."
                 } else {
                     "User logged in successfully."
                 },
-                json!(t),
+                t,
             ),
             Ok(None) => response(
                 201,
                 "User signed up successfully. Email confirmation is required before sign in can continue.",
                 Value::Null,
             ),
+            Err(e) if e.is::<auth::HandoffFailure>() => handoff_error(e),
             Err(e) => response(if signup { 400 } else { 401 }, &e.to_string(), Value::Null),
         };
     }
@@ -332,9 +358,18 @@ async fn oauth_start(s: &State, v: &Value) -> Response {
     if !s.settings.allowed_app(&app) {
         return response(400, "Unsupported initiating application", Value::Null);
     }
+    let handoff = match auth::handoff_request(s, &app, v) {
+        Ok(value) => value,
+        Err(e) => return handoff_error(e),
+    };
     let state = auth::token(32);
     let verifier = auth::token(64);
-    let val = json!({"provider":p,"app":app,"intent":v["intent"].as_str().unwrap_or("login"),"code_verifier":verifier,"created_at":auth::now()});
+    let mut val = json!({"provider":p,"app":app,"intent":v["intent"].as_str().unwrap_or("login"),"code_verifier":verifier,"created_at":auth::now()});
+    if let Some(handoff) = handoff {
+        val["handoff_id"] = json!(handoff.id);
+        val["challenge"] = json!(handoff.challenge);
+        val["platform"] = json!(handoff.platform);
+    }
     if s.cache
         .set(
             &format!("{}:{state}", s.settings.get("OAUTH_STATE_PREFIX")),
@@ -370,7 +405,7 @@ async fn oauth_start(s: &State, v: &Value) -> Response {
         json!({"authorization_url":u.as_str()}),
     )
 }
-async fn oauth_callback(s: &State, v: &Value) -> Response {
+async fn oauth_callback(s: &State, v: &Value, h: &HeaderMap, ip: &str) -> Response {
     if !text(v, "error").is_empty() {
         return response(
             400,
@@ -398,7 +433,11 @@ async fn oauth_callback(s: &State, v: &Value) -> Response {
             Value::Null,
         );
     }
-    let res: anyhow::Result<String> = async {
+    let handoff = match auth::handoff_request(s, &app, &old) {
+        Ok(value) => value,
+        Err(e) => return handoff_error(e),
+    };
+    let res: anyhow::Result<Value> = async {
         let r = auth::provider(
             s,
             reqwest::Method::POST,
@@ -416,13 +455,22 @@ async fn oauth_callback(s: &State, v: &Value) -> Response {
                     .filter(|token| !token.trim().is_empty())
             })
             .ok_or_else(|| anyhow::anyhow!("Missing provider access token"))?;
-        let t = auth::issue(s, access, &app).await?;
+        let t = auth::complete_login(s, access, &app, handoff.as_ref(), h, ip).await?;
         s.cache.delete(&key).await?;
         Ok(t)
     }
     .await;
     match res {
-        Ok(t) => response(200, "OAuth callback completed successfully.", json!(t)),
+        Ok(t) => response(
+            200,
+            if handoff.is_some() {
+                "Login complete. Return to the app."
+            } else {
+                "OAuth callback completed successfully."
+            },
+            t,
+        ),
+        Err(e) if e.is::<auth::HandoffFailure>() => handoff_error(e),
         Err(_) => response(400, "Failed to complete the OAuth callback.", Value::Null),
     }
 }
@@ -444,6 +492,26 @@ if path.ends_with("/fields")&&m==Method::GET{return Ok((s.db.fields().await?,"Us
                 "Failed to retrieve user information."
             },
             Value::Null,
+        ),
+    }
+}
+
+fn handoff_error(error: anyhow::Error) -> Response {
+    match error.downcast_ref::<auth::HandoffFailure>() {
+        Some(failure) => response(
+            match failure {
+                auth::HandoffFailure::Disabled => 403,
+                auth::HandoffFailure::Invalid => 400,
+                auth::HandoffFailure::Expired => 410,
+                _ => 409,
+            },
+            failure.message(),
+            json!({"code":failure.code()}),
+        ),
+        None => response(
+            503,
+            "Unable to finish login.",
+            json!({"code":"SERVICE_UNAVAILABLE"}),
         ),
     }
 }

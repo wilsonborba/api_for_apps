@@ -315,18 +315,18 @@
     "x-discovery-gaps": []
   },
   "POST /apps/api/v1/exchange": {
-    "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data.",
+    "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data. Installed-app branch: when handoff_id is present the body is {\"app\", \"handoff_id\", \"secret\"} and no Origin header is needed. The gateway checks that the handoff exists, its status is done and the login is less than 5 minutes old, SHA256(secret) equals the challenge (constant-time), app matches, and the app network equals the browser network at login (IPv4 /24, IPv6 /64). It then marks the handoff used, keeps the record for 30 minutes and returns {\"session_id\", \"csrf_token\", \"expires_in\"} without cookies. The app stores both values in OS secure storage and sends Cookie: sid=<session_id>; csrf=<csrf_token>, plus X-CSRF-Token on changes; POST /user/sync/v1/log-out ends only that device session. Native sessions renew a 30 day idle limit on each use and end 90 days after creation. Answers (data.code): HANDOFF_NOT_FINISHED 409 (no record yet: finish the login in the browser), HANDOFF_EXPIRED 410 (login older than 5 minutes; the status stays expired), HANDOFF_USED 409 (already used outside the retry window, wrong secret, wrong network or wrong app; the handoff cannot be used again), INVALID_HANDOFF 400, NATIVE_HANDOFF_DISABLED 403, RATE_LIMITED 429 (IP limits as for log-in). Retry: for 2 minutes after a successful finish the same handoff_id, secret and network return the same session, only while that session still exists. NATIVE_HANDOFF_ENABLED=false turns the installed-app path off, including existing native sessions.",
     "parameters": [
       {
         "name": "Origin",
         "in": "header",
-        "required": true,
+        "required": false,
         "schema": {
           "type": "string",
           "format": "uri"
         },
         "example": "https://reports.asodya.com",
-        "description": "Must identify the registered application that receives the session."
+        "description": "Required for the web artifact branch: must identify the registered application that receives the session. Not used by the installed-app branch."
       }
     ],
     "x-codeSamples": [
@@ -334,11 +334,16 @@
         "lang": "Shell",
         "label": "cURL",
         "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/exchange' --header 'Content-Type: application/json' --data '{\"auth_exchange_token\": \"<one-use-artifact>\", \"app\": \"reports\"}' --header 'Origin: https://reports.asodya.com' --include"
+      },
+      {
+        "lang": "Shell",
+        "label": "cURL (installed app)",
+        "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/exchange' --header 'Content-Type: application/json' --data '{\"app\": \"annotations\", \"handoff_id\": \"<handoff_id>\", \"secret\": \"<secret>\"}'"
       }
     ],
     "responses": {
       "200": {
-        "description": "Session established; inspect Set-Cookie headers.",
+        "description": "Web branch: session established, inspect Set-Cookie headers. Installed-app branch: data holds session_id, csrf_token and expires_in (seconds), no cookies.",
         "content": {
           "application/json": {
             "schema": {
@@ -352,24 +357,36 @@
         }
       },
       "400": {
-        "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin."
+        "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin. Installed-app branch: INVALID_HANDOFF."
       },
       "503": {
         "description": "Exchange processing failed."
+      },
+      "403": {
+        "description": "Installed-app branch: NATIVE_HANDOFF_DISABLED."
+      },
+      "409": {
+        "description": "Installed-app branch: HANDOFF_NOT_FINISHED or HANDOFF_USED (see data.code)."
+      },
+      "410": {
+        "description": "Installed-app branch: HANDOFF_EXPIRED."
+      },
+      "429": {
+        "description": "Installed-app branch: RATE_LIMITED."
       }
     }
   },
   "PATCH /user/sync/v1/log-in": {
-    "description": "Sign in through the gateway using email and password, or an authenticated provider access token supplied by the Auth flow. The response data is a short-lived opaque exchange artifact, not a session cookie or a user profile. Pass that artifact to the registered application exchange endpoint. The optional app identifies the initiating application and defaults to certifications. Email and IP limits apply, with progressive delay for repeated attempts. Invalid credentials return 401."
+    "description": "Sign in through the gateway using email and password, or an authenticated provider access token supplied by the Auth flow. The response data is a short-lived opaque exchange artifact, not a session cookie or a user profile. Pass that artifact to the registered application exchange endpoint. The optional app identifies the initiating application and defaults to certifications. Email and IP limits apply, with progressive delay for repeated attempts. Invalid credentials return 401. Installed apps (handoff mode): send the optional handoff_id, challenge and platform with app. handoff_id and challenge are base64url without padding of 32 bytes; challenge is base64url(SHA256(the 32 raw secret bytes)); the secret never leaves the device. platform must be listed for app in NATIVE_APP_PLATFORMS (annotations: linux, macos, android, ios, ipados; cortex: android, cli). After the normal user check the gateway stores the handoff (one login per handoff_id, valid 5 minutes) with the browser IP and network and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>} and no exchange artifact. Errors carry data.code: INVALID_HANDOFF (400), NATIVE_HANDOFF_DISABLED (403), HANDOFF_USED (409, handoff_id already used). Without handoff_id the response is unchanged."
   },
   "POST /user/sync/v1/sign-up": {
-    "description": "Create an account through the configured identity provider. Send email, password, optional display_name, and the initiating app. If the provider establishes a session immediately, data contains an exchange artifact. If email confirmation is required, the response is still 201 but data is null and the message explains the confirmation requirement. Use password sign-in after confirmation. Requests are limited by IP and email."
+    "description": "Create an account through the configured identity provider. Send email, password, optional display_name, and the initiating app. If the provider establishes a session immediately, data contains an exchange artifact. If email confirmation is required, the response is still 201 but data is null and the message explains the confirmation requirement. Use password sign-in after confirmation. Requests are limited by IP and email. Installed apps (handoff mode): send the optional handoff_id, challenge and platform with app. handoff_id and challenge are base64url without padding of 32 bytes; challenge is base64url(SHA256(the 32 raw secret bytes)); the secret never leaves the device. platform must be listed for app in NATIVE_APP_PLATFORMS (annotations: linux, macos, android, ios, ipados; cortex: android, cli). When the provider returns a session immediately, the gateway stores the handoff (one login per handoff_id, valid 5 minutes) with the browser IP and network and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>} and no exchange artifact. Errors carry data.code: INVALID_HANDOFF (400), NATIVE_HANDOFF_DISABLED (403), HANDOFF_USED (409, handoff_id already used). Without handoff_id the response is unchanged. When email confirmation is required no handoff is stored; the user confirms, then logs in again in the same browser with the same fields."
   },
   "POST /user/sync/v1/oauth/start": {
-    "description": "Start backend-driven OAuth for the initiating application. Supported configured providers include Google, GitHub, and Microsoft/Azure. Microsoft is normalized to Azure. The response contains authorization_url for browser navigation. The gateway stores a short-lived state and PKCE verifier. Preserve the returned state and submit the provider code to the callback endpoint. This operation does not establish a browser session."
+    "description": "Start backend-driven OAuth for the initiating application. Supported configured providers include Google, GitHub, and Microsoft/Azure. Microsoft is normalized to Azure. The response contains authorization_url for browser navigation. The gateway stores a short-lived state and PKCE verifier. Preserve the returned state and submit the provider code to the callback endpoint. This operation does not establish a browser session. Installed apps may add handoff_id, challenge and platform (same rules as log-in); they are kept inside the stored OAuth state."
   },
   "POST /user/sync/v1/oauth/callback": {
-    "description": "Complete the OAuth flow using the provider code and state from the start operation. A successful response contains a short-lived exchange artifact for the initiating application. Missing, expired, or already consumed state fails. Provider failures return 400. The callback preserves the existing provider response contract; real-provider compatibility must be distinguished from local contract tests."
+    "description": "Complete the OAuth flow using the provider code and state from the start operation. A successful response contains a short-lived exchange artifact for the initiating application. Missing, expired, or already consumed state fails. Provider failures return 400. The callback preserves the existing provider response contract; real-provider compatibility must be distinguished from local contract tests. When the state carries installed-app handoff fields, the callback stores the handoff instead of issuing an artifact and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>}; the handoff error codes of log-in apply."
   },
   "POST /apps/support/v1/attachments": {
     "description": "Upload one multipart file for a support message. A real authenticated user session is required, including for an administrator. Send the matching CSRF cookie/header. The maximum file size is 15 MiB. A successful response contains attachment_reference. Pass that reference in a ticket or message request. This operation does not create a ticket. Missing storage configuration returns 503; storage failure returns 502."

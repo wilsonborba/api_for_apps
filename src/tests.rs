@@ -1314,3 +1314,676 @@ async fn cortex_log_source_reads_sse_without_websocket_upgrade() {
     assert!(source.next().await.unwrap().is_none());
     task.abort();
 }
+
+// Installed-app login handoff (FINAL v2). Local Supabase double and the memory cache only.
+mod native_handoff {
+    use super::*;
+    use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+    use sha2::{Digest, Sha256};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static REQUESTS: AtomicUsize = AtomicUsize::new(0);
+    const DAY: i64 = 24 * 60 * 60;
+
+    async fn native_state(extra: &[(&str, &str)]) -> (domain::State, tokio::task::JoinHandle<()>) {
+        use axum::routing::{get, post};
+        let provider = axum::Router::new()
+            .route(
+                "/auth/v1/token",
+                post(|| async { axum::Json(json!({"access_token":"native-access"})) }),
+            )
+            .route(
+                "/auth/v1/user",
+                get(|| async {
+                    axum::Json(json!({"id":"native-provider-user","email":"native@example.test","user_metadata":{}}))
+                }),
+            );
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let task = tokio::spawn(async move { axum::serve(listener, provider).await.unwrap() });
+        let mut s = state().await;
+        let mut values = (*s.settings.values).clone();
+        values.insert("SUPABASE_URL".into(), format!("http://{address}"));
+        values.insert("SUPABASE_SECRET_KEY".into(), "fixture".into());
+        for (k, v) in extra {
+            values.insert((*k).into(), (*v).into());
+        }
+        s.settings.values = Arc::new(values);
+        (s, task)
+    }
+    /// handoff_id, secret, challenge = base64url(SHA256(raw secret bytes)).
+    fn device() -> (String, String, String) {
+        let secret: [u8; 32] = rand::random();
+        (
+            URL_SAFE_NO_PAD.encode(rand::random::<[u8; 32]>()),
+            URL_SAFE_NO_PAD.encode(secret),
+            URL_SAFE_NO_PAD.encode(Sha256::digest(secret)),
+        )
+    }
+    /// The browser or app address comes from cf-connecting-ip behind the local tunnel.
+    /// A unique X-Forwarded-For keeps the per-IP rate limiter out of the way.
+    async fn send(
+        s: &domain::State,
+        method: &str,
+        path: &str,
+        body: Value,
+        network_ip: &str,
+        cookie: Option<&str>,
+    ) -> (StatusCode, Value) {
+        let n = REQUESTS.fetch_add(1, Ordering::Relaxed);
+        let rate_ip = format!("192.0.2.{}", n % 250);
+        let rate_ip = format!("{rate_ip}-{n}");
+        let mut headers = vec![
+            ("cf-connecting-ip", network_ip),
+            ("x-forwarded-for", rate_ip.as_str()),
+        ];
+        let csrf;
+        if let Some(cookie) = cookie {
+            headers.push(("cookie", cookie));
+            csrf = cookie.split("csrf=").nth(1).unwrap_or("").to_owned();
+            headers.push(("x-csrf-token", csrf.as_str()));
+        }
+        call(s.clone(), method, path, body, &headers).await
+    }
+    async fn login(
+        s: &domain::State,
+        app: &str,
+        id: &str,
+        challenge: &str,
+        platform: &str,
+        ip: &str,
+    ) -> (StatusCode, Value) {
+        let n = REQUESTS.fetch_add(1, Ordering::Relaxed);
+        let body = json!({"email":format!("native-{n}@example.test"),"password":"fixture","app":app,"handoff_id":id,"challenge":challenge,"platform":platform});
+        send(s, "PATCH", "/user/sync/v1/log-in", body, ip, None).await
+    }
+    async fn finish(
+        s: &domain::State,
+        app: &str,
+        id: &str,
+        secret: &str,
+        ip: &str,
+    ) -> (StatusCode, Value) {
+        send(
+            s,
+            "POST",
+            "/apps/api/v1/exchange",
+            json!({"app":app,"handoff_id":id,"secret":secret}),
+            ip,
+            None,
+        )
+        .await
+    }
+    fn code(r: &(StatusCode, Value)) -> (u16, String) {
+        (
+            r.0.as_u16(),
+            r.1["data"]["code"].as_str().unwrap_or("").to_owned(),
+        )
+    }
+    async fn record(s: &domain::State, id: &str) -> Value {
+        s.cache
+            .get(&format!("handoff:{id}"), false)
+            .await
+            .unwrap()
+            .unwrap()
+    }
+
+    #[tokio::test]
+    async fn login_stores_handoff_and_finish_returns_one_device_session() {
+        let (s, task) = native_state(&[]).await;
+        let (id, secret, challenge) = device();
+        let r = login(&s, "annotations", &id, &challenge, "linux", "203.0.113.10").await;
+        assert_eq!(r.0, 200, "{}", r.1);
+        assert_eq!(r.1["message"], "Login complete. Return to the app.");
+        let expires = r.1["data"]["expires_at"].as_i64().unwrap();
+        assert!((expires - domain::auth::now() - 300).abs() <= 2);
+        assert_eq!(
+            r.1["data"].as_object().unwrap().len(),
+            1,
+            "no token in handoff mode"
+        );
+        let stored = record(&s, &id).await;
+        assert_eq!(stored["status"], "done");
+        assert_eq!(stored["network"], "203.0.113.0/24");
+        assert_eq!(stored["ip"], "203.0.113.10");
+        assert_eq!(stored["platform"], "linux");
+        assert_eq!(stored["app"], "annotations");
+        assert!(stored["session_id"].is_null() && stored["user"]["email"] == "native@example.test");
+
+        // The same handoff_id cannot log in twice.
+        let (_, _, other_challenge) = device();
+        assert_eq!(
+            code(
+                &login(
+                    &s,
+                    "annotations",
+                    &id,
+                    &other_challenge,
+                    "linux",
+                    "203.0.113.10"
+                )
+                .await
+            ),
+            (409, "HANDOFF_USED".into())
+        );
+
+        // Finish from the same /24, without any Origin header.
+        let r = finish(&s, "annotations", &id, &secret, "203.0.113.77").await;
+        assert_eq!(r.0, 200, "{}", r.1);
+        assert_eq!(r.1["message"], "Success");
+        let sid = r.1["data"]["session_id"].as_str().unwrap().to_owned();
+        let csrf = r.1["data"]["csrf_token"].as_str().unwrap().to_owned();
+        assert_eq!(r.1["data"]["expires_in"], 30 * DAY);
+        let stored = record(&s, &id).await;
+        assert_eq!(stored["status"], "used");
+        assert_eq!(stored["session_id"], sid.as_str());
+        assert!(stored["used_at"].is_i64());
+
+        // The current session code accepts the cookie pair from the app.
+        let cookie = format!("sid={sid}; csrf={csrf}");
+        let me = send(
+            &s,
+            "GET",
+            "/user/info/v1/",
+            json!({}),
+            "203.0.113.77",
+            Some(&cookie),
+        )
+        .await;
+        assert_eq!(me.0, 200, "{}", me.1);
+        assert_eq!(me.1["data"]["email"], "native@example.test");
+
+        // Retry within 2 minutes: same secret and network give the same session.
+        let again = finish(&s, "annotations", &id, &secret, "203.0.113.5").await;
+        assert_eq!(again.0, 200);
+        assert_eq!(again.1["data"]["session_id"], sid.as_str());
+        assert_eq!(again.1["data"]["csrf_token"], csrf.as_str());
+        // A retry with a wrong secret, wrong network or wrong app is refused and changes nothing.
+        let (_, wrong_secret, _) = device();
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &wrong_secret, "203.0.113.5").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "198.51.100.5").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "cortex", &id, &secret, "203.0.113.5").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert_eq!(
+            finish(&s, "annotations", &id, &secret, "203.0.113.5")
+                .await
+                .1["data"]["session_id"],
+            sid.as_str()
+        );
+
+        // Log out ends this device session; the retry never restores it.
+        let out = send(
+            &s,
+            "POST",
+            "/user/sync/v1/log-out",
+            json!({}),
+            "203.0.113.77",
+            Some(&cookie),
+        )
+        .await;
+        assert_eq!(out.0, 200, "{}", out.1);
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.5").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert!(
+            s.cache
+                .get(&format!("exchange_auth_app:{sid}"), false)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn finish_answers_not_finished_expired_used_and_retry_window() {
+        // Not finished: no record yet; the answer does not create one.
+        let (s, task) = native_state(&[]).await;
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_NOT_FINISHED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_NOT_FINISHED".into())
+        );
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "macos", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            finish(&s, "annotations", &id, &secret, "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        task.abort();
+
+        // Expired: past expires_at the status becomes expired and stays expired.
+        let (s, task) = native_state(&[("HANDOFF_VALID_SECONDS", "0")]).await;
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "android", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (410, "HANDOFF_EXPIRED".into())
+        );
+        assert_eq!(record(&s, &id).await["status"], "expired");
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (410, "HANDOFF_EXPIRED".into())
+        );
+        task.abort();
+
+        // Used outside the retry window.
+        let (s, task) = native_state(&[("HANDOFF_RETRY_SECONDS", "0")]).await;
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "cortex", &id, &challenge, "cli", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            finish(&s, "cortex", &id, &secret, "203.0.113.1").await.0,
+            200
+        );
+        assert_eq!(
+            code(&finish(&s, "cortex", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn wrong_secret_network_or_app_burn_the_handoff() {
+        let (s, task) = native_state(&[]).await;
+        // Wrong secret: used, and the real secret cannot finish afterwards.
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "ios", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        let (_, wrong, _) = device();
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &wrong, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert!(record(&s, &id).await["session_id"].is_null());
+        // Wrong IPv4 network (/24).
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "ipados", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.114.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        // Wrong application.
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "android", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            code(&finish(&s, "cortex", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        // IPv6 compares the /64.
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(
+                &s,
+                "annotations",
+                &id,
+                &challenge,
+                "linux",
+                "2001:db8:1:2::1"
+            )
+            .await
+            .0,
+            200
+        );
+        assert_eq!(record(&s, &id).await["network"], "2001:db8:1:2::/64");
+        assert_eq!(
+            finish(&s, "annotations", &id, &secret, "2001:db8:1:2:aaaa::9")
+                .await
+                .0,
+            200
+        );
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(
+                &s,
+                "annotations",
+                &id,
+                &challenge,
+                "linux",
+                "2001:db8:1:2::1"
+            )
+            .await
+            .0,
+            200
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "2001:db8:1:3::1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        // A direct client cannot pick its network: cf-connecting-ip counts only from the local tunnel.
+        assert_eq!(
+            domain::auth::client_ip(
+                &{
+                    let mut h = axum::http::HeaderMap::new();
+                    h.insert("cf-connecting-ip", "203.0.113.1".parse().unwrap());
+                    h
+                },
+                "198.51.100.6"
+            )
+            .unwrap()
+            .to_string(),
+            "198.51.100.6"
+        );
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn invalid_fields_are_refused_and_web_login_is_unchanged() {
+        let (s, task) = native_state(&[]).await;
+        let (id, secret, challenge) = device();
+        for (app, id, challenge, platform) in [
+            ("annotations", "short", challenge.as_str(), "linux"),
+            ("annotations", id.as_str(), "short", "linux"),
+            ("annotations", id.as_str(), challenge.as_str(), "windows"),
+            ("annotations", id.as_str(), challenge.as_str(), "cli"),
+            ("reports", id.as_str(), challenge.as_str(), "linux"),
+            ("unknown", id.as_str(), challenge.as_str(), "linux"),
+        ] {
+            assert_eq!(
+                code(&login(&s, app, id, challenge, platform, "203.0.113.1").await),
+                (400, "INVALID_HANDOFF".into()),
+                "{app} {platform}"
+            );
+        }
+        let missing = send(
+            &s,
+            "PATCH",
+            "/user/sync/v1/log-in",
+            json!({"email":"m@example.test","password":"x","app":"annotations","handoff_id":id}),
+            "203.0.113.1",
+            None,
+        )
+        .await;
+        assert_eq!(code(&missing), (400, "INVALID_HANDOFF".into()));
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, "short", "203.0.113.1").await),
+            (400, "INVALID_HANDOFF".into())
+        );
+        assert_eq!(
+            code(
+                &send(
+                    &s,
+                    "POST",
+                    "/apps/api/v1/exchange",
+                    json!({"app":"annotations","handoff_id":id}),
+                    "203.0.113.1",
+                    None
+                )
+                .await
+            ),
+            (400, "INVALID_HANDOFF".into())
+        );
+        assert!(
+            s.cache
+                .get(&format!("handoff:{id}"), false)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        let _ = secret;
+        // Web login without handoff_id still returns the exchange artifact as before.
+        let web = send(&s, "PATCH", "/user/sync/v1/log-in", json!({"email":"web@example.test","password":"fixture","app":"reports","platform":"linux"}), "203.0.113.1", None).await;
+        assert_eq!(web.0, 200);
+        assert_eq!(web.1["message"], "User logged in successfully.");
+        assert!(web.1["data"].is_string());
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn disabled_setting_turns_the_native_path_off() {
+        let (s, task) = native_state(&[("NATIVE_HANDOFF_ENABLED", "false")]).await;
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            code(&login(&s, "annotations", &id, &challenge, "linux", "203.0.113.1").await),
+            (403, "NATIVE_HANDOFF_DISABLED".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (403, "NATIVE_HANDOFF_DISABLED".into())
+        );
+        let start = send(&s, "POST", "/user/sync/v1/oauth/start", json!({"provider":"google","app":"annotations","handoff_id":id,"challenge":challenge,"platform":"linux"}), "203.0.113.1", None).await;
+        assert_eq!(code(&start), (403, "NATIVE_HANDOFF_DISABLED".into()));
+        assert!(
+            s.cache
+                .get(&format!("handoff:{id}"), false)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        // Existing native sessions stop working; web sessions do not change.
+        let at = domain::auth::now();
+        s.cache.set("exchange_auth_app:native", json!({"user_id":1,"csrf_token":"c","native":true,"created_at":at,"last_used_at":at}), 60, false).await.unwrap();
+        s.cache
+            .set(
+                "exchange_auth_app:web",
+                json!({"user_id":1,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        let mut h = axum::http::HeaderMap::new();
+        h.insert("cookie", "sid=native".parse().unwrap());
+        assert!(domain::auth::session(&s, &h).await.unwrap().is_none());
+        h.insert("cookie", "sid=web".parse().unwrap());
+        assert!(domain::auth::session(&s, &h).await.unwrap().is_some());
+        let web = send(
+            &s,
+            "PATCH",
+            "/user/sync/v1/log-in",
+            json!({"email":"web@example.test","password":"fixture","app":"reports"}),
+            "203.0.113.1",
+            None,
+        )
+        .await;
+        assert_eq!(web.0, 200);
+        assert!(web.1["data"].is_string());
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn native_session_slides_30_days_and_ends_at_90_days() {
+        let s = state().await;
+        let at = domain::auth::now();
+        let put = |sid: &'static str, created: i64, last: i64| {
+            let s = s.clone();
+            async move {
+                s.cache.set(&format!("exchange_auth_app:{sid}"), json!({"user_id":1,"csrf_token":"c","native":true,"created_at":created,"last_used_at":last}), 60, false).await.unwrap();
+            }
+        };
+        let get = |sid: &str| {
+            let mut h = axum::http::HeaderMap::new();
+            h.insert("cookie", format!("sid={sid}").parse().unwrap());
+            let s = s.clone();
+            async move { domain::auth::session(&s, &h).await.unwrap() }
+        };
+        let expiry = |sid: &str| {
+            let dal::cache::Cache::Memory(m) = &s.cache else {
+                unreachable!()
+            };
+            let m = m.clone();
+            let key = format!("exchange_auth_app:{sid}");
+            async move {
+                m.lock()
+                    .await
+                    .get(&key)
+                    .map(|x| x.1.duration_since(std::time::Instant::now()).as_secs())
+            }
+        };
+        // Use renews the idle window to 30 days.
+        put("active", at - 10 * DAY, at - 29 * DAY).await;
+        let u = get("active").await.unwrap();
+        assert_eq!(u["last_used_at"], at);
+        assert!(expiry("active").await.unwrap() > (30 * DAY - 5) as u64);
+        assert_eq!(get("active").await.unwrap()["created_at"], at - 10 * DAY);
+        // Idle more than 30 days: ended and removed.
+        put("idle", at - 40 * DAY, at - 30 * DAY - 1).await;
+        assert!(get("idle").await.is_none());
+        assert!(expiry("idle").await.is_none());
+        // The renewal never passes the 90 day absolute limit.
+        put("near", at - 90 * DAY + 100, at - DAY).await;
+        assert!(get("near").await.is_some());
+        assert!(expiry("near").await.unwrap() <= 100);
+        // After 90 days: ended even when used recently.
+        put("old", at - 90 * DAY - 1, at - 60).await;
+        assert!(get("old").await.is_none());
+        // Web sessions keep the current fixed TTL and record.
+        s.cache
+            .set(
+                "exchange_auth_app:web",
+                json!({"user_id":1,"csrf_token":"c"}),
+                90000,
+                false,
+            )
+            .await
+            .unwrap();
+        let web = get("web").await.unwrap();
+        assert!(web.get("last_used_at").is_none());
+    }
+
+    #[tokio::test]
+    async fn oauth_keeps_handoff_in_state_and_callback_finishes_without_token() {
+        let (s, task) = native_state(&[]).await;
+        let (id, secret, challenge) = device();
+        let start = send(&s, "POST", "/user/sync/v1/oauth/start", json!({"provider":"google","app":"annotations","handoff_id":id,"challenge":challenge,"platform":"android"}), "203.0.113.1", None).await;
+        assert_eq!(start.0, 200, "{}", start.1);
+        let url = url::Url::parse(start.1["data"]["authorization_url"].as_str().unwrap()).unwrap();
+        let state = url
+            .query_pairs()
+            .find(|(k, _)| k == "state")
+            .unwrap()
+            .1
+            .into_owned();
+        let stored = s
+            .cache
+            .get(&format!("oauth_state:{state}"), false)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(stored["handoff_id"], id.as_str());
+        assert_eq!(stored["challenge"], challenge.as_str());
+        assert_eq!(stored["platform"], "android");
+        let cb = send(
+            &s,
+            "POST",
+            "/user/sync/v1/oauth/callback",
+            json!({"code":"fixture","state":state}),
+            "203.0.113.1",
+            None,
+        )
+        .await;
+        assert_eq!(cb.0, 200, "{}", cb.1);
+        assert_eq!(cb.1["message"], "Login complete. Return to the app.");
+        assert!(cb.1["data"]["expires_at"].is_i64());
+        assert_eq!(cb.1["data"].as_object().unwrap().len(), 1);
+        assert_eq!(
+            send(
+                &s,
+                "POST",
+                "/user/sync/v1/oauth/callback",
+                json!({"code":"fixture","state":state}),
+                "203.0.113.1",
+                None
+            )
+            .await
+            .0,
+            400
+        );
+        assert_eq!(
+            finish(&s, "annotations", &id, &secret, "203.0.113.9")
+                .await
+                .0,
+            200
+        );
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn cache_compare_and_swap_is_conditional_and_msgpack_stable() {
+        let c = dal::cache::Cache::new("memory://", "").await.unwrap();
+        let v = json!({"status":"done","expires_at":1_800_000_000i64,"used_at":null,"user":{"id":3,"email":"a@b.c"}});
+        c.set("h", v.clone(), 60, true).await.unwrap();
+        let mut next = v.clone();
+        next["status"] = json!("used");
+        assert!(
+            !c.compare_and_swap("h", &next, v.clone(), None, None)
+                .await
+                .unwrap()
+        );
+        assert!(
+            c.compare_and_swap("h", &v, next.clone(), None, Some(("s", json!(1), 60)))
+                .await
+                .unwrap()
+        );
+        assert_eq!(c.get("s", false).await.unwrap(), Some(json!(1)));
+        // A second swap from the old value loses, and an existing second key blocks the swap.
+        assert!(
+            !c.compare_and_swap("h", &v, next.clone(), None, None)
+                .await
+                .unwrap()
+        );
+        assert!(
+            !c.compare_and_swap("h", &next, v.clone(), None, Some(("s", json!(2), 60)))
+                .await
+                .unwrap()
+        );
+        assert!(
+            !c.compare_and_swap("missing", &v, next.clone(), None, None)
+                .await
+                .unwrap()
+        );
+        // The Valkey adapter compares encoded bytes: decoding and encoding again must not change them.
+        let bytes = rmp_serde::to_vec_named(&v).unwrap();
+        let back: Value = rmp_serde::from_slice(&bytes).unwrap();
+        assert_eq!(rmp_serde::to_vec_named(&back).unwrap(), bytes);
+    }
+}

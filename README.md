@@ -42,7 +42,7 @@ scripts/app_dev_run.sh
 - `src/presentation`: request handlers, validation, Scalar, and documentation assets.
 - `src/main.rs`: startup, listener, operational commands, and shutdown.
 
-The gateway forwards `/apps/{app}/v1/{path}` to each registered backend. It validates sessions and permissions before adding internal identity headers. Authentication uses Supabase through the gateway, single-use Fernet exchange artifacts, and Redis-backed `sid`/`csrf` sessions.
+The gateway forwards `/apps/{app}/v1/{path}` to each registered backend. It validates sessions and permissions before adding internal identity headers. Authentication uses Supabase through the gateway, single-use Fernet exchange artifacts, and Redis-backed `sid`/`csrf` sessions. Installed apps use the same routes: the browser login stores a one-use handoff, and the app finishes it with one `POST /apps/api/v1/exchange` carrying `handoff_id` and `secret` (no polling, no new route). Their sessions renew a 30 day idle limit on each use and end after 90 days. `NATIVE_HANDOFF_ENABLED=false` turns this path off. The central API documentation lists the fields and answers.
 
 PostgreSQL stores identity, the ticket index, logs and frontend telemetry. CouchDB stores support threads. SQLite is limited to isolated test fixtures.
 

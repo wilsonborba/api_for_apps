@@ -22,9 +22,19 @@
   "CACHE_AUTH_PREFIX": "exchange_auth_app",
   "EXCHANGE_ARTIFACT_PREFIX": "exchange_artifact",
   "OAUTH_STATE_PREFIX": "oauth_state",
+  "HANDOFF_PREFIX": "handoff",
+  "HANDOFF_VALID_SECONDS": 300,
+  "HANDOFF_RECORD_TTL_SECONDS": 1800,
+  "HANDOFF_RETRY_SECONDS": 120,
+  "NATIVE_HANDOFF_ENABLED": true,
+  "NATIVE_APP_PLATFORMS": {
+    "annotations": ["linux", "macos", "android", "ios", "ipados"],
+    "cortex": ["android", "cli"]
+  },
   "EXCHANGE_ARTIFACT_TTL_SECONDS": 60,
   "DEFAULT_EXCHANGE_APP": "certifications",
   "EXCHANGE_ALLOWED_APPS": [
+    "annotations",
     "certifications",
     "cortex",
     "asodya-domain",

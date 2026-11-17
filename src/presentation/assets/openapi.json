@@ -1821,6 +1821,24 @@
       "Cortex_src_domain_models_chat_session_NextInput": {
         "additionalProperties": false,
         "properties": {
+          "continuation": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "continue_from": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_inspection_ContinueFrom"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "file_ids": {
             "items": {
               "type": "string"
@@ -1857,6 +1875,44 @@
           }
         },
         "type": "object"
+      },
+      "Cortex_src_domain_models_inspection_ContinueFrom": {
+        "additionalProperties": false,
+        "properties": {
+          "alternative_rank": {
+            "type": "integer"
+          },
+          "output_id": {},
+          "token_position": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "output_id",
+          "token_position",
+          "alternative_rank"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_memory_overview_Period": {
+        "enum": [
+          "Today",
+          "Days7",
+          "Days30",
+          "All"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_memory_overview_SourceFilter": {
+        "enum": [
+          "All",
+          "Chat",
+          "File",
+          "Note",
+          "Person",
+          "Topic"
+        ],
+        "type": "string"
       },
       "Cortex_src_domain_models_model_catalog_ActiveModel": {
         "properties": {
@@ -9436,7 +9492,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/images": {
@@ -9524,7 +9580,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:22",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/images/{key}": {
@@ -9584,7 +9640,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:27",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}": {
@@ -9658,7 +9714,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       },
       "put": {
         "description": "PUT /admin/posts/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9735,7 +9791,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:19",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/posts/{id}/publish": {
@@ -9804,7 +9860,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:20",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/schemas": {
@@ -9855,7 +9911,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:22",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       },
       "post": {
         "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -9924,7 +9980,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:22",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
@@ -10001,7 +10057,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:23",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/catalog": {
@@ -10045,7 +10101,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:13",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/health": {
@@ -10089,7 +10145,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:17",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/instant/{code}": {
@@ -10151,7 +10207,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       },
       "put": {
         "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.",
@@ -10211,7 +10267,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/instant/{code}/files": {
@@ -10302,7 +10358,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}": {
@@ -10372,7 +10428,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:21",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/instant/{code}/items": {
@@ -10444,7 +10500,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/instant/{code}/items/{id}": {
@@ -10527,7 +10583,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:22",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/links/preview": {
@@ -10581,7 +10637,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:15",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/logs/stream": {
@@ -10673,7 +10729,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:26",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/posts": {
@@ -10758,7 +10814,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:16",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/posts/{key}": {
@@ -10825,7 +10881,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:17",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/ready": {
@@ -10869,7 +10925,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:21",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/annotations/v1/waitlist": {
@@ -10936,7 +10992,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:14",
-        "x-source-tree-sha256": "6d5da2bc31911e824a1f7a9b99d9c17b509b809438ac39ddb191d78ce04672d1"
+        "x-source-tree-sha256": "2b94ffa98b0113640e0836ce3f6cdd49dd3e0b1ebcc099049a505282fceb8ab9"
       }
     },
     "/apps/api/v1/client-error": {
@@ -11233,15 +11289,15 @@
     },
     "/apps/api/v1/exchange": {
       "post": {
-        "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data.",
+        "description": "Redeem a short-lived authentication artifact issued by this gateway. Send the registered application Origin header. The artifact can be redeemed once and must belong to that application. A successful response sets the HttpOnly sid session cookie and the readable csrf cookie. Browser clients must include credentials on later gateway calls. Mutable session requests send the csrf cookie value in X-CSRF-Token. Production cookies share the Asodya domain and use Secure when reached through HTTPS. This operation returns no user data. Installed-app branch: when handoff_id is present the body is {\"app\", \"handoff_id\", \"secret\"} and no Origin header is needed. The gateway checks that the handoff exists, its status is done and the login is less than 5 minutes old, SHA256(secret) equals the challenge (constant-time), app matches, and the app network equals the browser network at login (IPv4 /24, IPv6 /64). It then marks the handoff used, keeps the record for 30 minutes and returns {\"session_id\", \"csrf_token\", \"expires_in\"} without cookies. The app stores both values in OS secure storage and sends Cookie: sid=<session_id>; csrf=<csrf_token>, plus X-CSRF-Token on changes; POST /user/sync/v1/log-out ends only that device session. Native sessions renew a 30 day idle limit on each use and end 90 days after creation. Answers (data.code): HANDOFF_NOT_FINISHED 409 (no record yet: finish the login in the browser), HANDOFF_EXPIRED 410 (login older than 5 minutes; the status stays expired), HANDOFF_USED 409 (already used outside the retry window, wrong secret, wrong network or wrong app; the handoff cannot be used again), INVALID_HANDOFF 400, NATIVE_HANDOFF_DISABLED 403, RATE_LIMITED 429 (IP limits as for log-in). Retry: for 2 minutes after a successful finish the same handoff_id, secret and network return the same session, only while that session still exists. NATIVE_HANDOFF_ENABLED=false turns the installed-app path off, including existing native sessions.",
         "operationId": "gateway_post__apps_api_v1_exchange",
         "parameters": [
           {
-            "description": "Must identify the registered application that receives the session.",
+            "description": "Required for the web artifact branch: must identify the registered application that receives the session. Not used by the installed-app branch.",
             "example": "https://reports.asodya.com",
             "in": "header",
             "name": "Origin",
-            "required": true,
+            "required": false,
             "schema": {
               "format": "uri",
               "type": "string"
@@ -11275,10 +11331,22 @@
                 }
               }
             },
-            "description": "Session established; inspect Set-Cookie headers."
+            "description": "Web branch: session established, inspect Set-Cookie headers. Installed-app branch: data holds session_id, csrf_token and expires_in (seconds), no cookies."
           },
           "400": {
-            "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin."
+            "description": "Missing, expired, reused, or wrong-application artifact; unregistered or mismatched Origin. Installed-app branch: INVALID_HANDOFF."
+          },
+          "403": {
+            "description": "Installed-app branch: NATIVE_HANDOFF_DISABLED."
+          },
+          "409": {
+            "description": "Installed-app branch: HANDOFF_NOT_FINISHED or HANDOFF_USED (see data.code)."
+          },
+          "410": {
+            "description": "Installed-app branch: HANDOFF_EXPIRED."
+          },
+          "429": {
+            "description": "Installed-app branch: RATE_LIMITED."
           },
           "503": {
             "description": "Exchange processing failed."
@@ -11295,6 +11363,11 @@
             "label": "cURL",
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/exchange' --header 'Content-Type: application/json' --data '{\"auth_exchange_token\": \"<one-use-artifact>\", \"app\": \"reports\"}' --header 'Origin: https://reports.asodya.com' --include"
+          },
+          {
+            "label": "cURL (installed app)",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/api/v1/exchange' --header 'Content-Type: application/json' --data '{\"app\": \"annotations\", \"handoff_id\": \"<handoff_id>\", \"secret\": \"<secret>\"}'"
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/exchange_auth_app_route.py:34",
@@ -13967,7 +14040,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:26",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "post": {
         "description": "POST /chats. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14055,7 +14128,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:33",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/chats/{session_id}": {
@@ -14134,7 +14207,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_delete.rs:20",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "get": {
         "description": "GET /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14233,7 +14306,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:27",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "patch": {
         "description": "PATCH /chats/{session_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14320,7 +14393,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:27",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/inputs": {
@@ -14412,14 +14485,14 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/inputs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/inputs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"continue_from\": {\"output_id\": \"example\", \"token_position\": 1, \"alternative_rank\": 1}, \"continuation\": \"example\"}'"
           }
         ],
         "x-discovery-gaps": [
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:34",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}": {
@@ -14498,7 +14571,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chats.rs:28",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "patch": {
         "description": "PATCH /chats/{session_id}/outputs/{output_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -14594,7 +14667,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:39",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/events": {
@@ -14675,7 +14748,86 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:35",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
+      }
+    },
+    "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/inspection": {
+      "get": {
+        "description": "GET /chats/{session_id}/outputs/{output_id}/inspection. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__chats__session_id__outputs__output_id__inspection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "output_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /chats/{session_id}/outputs/{output_id}/inspection",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/inspection' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/chats.rs:29",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/files": {
@@ -14777,7 +14929,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/files.rs:25",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/files/{file_id}/content": {
@@ -14842,7 +14994,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/files.rs:26",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/logs/stream": {
@@ -14892,7 +15044,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/logs.rs:14",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/memory-graph": {
@@ -14990,11 +15142,240 @@
         "x-discovery-gaps": [
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
-        "x-source": "cortex_api/src/presentation/memory_graph.rs:22",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:26",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
+      }
+    },
+    "/apps/cortex/v1/memory-graph/items": {
+      "get": {
+        "description": "GET /memory-graph/items. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__memory_graph_items",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_memory_overview_SourceFilter"
+            }
+          },
+          {
+            "in": "query",
+            "name": "group_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "period",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_memory_overview_Period"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /memory-graph/items",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/memory-graph/items' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:28",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/memory-graph/nodes/{node_id}": {
+      "delete": {
+        "description": "DELETE /memory-graph/nodes/{node_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_delete__memory_graph_nodes__node_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "DELETE /memory-graph/nodes/{node_id}",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/memory-graph/nodes/{node_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:29",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
+      },
       "get": {
         "description": "GET /memory-graph/nodes/{node_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
         "operationId": "cortex_get__memory_graph_nodes__node_id_",
@@ -15097,8 +15478,77 @@
         "x-discovery-gaps": [
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
-        "x-source": "cortex_api/src/presentation/memory_graph.rs:23",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:29",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
+      }
+    },
+    "/apps/cortex/v1/memory-graph/overview": {
+      "get": {
+        "description": "GET /memory-graph/overview. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
+        "operationId": "cortex_get__memory_graph_overview",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
+          },
+          "400": {
+            "description": "Cortex validation or business error. data.error_number identifies the process."
+          },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
+          "503": {
+            "description": "A required service is unavailable. data.error_number identifies the process."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /memory-graph/overview",
+        "tags": [
+          "cortex"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/memory-graph/overview' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-discovery-gaps": [
+          "Response data is built by Cortex code; detailed data shape requires central review."
+        ],
+        "x-source": "cortex_api/src/presentation/memory_graph.rs:27",
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/models": {
@@ -15157,7 +15607,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/models.rs:15",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/personas": {
@@ -15258,7 +15708,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:19",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "post": {
         "description": "POST /personas. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15344,7 +15794,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:19",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/personas/schemas/{type}": {
@@ -15421,7 +15871,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:20",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/personas/{persona_id}": {
@@ -15507,7 +15957,7 @@
           "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "get": {
         "description": "GET /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15581,7 +16031,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       },
       "patch": {
         "description": "PATCH /personas/{persona_id}. This operation belongs to cortex. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.",
@@ -15674,7 +16124,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/telemetry/events": {
@@ -15767,7 +16217,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:20",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/telemetry/stats": {
@@ -15829,7 +16279,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:19",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/telemetry/timing": {
@@ -15891,7 +16341,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry_reads.rs:18",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/cortex/v1/telemetry/usage": {
@@ -15950,7 +16400,7 @@
           }
         ],
         "x-source": "cortex_api/src/presentation/telemetry.rs:27",
-        "x-source-tree-sha256": "5d7148012ffb38d8e58837b7fd1f0bf2d5f931c1753167bf326cf186305557e2"
+        "x-source-tree-sha256": "7af837ddc92dddb82bf9d6c442624478755af92618613fcb68e71c0cdc2aa25a"
       }
     },
     "/apps/domain/v1/categories": {
@@ -27184,7 +27634,7 @@
     },
     "/user/sync/v1/log-in": {
       "patch": {
-        "description": "Sign in through the gateway using email and password, or an authenticated provider access token supplied by the Auth flow. The response data is a short-lived opaque exchange artifact, not a session cookie or a user profile. Pass that artifact to the registered application exchange endpoint. The optional app identifies the initiating application and defaults to certifications. Email and IP limits apply, with progressive delay for repeated attempts. Invalid credentials return 401.",
+        "description": "Sign in through the gateway using email and password, or an authenticated provider access token supplied by the Auth flow. The response data is a short-lived opaque exchange artifact, not a session cookie or a user profile. Pass that artifact to the registered application exchange endpoint. The optional app identifies the initiating application and defaults to certifications. Email and IP limits apply, with progressive delay for repeated attempts. Invalid credentials return 401. Installed apps (handoff mode): send the optional handoff_id, challenge and platform with app. handoff_id and challenge are base64url without padding of 32 bytes; challenge is base64url(SHA256(the 32 raw secret bytes)); the secret never leaves the device. platform must be listed for app in NATIVE_APP_PLATFORMS (annotations: linux, macos, android, ios, ipados; cortex: android, cli). After the normal user check the gateway stores the handoff (one login per handoff_id, valid 5 minutes) with the browser IP and network and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>} and no exchange artifact. Errors carry data.code: INVALID_HANDOFF (400), NATIVE_HANDOFF_DISABLED (403), HANDOFF_USED (409, handoff_id already used). Without handoff_id the response is unchanged.",
         "operationId": "gateway_patch__user_sync_v1_log_in",
         "parameters": [],
         "requestBody": {
@@ -27296,7 +27746,7 @@
     },
     "/user/sync/v1/oauth/callback": {
       "post": {
-        "description": "Complete the OAuth flow using the provider code and state from the start operation. A successful response contains a short-lived exchange artifact for the initiating application. Missing, expired, or already consumed state fails. Provider failures return 400. The callback preserves the existing provider response contract; real-provider compatibility must be distinguished from local contract tests.",
+        "description": "Complete the OAuth flow using the provider code and state from the start operation. A successful response contains a short-lived exchange artifact for the initiating application. Missing, expired, or already consumed state fails. Provider failures return 400. The callback preserves the existing provider response contract; real-provider compatibility must be distinguished from local contract tests. When the state carries installed-app handoff fields, the callback stores the handoff instead of issuing an artifact and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>}; the handoff error codes of log-in apply.",
         "operationId": "gateway_post__user_sync_v1_oauth_callback",
         "parameters": [],
         "requestBody": {
@@ -27350,7 +27800,7 @@
     },
     "/user/sync/v1/oauth/start": {
       "post": {
-        "description": "Start backend-driven OAuth for the initiating application. Supported configured providers include Google, GitHub, and Microsoft/Azure. Microsoft is normalized to Azure. The response contains authorization_url for browser navigation. The gateway stores a short-lived state and PKCE verifier. Preserve the returned state and submit the provider code to the callback endpoint. This operation does not establish a browser session.",
+        "description": "Start backend-driven OAuth for the initiating application. Supported configured providers include Google, GitHub, and Microsoft/Azure. Microsoft is normalized to Azure. The response contains authorization_url for browser navigation. The gateway stores a short-lived state and PKCE verifier. Preserve the returned state and submit the provider code to the callback endpoint. This operation does not establish a browser session. Installed apps may add handoff_id, challenge and platform (same rules as log-in); they are kept inside the stored OAuth state.",
         "operationId": "gateway_post__user_sync_v1_oauth_start",
         "parameters": [],
         "requestBody": {
@@ -27512,7 +27962,7 @@
     },
     "/user/sync/v1/sign-up": {
       "post": {
-        "description": "Create an account through the configured identity provider. Send email, password, optional display_name, and the initiating app. If the provider establishes a session immediately, data contains an exchange artifact. If email confirmation is required, the response is still 201 but data is null and the message explains the confirmation requirement. Use password sign-in after confirmation. Requests are limited by IP and email.",
+        "description": "Create an account through the configured identity provider. Send email, password, optional display_name, and the initiating app. If the provider establishes a session immediately, data contains an exchange artifact. If email confirmation is required, the response is still 201 but data is null and the message explains the confirmation requirement. Use password sign-in after confirmation. Requests are limited by IP and email. Installed apps (handoff mode): send the optional handoff_id, challenge and platform with app. handoff_id and challenge are base64url without padding of 32 bytes; challenge is base64url(SHA256(the 32 raw secret bytes)); the secret never leaves the device. platform must be listed for app in NATIVE_APP_PLATFORMS (annotations: linux, macos, android, ios, ipados; cortex: android, cli). When the provider returns a session immediately, the gateway stores the handoff (one login per handoff_id, valid 5 minutes) with the browser IP and network and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>} and no exchange artifact. Errors carry data.code: INVALID_HANDOFF (400), NATIVE_HANDOFF_DISABLED (403), HANDOFF_USED (409, handoff_id already used). Without handoff_id the response is unchanged. When email confirmation is required no handoff is stored; the user confirms, then logs in again in the same browser with the same fields.",
         "operationId": "gateway_post__user_sync_v1_sign_up",
         "parameters": [],
         "requestBody": {
@@ -27681,6 +28131,27 @@
         "Response data is built by Cortex code; detailed data shape requires central review."
       ],
       "method": "get",
+      "path": "/apps/cortex/v1/memory-graph/overview"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/memory-graph/items"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/memory-graph/nodes/{node_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "delete",
       "path": "/apps/cortex/v1/memory-graph/nodes/{node_id}"
     },
     {
@@ -27710,6 +28181,13 @@
       ],
       "method": "get",
       "path": "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}"
+    },
+    {
+      "gaps": [
+        "Response data is built by Cortex code; detailed data shape requires central review."
+      ],
+      "method": "get",
+      "path": "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/inspection"
     }
   ]
 }

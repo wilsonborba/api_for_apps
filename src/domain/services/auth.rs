@@ -35,16 +35,41 @@ pub fn same_secret(a: &str, b: &str) -> bool {
 pub fn header<'a>(h: &'a HeaderMap, k: &str) -> &'a str {
     h.get(k).and_then(|v| v.to_str().ok()).unwrap_or("")
 }
+const NATIVE_IDLE_SECONDS: u64 = 30 * 24 * 60 * 60;
+const NATIVE_ABSOLUTE_SECONDS: i64 = 90 * 24 * 60 * 60;
+
 pub async fn session(s: &State, h: &HeaderMap) -> Result<Option<Value>> {
-    if let Some(sid) = cookie(h, &s.settings.get("HTTP_ONLY_COOKIE_KEY_NAME")) {
-        s.cache
-            .get(
-                &format!("{}:{sid}", s.settings.get("CACHE_AUTH_PREFIX")),
-                false,
-            )
-            .await
-    } else {
-        Ok(None)
+    let Some(sid) = cookie(h, &s.settings.get("HTTP_ONLY_COOKIE_KEY_NAME")) else {
+        return Ok(None);
+    };
+    let key = format!("{}:{sid}", s.settings.get("CACHE_AUTH_PREFIX"));
+    loop {
+        let Some(mut u) = s.cache.get(&key, false).await? else {
+            return Ok(None);
+        };
+        if u["native"] != true {
+            return Ok(Some(u));
+        }
+        if !native_enabled(s) {
+            return Ok(None);
+        }
+        let at = now();
+        let created = u["created_at"].as_i64().unwrap_or(0);
+        let last = u["last_used_at"].as_i64().unwrap_or(0);
+        if at >= created + NATIVE_ABSOLUTE_SECONDS || at >= last + NATIVE_IDLE_SECONDS as i64 {
+            // Past the idle or absolute limit: the session ends and needs a new browser login.
+            s.cache.delete(&key).await?;
+            return Ok(None);
+        }
+        let previous = u.clone();
+        u["last_used_at"] = json!(at);
+        let ttl = NATIVE_IDLE_SECONDS.min((created + NATIVE_ABSOLUTE_SECONDS - at) as u64);
+        if s.cache
+            .compare_and_swap(&key, &previous, u.clone(), Some(ttl), None)
+            .await?
+        {
+            return Ok(Some(u));
+        }
     }
 }
 pub async fn verify(s: &State, h: &HeaderMap, method: &str, admin: bool) -> Result<Option<Value>> {
@@ -99,7 +124,7 @@ pub async fn provider(
     }
     Ok(v)
 }
-pub async fn issue(s: &State, access: &str, app: &str) -> Result<String> {
+async fn authenticated_user(s: &State, access: &str, app: &str) -> Result<Value> {
     let p = provider(s, reqwest::Method::GET, "user", None, Some(access)).await?;
     let email = p["email"]
         .as_str()
@@ -140,7 +165,14 @@ pub async fn issue(s: &State, access: &str, app: &str) -> Result<String> {
     if !s.settings.allowed_app(app) {
         bail!("Unsupported initiating application")
     }
-    let payload = json!({"jti":token(24),"app":app,"provider":"supabase","id":u["id"],"uuid_id":u["uuid_id"],"email":u["email"],"access_level":u["access_level"],"is_active":u["is_active"],"provider_user_id":sub,"exp":now()+s.settings.number("EXCHANGE_ARTIFACT_TTL_SECONDS",60) as i64});
+    Ok(
+        json!({"app":app,"provider":"supabase","id":u["id"],"uuid_id":u["uuid_id"],"email":u["email"],"access_level":u["access_level"],"is_active":u["is_active"],"provider_user_id":sub}),
+    )
+}
+pub async fn issue(s: &State, access: &str, app: &str) -> Result<String> {
+    let mut payload = authenticated_user(s, access, app).await?;
+    payload["jti"] = json!(token(24));
+    payload["exp"] = json!(now() + s.settings.number("EXCHANGE_ARTIFACT_TTL_SECONDS", 60) as i64);
     let f = fernet::Fernet::new(&s.settings.get("FERNET_KEY_SECRET"))
         .ok_or_else(|| anyhow!("Invalid Fernet configuration"))?;
     let ciphertext = f.encrypt(&serde_json::to_vec(&payload)?);
@@ -213,17 +245,30 @@ pub async fn redeem(s: &State, t: &str, expected: &str) -> Result<Value> {
     if v.as_ref().is_none_or(|v| v["app"] != expected) {
         bail!("Exchange artifact is invalid, expired, or already used")
     }
-    let sid = token(32);
-    let u = json!({"session_id":sid,"provider_user_id":p["provider_user_id"],"access_level":p["access_level"],"user_id":p["id"],"user_uuid_id":p["uuid_id"],"email":p["email"],"csrf_token":token(24)});
+    let u = new_session(&p, false, now());
+    let ttl = s.settings.number("SESSION_TTL_SECONDS", 90000);
     s.cache
-        .set(
-            &format!("{}:{sid}", s.settings.get("CACHE_AUTH_PREFIX")),
-            u.clone(),
-            s.settings.number("SESSION_TTL_SECONDS", 90000),
-            false,
-        )
+        .set(&session_key(s, &u), u.clone(), ttl, false)
         .await?;
     Ok(u)
+}
+fn session_key(s: &State, u: &Value) -> String {
+    format!(
+        "{}:{}",
+        s.settings.get("CACHE_AUTH_PREFIX"),
+        u["session_id"].as_str().unwrap_or("")
+    )
+}
+/// Shared session record for the web exchange and the installed-app finish step.
+/// Native sessions also carry their creation and last-use times for the 30 and 90 day limits.
+fn new_session(p: &Value, native: bool, at: i64) -> Value {
+    let mut u = json!({"session_id":token(32),"provider_user_id":p["provider_user_id"],"access_level":p["access_level"],"user_id":p["id"],"user_uuid_id":p["uuid_id"],"email":p["email"],"csrf_token":token(24)});
+    if native {
+        u["native"] = json!(true);
+        u["created_at"] = json!(at);
+        u["last_used_at"] = json!(at);
+    }
+    u
 }
 pub async fn rate(
     s: &State,
@@ -276,4 +321,271 @@ pub async fn rate(
 }
 pub fn pkce(verifier: &str) -> String {
     URL_SAFE_NO_PAD.encode(Sha256::digest(verifier.as_bytes()))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HandoffFailure {
+    Disabled,
+    Invalid,
+    NotFinished,
+    Expired,
+    Used,
+}
+impl HandoffFailure {
+    pub fn code(self) -> &'static str {
+        match self {
+            Self::Disabled => "NATIVE_HANDOFF_DISABLED",
+            Self::Invalid => "INVALID_HANDOFF",
+            Self::NotFinished => "HANDOFF_NOT_FINISHED",
+            Self::Expired => "HANDOFF_EXPIRED",
+            Self::Used => "HANDOFF_USED",
+        }
+    }
+    pub fn message(self) -> &'static str {
+        match self {
+            Self::Disabled => "Installed-app login is disabled.",
+            Self::Invalid => "Invalid installed-app login fields.",
+            Self::NotFinished => {
+                "The login is not finished. Finish it in the browser, then click Finish."
+            }
+            Self::Expired => "This login expired. Start again.",
+            Self::Used => "Start again.",
+        }
+    }
+}
+impl std::fmt::Display for HandoffFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.message())
+    }
+}
+impl std::error::Error for HandoffFailure {}
+
+#[derive(Clone)]
+pub struct HandoffRequest {
+    pub id: String,
+    pub challenge: String,
+    pub platform: String,
+}
+pub fn native_enabled(s: &State) -> bool {
+    s.settings.value("NATIVE_HANDOFF_ENABLED") == true
+}
+fn bytes32(value: &str) -> Result<Vec<u8>> {
+    let bytes = URL_SAFE_NO_PAD
+        .decode(value)
+        .map_err(|_| HandoffFailure::Invalid)?;
+    if bytes.len() != 32 || URL_SAFE_NO_PAD.encode(&bytes) != value {
+        bail!(HandoffFailure::Invalid)
+    }
+    Ok(bytes)
+}
+/// Handoff mode starts only when handoff_id is present, so current web payloads keep their behavior.
+pub fn handoff_request(s: &State, app: &str, v: &Value) -> Result<Option<HandoffRequest>> {
+    if v.get("handoff_id").is_none_or(Value::is_null) {
+        return Ok(None);
+    }
+    if !native_enabled(s) {
+        bail!(HandoffFailure::Disabled)
+    }
+    let field = |key: &str| v[key].as_str().ok_or(HandoffFailure::Invalid);
+    let id = field("handoff_id")?;
+    let challenge = field("challenge")?;
+    let platform = field("platform")?;
+    bytes32(id)?;
+    bytes32(challenge)?;
+    if !s.settings.allowed_app(app)
+        || !s.settings.value("NATIVE_APP_PLATFORMS")[app]
+            .as_array()
+            .is_some_and(|platforms| platforms.iter().any(|v| v == platform))
+    {
+        bail!(HandoffFailure::Invalid)
+    }
+    Ok(Some(HandoffRequest {
+        id: id.into(),
+        challenge: challenge.into(),
+        platform: platform.into(),
+    }))
+}
+/// Client address for the network match. Only the local Cloudflare tunnel may set it through
+/// cf-connecting-ip (same rule as telemetry); a direct client cannot choose its own address.
+pub fn client_ip(h: &HeaderMap, peer: &str) -> Result<std::net::IpAddr> {
+    let peer: std::net::IpAddr = peer.parse().map_err(|_| HandoffFailure::Invalid)?;
+    let ip: std::net::IpAddr = super::telemetry::client_ip(h, peer)
+        .parse()
+        .map_err(|_| HandoffFailure::Invalid)?;
+    Ok(match ip {
+        std::net::IpAddr::V6(ip) => ip
+            .to_ipv4_mapped()
+            .map(std::net::IpAddr::V4)
+            .unwrap_or(ip.into()),
+        ip => ip,
+    })
+}
+pub fn network(ip: std::net::IpAddr) -> String {
+    match ip {
+        std::net::IpAddr::V4(ip) => {
+            let b = ip.octets();
+            format!("{}.{}.{}.0/24", b[0], b[1], b[2])
+        }
+        std::net::IpAddr::V6(ip) => {
+            let b = ip.segments();
+            format!("{:x}:{:x}:{:x}:{:x}::/64", b[0], b[1], b[2], b[3])
+        }
+    }
+}
+fn handoff_key(s: &State, id: &str) -> String {
+    format!("{}:{id}", s.settings.get("HANDOFF_PREFIX"))
+}
+
+pub async fn complete_login(
+    s: &State,
+    access: &str,
+    app: &str,
+    handoff: Option<&HandoffRequest>,
+    h: &HeaderMap,
+    ip: &str,
+) -> Result<Value> {
+    match handoff {
+        None => Ok(json!(issue(s, access, app).await?)),
+        Some(handoff) => {
+            if !native_enabled(s) {
+                bail!(HandoffFailure::Disabled)
+            }
+            let ip = client_ip(h, ip)?;
+            let user = authenticated_user(s, access, app).await?;
+            let expires = store_handoff(s, app, handoff, user, ip).await?;
+            Ok(json!({"expires_at":expires}))
+        }
+    }
+}
+pub async fn store_handoff(
+    s: &State,
+    app: &str,
+    handoff: &HandoffRequest,
+    user: Value,
+    ip: std::net::IpAddr,
+) -> Result<i64> {
+    if !native_enabled(s) {
+        bail!(HandoffFailure::Disabled)
+    }
+    let at = now();
+    let expires = at + s.settings.number("HANDOFF_VALID_SECONDS", 300) as i64;
+    let record = json!({"app":app,"platform":handoff.platform,"challenge":handoff.challenge,"user":user,"ip":ip.to_string(),"network":network(ip),"created_at":at,"expires_at":expires,"status":"done","used_at":null,"session_id":null,"csrf_token":null});
+    if !s
+        .cache
+        .set(
+            &handoff_key(s, &handoff.id),
+            record,
+            s.settings.number("HANDOFF_RECORD_TTL_SECONDS", 1800),
+            true,
+        )
+        .await?
+    {
+        bail!(HandoffFailure::Used)
+    }
+    Ok(expires)
+}
+fn native_result(u: &Value, at: i64) -> Value {
+    let remaining =
+        (u["created_at"].as_i64().unwrap_or(0) + NATIVE_ABSOLUTE_SECONDS - at).max(0) as u64;
+    json!({"session_id":u["session_id"],"csrf_token":u["csrf_token"],"expires_in":NATIVE_IDLE_SECONDS.min(remaining)})
+}
+pub async fn finish_handoff(
+    s: &State,
+    v: &Value,
+    h: &HeaderMap,
+    fallback_ip: &str,
+) -> Result<Value> {
+    if !native_enabled(s) {
+        bail!(HandoffFailure::Disabled)
+    }
+    let id = v["handoff_id"].as_str().ok_or(HandoffFailure::Invalid)?;
+    let secret = v["secret"].as_str().ok_or(HandoffFailure::Invalid)?;
+    bytes32(id)?;
+    let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(bytes32(secret)?));
+    let app = v["app"].as_str().ok_or(HandoffFailure::Invalid)?;
+    if !s.settings.allowed_app(app) {
+        bail!(HandoffFailure::Invalid)
+    }
+    let net = network(client_ip(h, fallback_ip)?);
+    let key = handoff_key(s, id);
+    loop {
+        let Some(old) = s.cache.get(&key, false).await? else {
+            bail!(HandoffFailure::NotFinished)
+        };
+        let at = now();
+        let valid = same_secret(&challenge, old["challenge"].as_str().unwrap_or(""))
+            && old["app"] == app
+            && old["network"] == net;
+        match old["status"].as_str() {
+            Some("used") => {
+                if valid
+                    && old["used_at"].as_i64().is_some_and(|used| {
+                        at < used + s.settings.number("HANDOFF_RETRY_SECONDS", 120) as i64
+                    })
+                {
+                    let sid = old["session_id"].as_str().filter(|sid| !sid.is_empty());
+                    let live = match sid {
+                        Some(sid) => {
+                            s.cache
+                                .get(
+                                    &format!("{}:{sid}", s.settings.get("CACHE_AUTH_PREFIX")),
+                                    false,
+                                )
+                                .await?
+                        }
+                        None => None,
+                    };
+                    if let Some(u) = live
+                        && u["native"] == true
+                        && at < u["created_at"].as_i64().unwrap_or(0) + NATIVE_ABSOLUTE_SECONDS
+                        && at < u["last_used_at"].as_i64().unwrap_or(0) + NATIVE_IDLE_SECONDS as i64
+                    {
+                        // Return the same live session; never write or revive it from the saved result.
+                        return Ok(native_result(&u, at));
+                    }
+                }
+                bail!(HandoffFailure::Used)
+            }
+            Some("expired") => bail!(HandoffFailure::Expired),
+            Some("done") => {}
+            _ => bail!(HandoffFailure::Used),
+        }
+        let mut next = old.clone();
+        if at >= old["expires_at"].as_i64().unwrap_or(0) {
+            next["status"] = json!("expired");
+            if s.cache
+                .compare_and_swap(&key, &old, next, None, None)
+                .await?
+            {
+                bail!(HandoffFailure::Expired)
+            }
+            continue;
+        }
+        next["status"] = json!("used");
+        next["used_at"] = json!(at);
+        if !valid {
+            if s.cache
+                .compare_and_swap(&key, &old, next, None, None)
+                .await?
+            {
+                bail!(HandoffFailure::Used)
+            }
+            continue;
+        }
+        let u = new_session(&old["user"], true, at);
+        next["session_id"] = u["session_id"].clone();
+        next["csrf_token"] = u["csrf_token"].clone();
+        if s.cache
+            .compare_and_swap(
+                &key,
+                &old,
+                next,
+                None,
+                Some((&session_key(s, &u), u.clone(), NATIVE_IDLE_SECONDS)),
+            )
+            .await?
+        {
+            return Ok(native_result(&u, at));
+        }
+    }
 }

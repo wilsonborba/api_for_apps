@@ -62,6 +62,7 @@ impl Settings {
             "APP_EXCHANGE_ORIGINS",
             "EXCHANGE_ALLOWED_APPS",
             "OAUTH_PROVIDERS",
+            "NATIVE_APP_PLATFORMS",
         ] {
             if let Some(value) = self.values.get(key) {
                 serde_json::from_str::<Value>(value)

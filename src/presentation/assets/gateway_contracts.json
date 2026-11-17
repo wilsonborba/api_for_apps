@@ -616,7 +616,7 @@
           "gateway"
         ],
         "summary": "Create a support ticket",
-        "description": "Create a support ticket. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOpens a new cross-app support ticket with its first message.",
+        "description": "Create a support ticket. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nOpens a new cross-app support ticket with its first message. source_app must be registered in the central application catalog; an unknown application returns 422.",
         "parameters": [
           {
             "name": "X-CSRF-Token",
@@ -683,7 +683,7 @@
           "gateway"
         ],
         "summary": "List the caller's support tickets",
-        "description": "List the caller's support tickets. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nLists the authenticated caller's tickets (every user's, if the caller is an admin), optionally filtered by source_app and status.",
+        "description": "List the caller's support tickets. This operation belongs to gateway. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nLists the authenticated caller's tickets (every user's, if the caller is an admin), optionally filtered by source_app and status. Filtering, ordering by latest activity and pagination run in the database: limit defaults to 50 (maximum 100) and offset to 0 (maximum 10000). Out-of-range pagination returns 422.",
         "parameters": [
           {
             "name": "source_app",
@@ -715,6 +715,28 @@
                 }
               ],
               "maxLength": 32
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
             }
           }
         ],
@@ -3259,6 +3281,282 @@
           }
         ],
         "x-source": "api_for_apps/src/presentation/plans.rs",
+        "x-access-level": "administrator"
+      }
+    },
+    "/apps/api/v1/waitlist": {
+      "post": {
+        "operationId": "gateway_post__apps_api_v1_waitlist",
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Join an application waitlist",
+        "description": "Public central waitlist for every registered application. The target is a plan or feature of the same application (inactive future rows included) or a stated communication interest code. Requests are rate limited per client IP and per email with the gateway limiter. Repeated sign-ups for the same application, target and email are no-ops, and new and repeated emails receive the same 202 response. A session user is linked only when the request email matches that user's own email. No legacy waitlist data is copied. Responses disable caching.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralWaitlistRequest"
+              },
+              "example": {
+                "app_id": "certifications",
+                "target_type": "plan",
+                "target": "free",
+                "email": "person@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_WAITLIST_DATA: unknown fields, malformed values, invalid filters or pagination outside the bounds."
+          },
+          "404": {
+            "description": "WAITLIST_APP_NOT_FOUND, WAITLIST_TARGET_NOT_FOUND or WAITLIST_ENTRY_NOT_FOUND."
+          },
+          "503": {
+            "description": "WAITLIST_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          },
+          "429": {
+            "description": "WAITLIST_RATE_LIMITED."
+          }
+        },
+        "security": [],
+        "x-source": "api_for_apps/src/presentation/waitlist.rs",
+        "x-access-level": "public"
+      }
+    },
+    "/apps/api/v1/admin/waitlist": {
+      "get": {
+        "operationId": "gateway_get__apps_api_v1_admin_waitlist",
+        "tags": [
+          "gateway"
+        ],
+        "summary": "List waitlist entries",
+        "description": "Central administrator read with database filtering and bounded pagination, newest first. No additional query fields are accepted. Responses disable caching.",
+        "parameters": [
+          {
+            "name": "app_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z][a-z0-9_-]*$"
+            }
+          },
+          {
+            "name": "target_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "plan",
+                "feature",
+                "interest"
+              ]
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z][a-z0-9_-]*$"
+            },
+            "description": "Plan code, feature code or interest code."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "contacted",
+                "converted",
+                "declined"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CentralWaitlistEntry"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_WAITLIST_DATA: unknown fields, malformed values, invalid filters or pagination outside the bounds."
+          },
+          "404": {
+            "description": "WAITLIST_APP_NOT_FOUND, WAITLIST_TARGET_NOT_FOUND or WAITLIST_ENTRY_NOT_FOUND."
+          },
+          "503": {
+            "description": "WAITLIST_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "api_for_apps/src/presentation/waitlist.rs",
+        "x-access-level": "administrator"
+      }
+    },
+    "/apps/api/v1/admin/waitlist/{entry_id}": {
+      "patch": {
+        "operationId": "gateway_patch__apps_api_v1_admin_waitlist_entry_id",
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Update a waitlist entry status",
+        "description": "Central administrator operation. Changes only status. Entries are never deleted by this API.",
+        "parameters": [
+          {
+            "name": "entry_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralWaitlistStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CentralWaitlistEntry"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_WAITLIST_DATA: unknown fields, malformed values, invalid filters or pagination outside the bounds."
+          },
+          "404": {
+            "description": "WAITLIST_APP_NOT_FOUND, WAITLIST_TARGET_NOT_FOUND or WAITLIST_ENTRY_NOT_FOUND."
+          },
+          "503": {
+            "description": "WAITLIST_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "x-source": "api_for_apps/src/presentation/waitlist.rs",
         "x-access-level": "administrator"
       }
     }
@@ -12105,6 +12403,177 @@
         "feature_id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "CentralWaitlistRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "app_id",
+        "target_type",
+        "target",
+        "email"
+      ],
+      "properties": {
+        "app_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Registered, active application identifier."
+        },
+        "target_type": {
+          "type": "string",
+          "enum": [
+            "plan",
+            "feature",
+            "interest"
+          ],
+          "description": "plan, feature or interest (a stated communication interest)."
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Plan code or feature code of the same application, or the interest code."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 320,
+          "description": "Stored trimmed and lowercased."
+        }
+      }
+    },
+    "CentralWaitlistEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "app_id",
+        "target_type",
+        "target",
+        "plan_id",
+        "feature_id",
+        "interest",
+        "email",
+        "user_id",
+        "status",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "app_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "target_type": {
+          "type": "string",
+          "enum": [
+            "plan",
+            "feature",
+            "interest"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_-]*$",
+          "description": "Plan code, feature code or interest code."
+        },
+        "plan_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "feature_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "uuid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "pattern": "^[a-z][a-z0-9_-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Linked account when the sign-up came from that user's own session."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "contacted",
+            "converted",
+            "declined"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CentralWaitlistStatusUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "contacted",
+            "converted",
+            "declined"
+          ]
         }
       }
     }

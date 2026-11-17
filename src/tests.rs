@@ -146,9 +146,28 @@ async fn ticket_ownership_and_admin_thread() {
     let a = json!({"user_uuid_id":"a","access_level":3});
     let b = json!({"user_uuid_id":"b","access_level":3});
     let admin = json!({"user_uuid_id":"root","access_level":1});
-    let t = domain::support::create(&s, &a, &json!({"source_app":"reports","body":"Hello"}))
+    let dal::database::Database::Sqlite(pool) = &s.db else {
+        unreachable!()
+    };
+    sqlx::raw_sql(&include_str!("../migrations/001_app_catalog.sql").replace("public.", ""))
+        .execute(pool)
         .await
         .unwrap();
+    sqlx::query("INSERT INTO defaultdb_app(id,name) VALUES('reports','Reports')")
+        .execute(pool)
+        .await
+        .unwrap();
+    assert!(
+        domain::support::create(&s, &a, &json!({"source_app":"unknown","body":"Hello"}))
+            .await
+            .unwrap()
+            .is_none()
+    );
+    let t = domain::support::create(&s, &a, &json!({"source_app":" Reports ","body":"Hello"}))
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(t["source_app"], "reports");
     let id = t["id"].as_str().unwrap();
     assert!(domain::support::get(&s, id, &b).await.is_err());
     let m = domain::support::reply(&s, id, &admin, &json!({"body":"Reply"}))
@@ -3391,5 +3410,866 @@ mod central_plans {
             .unwrap();
         let forbidden:i64=sqlx::query_scalar("SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('app_plans','app_features','plan_features') AND (data_type IN ('json','jsonb','ARRAY'))").fetch_one(&pool).await.unwrap();
         assert_eq!(forbidden, 0);
+    }
+}
+mod central_waitlist {
+    use super::*;
+    use domain::{
+        models::waitlist::{Filter, Join, StatusUpdate},
+        services::waitlist,
+    };
+    const PUBLIC: &str = "/apps/api/v1/waitlist";
+    const ADMIN: &str = "/apps/api/v1/admin/waitlist";
+    const ADMIN_HEADERS: &[(&str, &str)] = &[("authorization", "test-admin")];
+    const PLAN: &str = "11111111-1111-4111-8111-111111111111";
+    async fn setup() -> domain::State {
+        let s = state().await;
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        sqlx::query("CREATE UNIQUE INDEX user_uuid_fixture ON defaultdb_user(uuid_id)")
+            .execute(pool)
+            .await
+            .unwrap();
+        for schema in [
+            include_str!("../migrations/001_app_catalog.sql"),
+            include_str!("../migrations/004_app_plans.sql"),
+            include_str!("../migrations/005_central_waitlist.sql"),
+            include_str!("../migrations/005_central_waitlist.sql"),
+        ] {
+            sqlx::raw_sql(&schema.replace("public.", ""))
+                .execute(pool)
+                .await
+                .unwrap();
+        }
+        sqlx::raw_sql(&format!("INSERT INTO defaultdb_app(id,name,is_active) VALUES('certifications','Certifications',true),('annotations','Annotations',true),('inactive','Inactive',false);
+            INSERT INTO app_plans(id,app_id,code,name,is_active) VALUES('{PLAN}','certifications','free','Free',true),('other-plan','annotations','pro','Pro',false),('future','certifications','pro','Pro',false);
+            INSERT INTO app_features(id,app_id,code,name) VALUES('feature','certifications','search','Search');
+            INSERT INTO defaultdb_user(id,uuid_id,email,access_level,is_active) VALUES(1,'user-1','person@example.test',3,1);")).execute(pool).await.unwrap();
+        s
+    }
+    fn join(app: &str, kind: &str, target: &str, email: &str) -> Value {
+        json!({"app_id":app,"target_type":kind,"target":target,"email":email})
+    }
+    async fn post(
+        s: &domain::State,
+        body: Value,
+        ip: &str,
+        extra: &[(&str, &str)],
+    ) -> (StatusCode, Value) {
+        let mut headers = vec![("x-forwarded-for", ip)];
+        headers.extend_from_slice(extra);
+        call(s.clone(), "POST", PUBLIC, body, &headers).await
+    }
+    async fn rows(s: &domain::State) -> Vec<(String, String, Option<String>)> {
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        sqlx::query_as(
+            "SELECT email,target_type,user_id FROM app_waitlist_entries ORDER BY email,target_type",
+        )
+        .fetch_all(pool)
+        .await
+        .unwrap()
+    }
+    #[tokio::test]
+    async fn public_join_is_duplicate_safe_and_never_hints_at_existing_emails() {
+        let s = setup().await;
+        let first = post(
+            &s,
+            join("certifications", "plan", "free", "Person@Example.test"),
+            "192.0.2.1",
+            &[],
+        )
+        .await;
+        assert_eq!(first.0, 202, "{}", first.1);
+        let again = post(
+            &s,
+            join("certifications", "plan", "free", " person@example.TEST "),
+            "192.0.2.2",
+            &[],
+        )
+        .await;
+        assert_eq!((again.0, &again.1), (first.0, &first.1));
+        assert_eq!(
+            first.1,
+            json!({"message":"Waitlist request received.","data":null})
+        );
+        let other = post(
+            &s,
+            join("certifications", "plan", "free", "new@example.test"),
+            "192.0.2.3",
+            &[],
+        )
+        .await;
+        assert_eq!((other.0, &other.1), (first.0, &first.1));
+        for (body, ip) in [
+            (
+                join("certifications", "plan", "pro", "other@example.test"),
+                "192.0.2.4",
+            ),
+            (
+                join("certifications", "feature", "search", "person@example.test"),
+                "192.0.2.5",
+            ),
+            (
+                join(
+                    "certifications",
+                    "interest",
+                    "launch-news",
+                    "other@example.test",
+                ),
+                "192.0.2.6",
+            ),
+        ] {
+            assert_eq!(post(&s, body, ip, &[]).await.0, 202);
+        }
+        let stored = rows(&s).await;
+        assert_eq!(stored.len(), 5);
+        assert_eq!(
+            stored
+                .iter()
+                .filter(|r| r.0 == "person@example.test")
+                .count(),
+            2
+        );
+        assert!(stored.iter().all(|r| r.2.is_none()));
+        let cache_header = Request::builder()
+            .method("POST")
+            .uri(PUBLIC)
+            .header("x-forwarded-for", "192.0.2.7")
+            .body(Body::from(
+                join("certifications", "plan", "free", "z@example.test").to_string(),
+            ))
+            .map(|mut r| {
+                r.extensions_mut().insert(ConnectInfo(
+                    "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+                ));
+                r
+            })
+            .unwrap();
+        let r = presentation::router(s.clone())
+            .oneshot(cache_header)
+            .await
+            .unwrap();
+        assert_eq!(r.headers()["cache-control"], "no-store");
+    }
+    #[tokio::test]
+    async fn public_join_validates_app_target_and_fields() {
+        let s = setup().await;
+        let cases = [
+            (
+                join("missing", "plan", "free", "a@example.test"),
+                404,
+                "WAITLIST_APP_NOT_FOUND",
+            ),
+            (
+                join("inactive", "interest", "news", "a@example.test"),
+                404,
+                "WAITLIST_APP_NOT_FOUND",
+            ),
+            (
+                join("certifications", "plan", "missing", "a@example.test"),
+                404,
+                "WAITLIST_TARGET_NOT_FOUND",
+            ),
+            (
+                join("annotations", "plan", "free", "a@example.test"),
+                404,
+                "WAITLIST_TARGET_NOT_FOUND",
+            ),
+            (
+                join("annotations", "feature", "search", "a@example.test"),
+                404,
+                "WAITLIST_TARGET_NOT_FOUND",
+            ),
+            (
+                join("certifications", "plan", "free", "not-an-email"),
+                400,
+                "INVALID_WAITLIST_DATA",
+            ),
+            (
+                join("certifications", "billing", "free", "a@example.test"),
+                400,
+                "INVALID_WAITLIST_DATA",
+            ),
+            (
+                join("certifications", "interest", "Bad Code", "a@example.test"),
+                400,
+                "INVALID_WAITLIST_DATA",
+            ),
+            (
+                json!({"app_id":"certifications","target_type":"plan","target":"free","email":"a@example.test","user_id":"user-1"}),
+                400,
+                "INVALID_WAITLIST_DATA",
+            ),
+            (
+                json!({"app_id":"certifications","email":"a@example.test"}),
+                400,
+                "INVALID_WAITLIST_DATA",
+            ),
+        ];
+        for (n, (mut body, status, code)) in cases.into_iter().enumerate() {
+            if body["email"] == "a@example.test" {
+                body["email"] = json!(format!("a{n}@example.test"));
+            }
+            let (got, result) = post(&s, body, &format!("198.51.100.{n}"), &[]).await;
+            assert_eq!(
+                (got.as_u16(), result["data"]["code"].as_str()),
+                (status, Some(code)),
+                "{result}"
+            );
+        }
+        assert!(rows(&s).await.is_empty());
+        assert_eq!(call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.0, 405);
+    }
+    #[tokio::test]
+    async fn public_join_uses_the_gateway_rate_limit_per_email_and_ip() {
+        let s = setup().await;
+        for n in 0..3 {
+            let ip = format!("203.0.113.{n}");
+            assert_eq!(
+                post(
+                    &s,
+                    join("certifications", "interest", "news", "busy@example.test"),
+                    &ip,
+                    &[]
+                )
+                .await
+                .0,
+                202
+            );
+        }
+        let (status, result) = post(
+            &s,
+            join("certifications", "interest", "news", "busy@example.test"),
+            "203.0.113.9",
+            &[],
+        )
+        .await;
+        assert_eq!(status, 429);
+        assert_eq!(result["data"]["code"], "WAITLIST_RATE_LIMITED");
+        for n in 0..5 {
+            let email = format!("ip{n}@example.test");
+            assert_eq!(
+                post(
+                    &s,
+                    join("certifications", "interest", "news", &email),
+                    "203.0.113.50",
+                    &[]
+                )
+                .await
+                .0,
+                202
+            );
+        }
+        assert_eq!(
+            post(
+                &s,
+                join("certifications", "interest", "news", "ip9@example.test"),
+                "203.0.113.50",
+                &[]
+            )
+            .await
+            .0,
+            429
+        );
+    }
+    #[tokio::test]
+    async fn session_user_is_linked_only_to_their_own_email() {
+        let s = setup().await;
+        s.cache
+            .set(
+                "exchange_auth_app:person",
+                json!({"user_uuid_id":"user-1","email":"Person@example.test","access_level":3,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        let session = [("cookie", "sid=person")];
+        assert_eq!(
+            post(
+                &s,
+                join("certifications", "interest", "news", "person@example.test"),
+                "192.0.2.10",
+                &[]
+            )
+            .await
+            .0,
+            202
+        );
+        assert_eq!(
+            post(
+                &s,
+                join("certifications", "interest", "news", "person@example.test"),
+                "192.0.2.11",
+                &session
+            )
+            .await
+            .0,
+            202
+        );
+        assert_eq!(
+            post(
+                &s,
+                join("certifications", "plan", "free", "someone@example.test"),
+                "192.0.2.12",
+                &session
+            )
+            .await
+            .0,
+            202
+        );
+        assert_eq!(
+            post(
+                &s,
+                join("certifications", "plan", "free", "person@example.test"),
+                "192.0.2.13",
+                &session
+            )
+            .await
+            .0,
+            202
+        );
+        let stored = rows(&s).await;
+        assert_eq!(stored.len(), 3);
+        for (email, _, user) in stored {
+            assert_eq!(user.is_some(), email == "person@example.test", "{email}");
+        }
+    }
+    #[tokio::test]
+    async fn admin_lists_with_bounded_filters_and_updates_status() {
+        let s = setup().await;
+        for (n, body) in [
+            join("certifications", "plan", "free", "a@example.test"),
+            join("certifications", "plan", "free", "b@example.test"),
+            join("certifications", "feature", "search", "a@example.test"),
+            join("annotations", "interest", "news", "a@example.test"),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            assert_eq!(post(&s, body, &format!("192.0.2.{n}"), &[]).await.0, 202);
+        }
+        let list = |query: &str| {
+            let s = s.clone();
+            let path = format!("{ADMIN}{query}");
+            async move { call(s, "GET", &path, json!({}), ADMIN_HEADERS).await }
+        };
+        let (status, all) = list("").await;
+        assert_eq!(status, 200);
+        assert_eq!(all["data"].as_array().unwrap().len(), 4);
+        let free = list("?app_id=certifications&target_type=plan&target=free&status=pending")
+            .await
+            .1;
+        assert_eq!(free["data"].as_array().unwrap().len(), 2);
+        assert_eq!(free["data"][0]["plan_id"], PLAN);
+        assert_eq!(free["data"][0]["target"], "free");
+        assert_eq!(
+            list("?target=news").await.1["data"][0]["app_id"],
+            "annotations"
+        );
+        assert_eq!(
+            list("?limit=1&offset=1").await.1["data"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(list("?offset=4").await.1["data"], json!([]));
+        for query in [
+            "?limit=0",
+            "?limit=101",
+            "?offset=-1",
+            "?offset=10001",
+            "?status=open",
+            "?target_type=billing",
+            "?owner=x",
+            "?limit=x",
+        ] {
+            let (status, error) = list(query).await;
+            assert_eq!(status, 400, "{query}");
+            assert_eq!(error["data"]["code"], "INVALID_WAITLIST_DATA");
+        }
+        let id = free["data"][0]["id"].as_str().unwrap().to_owned();
+        let path = format!("{ADMIN}/{id}");
+        let (status, updated) = call(
+            s.clone(),
+            "PATCH",
+            &path,
+            json!({"status":"contacted"}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(status, 200, "{updated}");
+        assert_eq!(updated["data"]["status"], "contacted");
+        assert_eq!(updated["data"]["email"], free["data"][0]["email"]);
+        assert_eq!(
+            list("?status=contacted").await.1["data"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
+        for body in [
+            json!({"status":"deleted"}),
+            json!({"status":"pending","email":"x@example.test"}),
+            json!({}),
+        ] {
+            assert_eq!(
+                call(s.clone(), "PATCH", &path, body, ADMIN_HEADERS).await.0,
+                400
+            );
+        }
+        let missing = call(
+            s.clone(),
+            "PATCH",
+            &format!("{ADMIN}/{}", uuid::Uuid::new_v4()),
+            json!({"status":"declined"}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(
+            (missing.0.as_u16(), missing.1["data"]["code"].as_str()),
+            (404, Some("WAITLIST_ENTRY_NOT_FOUND"))
+        );
+        assert_eq!(
+            call(s.clone(), "DELETE", &path, json!({}), ADMIN_HEADERS)
+                .await
+                .0,
+            405
+        );
+        let (status, conflict) = call(
+            s.clone(),
+            "DELETE",
+            &format!("/apps/api/v1/admin/plans/{PLAN}"),
+            json!({}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(
+            (status.as_u16(), conflict["data"]["code"].as_str()),
+            (409, Some("PLAN_RECORD_CONFLICT"))
+        );
+        assert_eq!(list("").await.1["data"].as_array().unwrap().len(), 4);
+    }
+    #[tokio::test]
+    async fn admin_routes_use_the_central_administrator_guard_and_csrf() {
+        let s = setup().await;
+        for (sid, level) in [("user", 3), ("admin", 1)] {
+            s.cache
+                .set(
+                    &format!("exchange_auth_app:{sid}"),
+                    json!({"user_uuid_id":sid,"access_level":level,"csrf_token":"c"}),
+                    60,
+                    false,
+                )
+                .await
+                .unwrap();
+        }
+        let path = format!("{ADMIN}/{}", uuid::Uuid::new_v4());
+        let (status, error) = call(s.clone(), "GET", ADMIN, json!({}), &[]).await;
+        assert_eq!(
+            (status.as_u16(), error["data"]["code"].as_str()),
+            (403, Some("AUTH_REQUIRED"))
+        );
+        let (status, error) = call(
+            s.clone(),
+            "GET",
+            ADMIN,
+            json!({}),
+            &[("cookie", "sid=user")],
+        )
+        .await;
+        assert_eq!(
+            (status.as_u16(), error["data"]["code"].as_str()),
+            (403, Some("ADMIN_REQUIRED"))
+        );
+        assert_eq!(
+            call(
+                s.clone(),
+                "PATCH",
+                &path,
+                json!({"status":"declined"}),
+                &[("cookie", "sid=user; csrf=c"), ("x-csrf-token", "c")]
+            )
+            .await
+            .0,
+            403
+        );
+        assert_eq!(
+            call(
+                s.clone(),
+                "GET",
+                ADMIN,
+                json!({}),
+                &[("cookie", "sid=admin")]
+            )
+            .await
+            .0,
+            200
+        );
+        let (status, error) = call(
+            s.clone(),
+            "PATCH",
+            &path,
+            json!({"status":"declined"}),
+            &[("cookie", "sid=admin; csrf=c")],
+        )
+        .await;
+        assert_eq!(
+            (status.as_u16(), error["data"]["code"].as_str()),
+            (403, Some("AUTH_REQUIRED"))
+        );
+        assert_eq!(
+            call(
+                s.clone(),
+                "PATCH",
+                &path,
+                json!({"status":"declined"}),
+                &[("cookie", "sid=admin; csrf=c"), ("x-csrf-token", "c")]
+            )
+            .await
+            .0,
+            404
+        );
+        assert_eq!(
+            call(s.clone(), "PATCH", &path, json!("not an object"), &[])
+                .await
+                .0,
+            403
+        );
+    }
+    #[tokio::test]
+    async fn schema_rejects_cross_app_mismatched_and_invalid_rows() {
+        let s = setup().await;
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        let insert = "INSERT INTO app_waitlist_entries(id,app_id,target_type,plan_id,feature_id,interest,email,status) VALUES";
+        sqlx::query(&format!(
+            "{insert}('ok','certifications','plan','{PLAN}',NULL,NULL,'a@example.test','pending')"
+        ))
+        .execute(pool)
+        .await
+        .unwrap();
+        for values in [
+            "('x1','annotations','plan','{PLAN}',NULL,NULL,'b@example.test','pending')",
+            "('x2','certifications','plan','other-plan',NULL,NULL,'b@example.test','pending')",
+            "('x3','certifications','feature',NULL,NULL,'news','b@example.test','pending')",
+            "('x4','certifications','plan','{PLAN}','feature',NULL,'b@example.test','pending')",
+            "('x5','certifications','interest',NULL,NULL,'news','b@example.test','open')",
+            "('x6','certifications','interest',NULL,NULL,'news','B@example.test','pending')",
+            "('x7','missing','interest',NULL,NULL,'news','b@example.test','pending')",
+            "('x8','certifications','plan','{PLAN}',NULL,NULL,'a@example.test','pending')",
+            "('x9','certifications','billing',NULL,NULL,'news','b@example.test','pending')",
+        ] {
+            let sql = format!("{insert}{}", values.replace("{PLAN}", PLAN));
+            assert!(sqlx::query(&sql).execute(pool).await.is_err(), "{sql}");
+        }
+        assert!(sqlx::query("INSERT INTO app_waitlist_entries(id,app_id,target_type,interest,email,user_id) VALUES('x10','certifications','interest','news','c@example.test','nobody')").execute(pool).await.is_err());
+        for column in sqlx::query_as::<_, (i64, String, String)>(
+            "SELECT cid,name,type FROM pragma_table_info('app_waitlist_entries')",
+        )
+        .fetch_all(pool)
+        .await
+        .unwrap()
+        {
+            assert!(
+                !["JSON", "JSONB", "ARRAY"].contains(&column.2.to_uppercase().as_str()),
+                "{}",
+                column.1
+            );
+        }
+    }
+    #[tokio::test]
+    async fn missing_schema_is_not_created_at_request_time() {
+        let s = state().await;
+        let (status, error) = post(
+            &s,
+            join("certifications", "plan", "free", "a@example.test"),
+            "192.0.2.1",
+            &[],
+        )
+        .await;
+        assert_eq!(status, 503);
+        assert_eq!(error["data"]["code"], "WAITLIST_SERVICE_UNAVAILABLE");
+        assert!(!error.to_string().contains("SELECT"));
+        let (status, _) = call(s.clone(), "GET", ADMIN, json!({}), ADMIN_HEADERS).await;
+        assert_eq!(status, 503);
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        assert_eq!(
+            sqlx::query_scalar::<_, i64>(
+                "SELECT count(*) FROM sqlite_master WHERE name='app_waitlist_entries'"
+            )
+            .fetch_one(pool)
+            .await
+            .unwrap(),
+            0
+        );
+    }
+    #[tokio::test]
+    async fn support_listing_is_filtered_paginated_and_owner_scoped_in_sql() {
+        let s = state().await;
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        sqlx::raw_sql(&include_str!("../migrations/001_app_catalog.sql").replace("public.", ""))
+            .execute(pool)
+            .await
+            .unwrap();
+        sqlx::raw_sql("INSERT INTO defaultdb_app(id,name) VALUES('reports','Reports'),('certifications','Certifications');
+            INSERT INTO defaultdb_support_ticket VALUES('t1','a','reports','open','2026-01-01T00:00:00Z','2026-01-01T00:00:01Z'),('t2','a','certifications','closed','2026-01-01T00:00:00Z','2026-01-01T00:00:03Z'),('t3','b','reports','open','2026-01-01T00:00:00Z','2026-01-01T00:00:02Z')").execute(pool).await.unwrap();
+        for (sid, user, level) in [("a", "a", 3), ("root", "root", 1)] {
+            s.cache
+                .set(
+                    &format!("exchange_auth_app:{sid}"),
+                    json!({"user_uuid_id":user,"access_level":level,"csrf_token":"c"}),
+                    60,
+                    false,
+                )
+                .await
+                .unwrap();
+        }
+        let ids = |v: &Value| {
+            v["data"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|t| t["id"].as_str().unwrap().to_owned())
+                .collect::<Vec<_>>()
+        };
+        let get = |sid: &str, query: &str| {
+            let cookie = format!("sid={sid}");
+            let s = s.clone();
+            let path = format!("/apps/support/v1/tickets{query}");
+            async move { call(s, "GET", &path, json!({}), &[("cookie", cookie.as_str())]).await }
+        };
+        assert_eq!(ids(&get("a", "").await.1), ["t2", "t1"]);
+        assert_eq!(ids(&get("root", "").await.1), ["t2", "t3", "t1"]);
+        assert_eq!(
+            ids(&get("root", "?source_app=%20Reports&status=open").await.1),
+            ["t3", "t1"]
+        );
+        assert_eq!(ids(&get("root", "?limit=1&offset=1").await.1), ["t3"]);
+        assert_eq!(ids(&get("a", "?status=closed").await.1), ["t2"]);
+        assert_eq!(ids(&get("a", "?status=").await.1), ["t2", "t1"]);
+        for query in ["?limit=0", "?limit=101", "?offset=10001", "?limit=x"] {
+            assert_eq!(get("a", query).await.0, 422, "{query}");
+        }
+        assert_eq!(get("a", "?status=other").await.0, 400);
+        s.cache
+            .set(
+                "exchange_auth_app:w",
+                json!({"user_uuid_id":"a","access_level":3,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        let (status, result) = call(
+            s.clone(),
+            "POST",
+            "/apps/support/v1/tickets",
+            json!({"source_app":"unknown","body":"Hello"}),
+            &[
+                ("content-type", "application/json"),
+                ("cookie", "sid=w; csrf=c"),
+                ("x-csrf-token", "c"),
+            ],
+        )
+        .await;
+        assert_eq!(status, 422, "{result}");
+        assert_eq!(ids(&get("a", "").await.1).len(), 2);
+    }
+    #[tokio::test]
+    async fn postgres_waitlist_and_support_constraints_on_disposable_test_database() {
+        let Ok(connection) = std::env::var("TEST_WAITLIST_PG_URL") else {
+            return;
+        };
+        let parsed = url::Url::parse(&connection).unwrap();
+        assert_eq!(parsed.host_str(), Some("127.0.0.1"));
+        assert!(
+            parsed
+                .port()
+                .is_some_and(|port| port >= 1024 && port != 5432)
+        );
+        assert_eq!(
+            parsed.path(),
+            "/gateway57_test",
+            "disposable named test database only"
+        );
+        let pool = sqlx::PgPool::connect(&connection).await.unwrap();
+        sqlx::raw_sql("CREATE TABLE IF NOT EXISTS defaultdb_user(id SERIAL PRIMARY KEY,uuid_id VARCHAR(64) NOT NULL UNIQUE,email VARCHAR(320) NOT NULL UNIQUE,access_level INTEGER NOT NULL DEFAULT 3);
+            CREATE TABLE IF NOT EXISTS defaultdb_support_ticket(id UUID PRIMARY KEY,user_id VARCHAR(64) NOT NULL,source_app VARCHAR(64) NOT NULL,status VARCHAR(32) NOT NULL DEFAULT 'open',created_at TIMESTAMPTZ NOT NULL DEFAULT now(),updated_at TIMESTAMPTZ NOT NULL DEFAULT now())").execute(&pool).await.unwrap();
+        for _ in 0..2 {
+            for schema in [
+                include_str!("../migrations/001_app_catalog.sql"),
+                include_str!("../migrations/004_app_plans.sql"),
+                include_str!("../migrations/005_central_waitlist.sql"),
+                include_str!("../migrations/006_support_ticket_constraints.sql"),
+            ] {
+                sqlx::raw_sql(schema).execute(&pool).await.unwrap();
+            }
+        }
+        let app = format!("wl-{}", uuid::Uuid::new_v4().simple());
+        let other = format!("wl-{}", uuid::Uuid::new_v4().simple());
+        let user = uuid::Uuid::new_v4().simple().to_string();
+        let email = format!("{user}@example.test");
+        sqlx::query(
+            "INSERT INTO defaultdb_app(id,name,is_active) VALUES($1,'Test',true),($2,'Other',true)",
+        )
+        .bind(&app)
+        .bind(&other)
+        .execute(&pool)
+        .await
+        .unwrap();
+        sqlx::query("INSERT INTO defaultdb_user(uuid_id,email) VALUES($1,$2)")
+            .bind(&user)
+            .bind(&email)
+            .execute(&pool)
+            .await
+            .unwrap();
+        let plan = uuid::Uuid::new_v4().to_string();
+        sqlx::query(
+            "INSERT INTO app_plans(id,app_id,code,name,is_active) VALUES($1,$2,'free','Free',true)",
+        )
+        .bind(&plan)
+        .bind(&app)
+        .execute(&pool)
+        .await
+        .unwrap();
+        let mut s = state().await;
+        s.db = dal::database::Database::Pg(pool.clone());
+        let request = |kind: &str, target: &str, mail: &str| Join {
+            app_id: app.clone(),
+            target_type: kind.into(),
+            target: target.into(),
+            email: mail.into(),
+        };
+        waitlist::join(
+            &s,
+            waitlist::validate(request("plan", "free", &email)).unwrap(),
+            None,
+        )
+        .await
+        .unwrap();
+        waitlist::join(
+            &s,
+            waitlist::validate(request("plan", "free", &email.to_uppercase())).unwrap(),
+            Some(user.clone()),
+        )
+        .await
+        .unwrap();
+        waitlist::join(
+            &s,
+            waitlist::validate(request("interest", "news", &email)).unwrap(),
+            None,
+        )
+        .await
+        .unwrap();
+        let filter = |target: Option<&str>| Filter {
+            app_id: Some(app.clone()),
+            target: target.map(Into::into),
+            ..Default::default()
+        };
+        let entries = waitlist::entries(&s, filter(None)).await.unwrap();
+        assert_eq!(entries.len(), 2);
+        let planned = waitlist::entries(&s, filter(Some("free"))).await.unwrap();
+        assert_eq!(planned.len(), 1);
+        assert_eq!(planned[0].user_id.as_deref(), Some(user.as_str()));
+        assert_eq!(planned[0].plan_id.as_deref(), Some(plan.as_str()));
+        let updated = waitlist::update(
+            &s,
+            &planned[0].id,
+            StatusUpdate {
+                status: "converted".into(),
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(updated.status, "converted");
+        assert!(updated.updated_at >= updated.created_at);
+        assert!(sqlx::query("INSERT INTO app_waitlist_entries(id,app_id,target_type,plan_id,email) VALUES('cross',$1,'plan',$2,'x@example.test')").bind(&other).bind(&plan).execute(&pool).await.is_err());
+        assert!(
+            sqlx::query("UPDATE app_waitlist_entries SET status='open' WHERE app_id=$1")
+                .bind(&app)
+                .execute(&pool)
+                .await
+                .is_err()
+        );
+        assert!(
+            sqlx::query("DELETE FROM app_plans WHERE id=$1")
+                .bind(&plan)
+                .execute(&pool)
+                .await
+                .is_err()
+        );
+        let ticket = |source: &str, status: &str| {
+            sqlx::query("INSERT INTO defaultdb_support_ticket(id,user_id,source_app,status) VALUES(CAST($1 AS UUID),$2,$3,$4)")
+                .bind(uuid::Uuid::new_v4().to_string())
+                .bind(user.clone())
+                .bind(source.to_owned())
+                .bind(status.to_owned())
+        };
+        ticket(&app, "open").execute(&pool).await.unwrap();
+        ticket(&other, "closed").execute(&pool).await.unwrap();
+        assert!(
+            ticket("unregistered-app", "open")
+                .execute(&pool)
+                .await
+                .is_err()
+        );
+        assert!(ticket(&app, "archived").execute(&pool).await.is_err());
+        let page =
+            s.db.support_tickets(Some(&user), Some(&app), Some("open"), 50, 0)
+                .await
+                .unwrap();
+        assert_eq!(page.len(), 1);
+        assert_eq!(page[0]["source_app"], app.as_str());
+        assert_eq!(
+            s.db.support_tickets(Some(&user), None, None, 1, 1)
+                .await
+                .unwrap()
+                .len(),
+            1
+        );
+        assert!(
+            s.db.support_tickets(Some("nobody"), None, None, 50, 0)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        let forbidden: i64 = sqlx::query_scalar("SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('app_waitlist_entries','defaultdb_support_ticket') AND data_type IN ('json','jsonb','ARRAY')").fetch_one(&pool).await.unwrap();
+        assert_eq!(forbidden, 0);
+        sqlx::query("DELETE FROM defaultdb_support_ticket WHERE user_id=$1")
+            .bind(&user)
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM app_waitlist_entries WHERE app_id=$1")
+            .bind(&app)
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM app_plans WHERE app_id=$1")
+            .bind(&app)
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM defaultdb_app WHERE id IN ($1,$2)")
+            .bind(&app)
+            .bind(&other)
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("DELETE FROM defaultdb_user WHERE uuid_id=$1")
+            .bind(&user)
+            .execute(&pool)
+            .await
+            .unwrap();
     }
 }

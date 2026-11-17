@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(telemetry)* Store frontend errors and usage in relational appdb tables ([`d419aa9`](https://github.com/wilsonborba/api_for_apps/commit/d419aa900678846f835e8c566dffee787892c227))
 - *(auth)* Add the installed-app login handoff (#64) ([`b0d04e5`](https://github.com/wilsonborba/api_for_apps/commit/b0d04e5a81a234670013aae51d36342854118378))
 - *(auth)* Add purpose-bound browser continuation (#65)
+- *(plans)* Add normalized central Free plan catalog (#66)
 
 ### 🐛 Bug Fixes
 

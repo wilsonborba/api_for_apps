@@ -9,3 +9,5 @@ pub mod app_logs;
 pub mod telemetry;
 
 pub mod browser_handoff;
+
+pub mod plans;

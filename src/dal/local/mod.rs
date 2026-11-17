@@ -6,3 +6,5 @@ pub mod source_inventory;
 pub mod app_logs;
 
 pub mod telemetry;
+
+pub mod plans;

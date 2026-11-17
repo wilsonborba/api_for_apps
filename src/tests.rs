@@ -2908,3 +2908,488 @@ mod browser_continuation {
         assert_eq!(response_headers["cache-control"], "no-store");
     }
 }
+
+mod central_plans {
+    use super::*;
+    use domain::{
+        models::plans::{Membership, Update},
+        services::plans,
+    };
+    const PUBLIC: &str = "/apps/api/v1/plans?app_id=certifications";
+    const ADMIN: &str = "/apps/api/v1/admin";
+    const ADMIN_HEADERS: &[(&str, &str)] = &[("authorization", "test-admin")];
+    async fn setup() -> domain::State {
+        let s = state().await;
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        sqlx::raw_sql(&include_str!("../migrations/001_app_catalog.sql").replace("public.", ""))
+            .execute(pool)
+            .await
+            .unwrap();
+        let schema = include_str!("../migrations/004_app_plans.sql").replace("public.", "");
+        sqlx::raw_sql(&schema).execute(pool).await.unwrap();
+        sqlx::raw_sql(&schema).execute(pool).await.unwrap();
+        assert_eq!(
+            sqlx::query_scalar::<_, i64>("SELECT count(*) FROM app_plans")
+                .fetch_one(pool)
+                .await
+                .unwrap(),
+            0
+        );
+        sqlx::query("INSERT INTO defaultdb_app(id,name,is_active) VALUES('certifications','Certifications',true),('annotations','Annotations',true),('inactive','Inactive',false)").execute(pool).await.unwrap();
+        s
+    }
+    fn plan(app: &str, code: &str, active: bool) -> Value {
+        json!({"app_id":app,"code":code,"name":"Public display name","description":"Description","is_active":active})
+    }
+    async fn create(s: &domain::State, kind: &str, body: Value) -> Value {
+        let (status, result) = call(
+            s.clone(),
+            "POST",
+            &format!("{ADMIN}/{kind}"),
+            body,
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(status, 201, "{result}");
+        result["data"].clone()
+    }
+    #[tokio::test]
+    async fn public_returns_only_active_free_plans_of_active_app_and_live_features() {
+        let s = setup().await;
+        assert_eq!(
+            call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.1["data"],
+            json!([])
+        );
+        let free = create(&s, "plans", plan("certifications", "free", true)).await;
+        create(&s, "plans", plan("certifications", "future", false)).await;
+        create(&s, "plans", plan("annotations", "free", true)).await;
+        create(&s, "plans", plan("inactive", "free", true)).await;
+        let feature = create(&s, "features", plan("certifications", "search", true)).await;
+        let hidden = create(&s, "features", plan("certifications", "draft", false)).await;
+        for feature in [&feature, &hidden] {
+            create(
+                &s,
+                "plan-features",
+                json!({"plan_id":free["id"],"feature_id":feature["id"]}),
+            )
+            .await;
+        }
+        let (status, result) = call(s.clone(), "GET", PUBLIC, json!({}), &[]).await;
+        assert_eq!(status, 200);
+        assert_eq!(result["data"].as_array().unwrap().len(), 1);
+        assert_eq!(result["data"][0]["code"], "free");
+        assert_eq!(result["data"][0]["name"], "Public display name");
+        assert_eq!(result["data"][0]["features"].as_array().unwrap().len(), 1);
+        assert_eq!(result["data"][0]["features"][0]["id"], feature["id"]);
+        let path = format!("{ADMIN}/features/{}", feature["id"].as_str().unwrap());
+        assert_eq!(
+            call(
+                s.clone(),
+                "PATCH",
+                &path,
+                json!({"is_active":false}),
+                ADMIN_HEADERS
+            )
+            .await
+            .0,
+            200
+        );
+        assert_eq!(
+            call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.1["data"][0]["features"],
+            json!([])
+        );
+        let path = format!("{ADMIN}/plans/{}", free["id"].as_str().unwrap());
+        assert_eq!(
+            call(
+                s.clone(),
+                "PATCH",
+                &path,
+                json!({"is_active":false}),
+                ADMIN_HEADERS
+            )
+            .await
+            .0,
+            200
+        );
+        assert_eq!(
+            call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.1["data"],
+            json!([])
+        );
+        assert_eq!(
+            call(
+                s.clone(),
+                "GET",
+                "/apps/api/v1/plans?app_id=inactive",
+                json!({}),
+                &[]
+            )
+            .await
+            .1["data"],
+            json!([])
+        );
+        let (_, admin) = call(
+            s,
+            "GET",
+            &format!("{ADMIN}/plans?app_id=certifications"),
+            json!({}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(admin["data"].as_array().unwrap().len(), 2);
+    }
+    #[tokio::test]
+    async fn only_stable_free_code_can_be_active_and_invalid_authority_fields_are_rejected() {
+        let s = setup().await;
+        let (status, error) = call(
+            s.clone(),
+            "POST",
+            &format!("{ADMIN}/plans"),
+            plan("certifications", "paid", true),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(status, 400);
+        assert_eq!(error["data"]["code"], "ONLY_FREE_PLAN_ACTIVE");
+        let future = create(&s, "plans", plan("certifications", "future", false)).await;
+        let path = format!("{ADMIN}/plans/{}", future["id"].as_str().unwrap());
+        assert_eq!(
+            call(
+                s.clone(),
+                "PATCH",
+                &path,
+                json!({"is_active":true}),
+                ADMIN_HEADERS
+            )
+            .await
+            .1["data"]["code"],
+            "ONLY_FREE_PLAN_ACTIVE"
+        );
+        for payload in [
+            json!({"app_id":"annotations"}),
+            json!({"code":"free"}),
+            json!({"owner_id":"someone"}),
+            json!({}),
+            json!({"name":"   "}),
+        ] {
+            assert_eq!(
+                call(s.clone(), "PATCH", &path, payload, ADMIN_HEADERS)
+                    .await
+                    .0,
+                400
+            );
+        }
+        let mut claimed = plan("certifications", "free", true);
+        claimed["access_level"] = json!(1);
+        assert_eq!(
+            call(
+                s.clone(),
+                "POST",
+                &format!("{ADMIN}/plans"),
+                claimed,
+                ADMIN_HEADERS
+            )
+            .await
+            .0,
+            400
+        );
+        let unknown = call(
+            s.clone(),
+            "POST",
+            &format!("{ADMIN}/plans"),
+            plan("missing", "free", true),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(unknown.0, 404);
+        assert_eq!(unknown.1["data"]["code"], "PLAN_APP_NOT_FOUND");
+        let free = create(&s, "plans", plan("certifications", "free", true)).await;
+        assert_eq!(
+            call(
+                s.clone(),
+                "POST",
+                &format!("{ADMIN}/plans"),
+                plan("certifications", "free", true),
+                ADMIN_HEADERS
+            )
+            .await
+            .0,
+            409
+        );
+        let path = format!("{ADMIN}/plans/{}", free["id"].as_str().unwrap());
+        let (_, renamed) = call(
+            s.clone(),
+            "PATCH",
+            &path,
+            json!({"name":"Gratuito"}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(renamed["data"]["code"], "free");
+        assert_eq!(renamed["data"]["is_active"], true);
+        for query in [
+            "",
+            "?app_id=",
+            "?app_id=certifications&app_id=annotations",
+            "?app_id=certifications&owner_id=other",
+        ] {
+            assert_eq!(
+                call(
+                    s.clone(),
+                    "GET",
+                    &format!("/apps/api/v1/plans{query}"),
+                    json!({}),
+                    &[]
+                )
+                .await
+                .0,
+                400
+            );
+        }
+    }
+    #[tokio::test]
+    async fn cross_app_memberships_are_refused_and_deletes_remove_only_related_rows() {
+        let s = setup().await;
+        let free = create(&s, "plans", plan("certifications", "free", true)).await;
+        let local = create(&s, "features", plan("certifications", "search", true)).await;
+        let other = create(&s, "features", plan("annotations", "search", true)).await;
+        let pair = json!({"plan_id":free["id"],"feature_id":local["id"]});
+        let path = format!("{ADMIN}/plan-features");
+        let (status, error) = call(
+            s.clone(),
+            "POST",
+            &path,
+            json!({"plan_id":free["id"],"feature_id":other["id"]}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(status, 400);
+        assert_eq!(error["data"]["code"], "PLAN_FEATURE_APP_MISMATCH");
+        create(&s, "plan-features", pair.clone()).await;
+        assert_eq!(
+            call(s.clone(), "POST", &path, pair, ADMIN_HEADERS).await.0,
+            409
+        );
+        let pair_path = format!(
+            "{ADMIN}/plan-features/{}/{}",
+            free["id"].as_str().unwrap(),
+            local["id"].as_str().unwrap()
+        );
+        assert_eq!(
+            call(s.clone(), "DELETE", &pair_path, json!({}), ADMIN_HEADERS)
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            call(s.clone(), "DELETE", &pair_path, json!({}), ADMIN_HEADERS)
+                .await
+                .0,
+            404
+        );
+        create(
+            &s,
+            "plan-features",
+            json!({"plan_id":free["id"],"feature_id":local["id"]}),
+        )
+        .await;
+        let feature_path = format!("{ADMIN}/features/{}", local["id"].as_str().unwrap());
+        assert_eq!(
+            call(s.clone(), "DELETE", &feature_path, json!({}), ADMIN_HEADERS)
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.1["data"][0]["features"],
+            json!([])
+        );
+        let plan_path = format!("{ADMIN}/plans/{}", free["id"].as_str().unwrap());
+        assert_eq!(
+            call(s.clone(), "DELETE", &plan_path, json!({}), ADMIN_HEADERS)
+                .await
+                .0,
+            200
+        );
+        assert_eq!(
+            call(s.clone(), "GET", PUBLIC, json!({}), &[]).await.1["data"],
+            json!([])
+        );
+        let (_, result) = call(
+            s,
+            "GET",
+            &format!("{ADMIN}/features?app_id=annotations"),
+            json!({}),
+            ADMIN_HEADERS,
+        )
+        .await;
+        assert_eq!(result["data"][0]["id"], other["id"]);
+    }
+    #[tokio::test]
+    async fn central_admin_level_and_mutation_csrf_precede_body_validation() {
+        let s = setup().await;
+        s.cache
+            .set(
+                "exchange_auth_app:normal",
+                json!({"session_id":"normal","access_level":3,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        s.cache
+            .set(
+                "exchange_auth_app:admin",
+                json!({"session_id":"admin","access_level":1,"csrf_token":"c"}),
+                60,
+                false,
+            )
+            .await
+            .unwrap();
+        let normal = &[("cookie", "sid=normal; csrf=c"), ("x-csrf-token", "c")];
+        for (method, path) in [
+            ("GET", format!("{ADMIN}/plans?app_id=certifications")),
+            ("POST", format!("{ADMIN}/plans")),
+            ("PATCH", format!("{ADMIN}/plans/invalid")),
+            ("DELETE", format!("{ADMIN}/features/invalid")),
+            ("POST", format!("{ADMIN}/plan-features")),
+        ] {
+            assert_eq!(
+                call(s.clone(), method, &path, json!({"access_level":1}), normal)
+                    .await
+                    .0,
+                403
+            );
+            assert_eq!(call(s.clone(), method, &path, json!({}), &[]).await.0, 403);
+        }
+        let path = format!("{ADMIN}/plans");
+        assert_eq!(
+            call(
+                s.clone(),
+                "POST",
+                &path,
+                plan("certifications", "free", true),
+                &[("cookie", "sid=admin; csrf=c")]
+            )
+            .await
+            .0,
+            403
+        );
+        assert_eq!(
+            call(
+                s.clone(),
+                "POST",
+                &path,
+                plan("certifications", "free", true),
+                &[("cookie", "sid=admin; csrf=c"), ("x-csrf-token", "c")]
+            )
+            .await
+            .0,
+            201
+        );
+        assert_eq!(call(s, "GET", PUBLIC, json!({}), &[]).await.0, 200);
+    }
+    #[tokio::test]
+    async fn unavailable_schema_does_not_create_or_seed_it_at_request_time() {
+        let s = state().await;
+        let (status, error) = call(s.clone(), "GET", PUBLIC, json!({}), &[]).await;
+        assert_eq!(status, 503);
+        assert_eq!(error["data"]["code"], "PLAN_SERVICE_UNAVAILABLE");
+        assert!(!error.to_string().contains("SELECT"));
+        let dal::database::Database::Sqlite(pool) = &s.db else {
+            unreachable!()
+        };
+        assert_eq!(
+            sqlx::query_scalar::<_, i64>(
+                "SELECT count(*) FROM sqlite_master WHERE name='app_plans'"
+            )
+            .fetch_one(pool)
+            .await
+            .unwrap(),
+            0
+        );
+    }
+    #[tokio::test]
+    async fn postgres_plans_schema_and_queries_on_disposable_test_database() {
+        let Ok(connection) = std::env::var("TEST_PLANS_PG_URL") else {
+            return;
+        };
+        let parsed = url::Url::parse(&connection).unwrap();
+        assert_eq!(parsed.host_str(), Some("127.0.0.1"));
+        assert!(
+            parsed
+                .port()
+                .is_some_and(|port| port >= 1024 && port != 5432)
+        );
+        assert_eq!(
+            parsed.path(),
+            "/gateway66_test",
+            "disposable named test database only"
+        );
+        let pool = sqlx::PgPool::connect(&connection).await.unwrap();
+        for _ in 0..2 {
+            sqlx::raw_sql(include_str!("../migrations/001_app_catalog.sql"))
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::raw_sql(include_str!("../migrations/004_app_plans.sql"))
+                .execute(&pool)
+                .await
+                .unwrap();
+        }
+        let app = format!("plan-test-{}", uuid::Uuid::new_v4().simple());
+        sqlx::query("INSERT INTO defaultdb_app(id,name,is_active) VALUES($1,'Test',true)")
+            .bind(&app)
+            .execute(&pool)
+            .await
+            .unwrap();
+        let mut s = state().await;
+        s.db = dal::database::Database::Pg(pool.clone());
+        let free = plans::create_plan(
+            &s,
+            serde_json::from_value(plan(&app, "free", true)).unwrap(),
+        )
+        .await
+        .unwrap();
+        let feature = plans::create_feature(
+            &s,
+            serde_json::from_value(plan(&app, "search", true)).unwrap(),
+        )
+        .await
+        .unwrap();
+        plans::attach(
+            &s,
+            &Membership {
+                plan_id: free.id.clone(),
+                feature_id: feature.id.clone(),
+            },
+        )
+        .await
+        .unwrap();
+        let result = plans::plans(&s, &app, true).await.unwrap();
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].features[0].id, feature.id);
+        assert!(sqlx::query("INSERT INTO app_plans(id,app_id,code,name,is_active) VALUES('bad',$1,'paid','Paid',true)").bind(&app).execute(&pool).await.is_err());
+        plans::update_plan(
+            &s,
+            &free.id,
+            Update {
+                is_active: Some(false),
+                ..Default::default()
+            },
+        )
+        .await
+        .unwrap();
+        assert!(plans::plans(&s, &app, true).await.unwrap().is_empty());
+        plans::delete_feature(&s, &feature.id).await.unwrap();
+        plans::delete_plan(&s, &free.id).await.unwrap();
+        sqlx::query("DELETE FROM defaultdb_app WHERE id=$1")
+            .bind(&app)
+            .execute(&pool)
+            .await
+            .unwrap();
+        let forbidden:i64=sqlx::query_scalar("SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND table_name IN ('app_plans','app_features','plan_features') AND (data_type IN ('json','jsonb','ARRAY'))").fetch_one(&pool).await.unwrap();
+        assert_eq!(forbidden, 0);
+    }
+}

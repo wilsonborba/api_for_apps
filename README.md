@@ -124,6 +124,26 @@ never apply this migration. An existing table is inspected and left unchanged.
 Run the isolated schema and dry-run tests with
 `python -m unittest discover -s tools -p test_app_catalog.py`.
 
+## Central plan catalog
+
+The gateway stores plans and features as normalized rows linked to
+`defaultdb_app`. Free (`code: free`) is the only plan that can be active.
+There is no billing, paid priority, quota enforcement or automatic subscription.
+
+Apply the schema explicitly before using plan operations:
+
+```sh
+python scripts/migrate_plans.py --env-file /path/to/canonical/.env --dry-run
+python scripts/migrate_plans.py --env-file /path/to/canonical/.env --yes
+```
+
+The migration adds no application, plan or feature rows. Administrators manage
+plans, features and their memberships through `/apps/api/v1/admin/...`.
+`GET /apps/api/v1/plans?app_id=certifications` is public and returns active plans
+and active linked features for an active application. The API reads SQL directly
+and disables response caching, so changes are visible on the next read.
+The central API documentation lists the request and response contracts.
+
 ## Live logs and recording
 
 `core/logs` provides `debug`, `info`, `warning` and `error`. Debug requires

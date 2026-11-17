@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - *(v2)* Read Cortex v2 logs through SSE (#61) ([`dc2f392`](https://github.com/wilsonborba/api_for_apps/commit/dc2f392c5a55d8732d4b088499c3fb8f4985379c))
 - *(v2)* Discover-cortex-rust-contracts (#62) ([`2733d02`](https://github.com/wilsonborba/api_for_apps/commit/2733d02869b392172a85607865e7ea79d4b76ff5))
 - *(v2)* Refresh-final-contract-source-hashes (#62)
+- *(auth)* Report network refusal and test the Valkey swap path (#64) ([`255e3e1`](https://github.com/wilsonborba/api_for_apps/commit/255e3e1ef3d4e3ffbb36ebd41d6b4e5b619d1ab1))
 
 ### 💼 Other Changes
 

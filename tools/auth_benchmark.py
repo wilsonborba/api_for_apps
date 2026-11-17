@@ -6,8 +6,9 @@ import argparse,asyncio,csv,json,pathlib,time,uuid,statistics,httpx
 p=argparse.ArgumentParser();p.add_argument('--url',required=True);p.add_argument('--implementation',required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--requests',type=int,default=10);p.add_argument('--runs',type=int,default=3);a=p.parse_args()
 if not a.url.startswith('http://127.0.0.1:18'):raise SystemExit('Isolated loopback API required')
 rows=[];origin={'Origin':'https://reports.asodya.com'}
+# The gateway trusts CF-Connecting-IP only from a loopback client (the local tunnel path); one address per request.
 def headers():
- n=uuid.uuid4().hex;return {'X-Forwarded-For':'2001:db8:'+':'.join(n[i:i+4] for i in range(0,24,4))}
+ n=uuid.uuid4().hex;return {'CF-Connecting-IP':'2001:db8:'+':'.join(n[i:i+4] for i in range(0,24,4))}
 async def main():
  async with httpx.AsyncClient(base_url=a.url,timeout=20,limits=httpx.Limits(max_connections=16)) as c:
   # Create the fixture identity once, so concurrent trials do not measure a new-user race.

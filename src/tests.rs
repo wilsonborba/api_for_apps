@@ -1379,7 +1379,7 @@ mod native_handoff {
         )
     }
     /// The browser or app address comes from cf-connecting-ip behind the local tunnel.
-    /// A unique X-Forwarded-For keeps the per-IP rate limiter out of the way.
+    /// The same address is the per-IP rate key, so the network match and the limiter agree.
     async fn send(
         s: &domain::State,
         method: &str,
@@ -1388,13 +1388,7 @@ mod native_handoff {
         network_ip: &str,
         cookie: Option<&str>,
     ) -> (StatusCode, Value) {
-        let n = REQUESTS.fetch_add(1, Ordering::Relaxed);
-        let rate_ip = format!("192.0.2.{}", n % 250);
-        let rate_ip = format!("{rate_ip}-{n}");
-        let mut headers = vec![
-            ("cf-connecting-ip", network_ip),
-            ("x-forwarded-for", rate_ip.as_str()),
-        ];
+        let mut headers = vec![("cf-connecting-ip", network_ip)];
         let csrf;
         if let Some(cookie) = cookie {
             headers.push(("cookie", cookie));

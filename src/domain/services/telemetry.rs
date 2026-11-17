@@ -160,10 +160,5 @@ pub async fn user(s: &State, h: &HeaderMap) -> anyhow::Result<Option<String>> {
 }
 pub fn client_ip(headers: &HeaderMap, peer: std::net::IpAddr) -> String {
     // Cloudflare's trusted ingress is the local tunnel. Direct clients cannot set their IP.
-    if peer.is_loopback()
-        && let Ok(ip) = auth::header(headers, "cf-connecting-ip").parse::<std::net::IpAddr>()
-    {
-        return ip.to_string();
-    }
-    peer.to_string()
+    auth::request_ip(headers, peer).to_string()
 }

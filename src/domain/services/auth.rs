@@ -35,6 +35,17 @@ pub fn same_secret(a: &str, b: &str) -> bool {
 pub fn header<'a>(h: &'a HeaderMap, k: &str) -> &'a str {
     h.get(k).and_then(|v| v.to_str().ok()).unwrap_or("")
 }
+/// Validated client address for the whole gateway. Only a loopback peer (the local tunnel)
+/// may set it through cf-connecting-ip; any other peer is keyed by its socket address.
+/// X-Forwarded-For is never read, so a direct client cannot choose its own address.
+pub fn request_ip(h: &HeaderMap, peer: std::net::IpAddr) -> std::net::IpAddr {
+    if peer.is_loopback()
+        && let Ok(ip) = header(h, "cf-connecting-ip").parse()
+    {
+        return ip;
+    }
+    peer
+}
 const NATIVE_IDLE_SECONDS: u64 = 30 * 24 * 60 * 60;
 const NATIVE_ABSOLUTE_SECONDS: i64 = 90 * 24 * 60 * 60;
 
@@ -278,11 +289,10 @@ pub async fn rate(
     email: Option<&str>,
     signup: bool,
 ) -> Result<()> {
-    let real = header(h, "x-forwarded-for")
-        .split(',')
-        .next()
-        .filter(|x| !x.is_empty())
-        .unwrap_or(ip);
+    let real = ip
+        .parse()
+        .map(|peer| request_ip(h, peer).to_string())
+        .unwrap_or_else(|_| ip.to_owned());
     for (n, w) in [(5, 60), (if signup { 30 } else { 20 }, 3600)] {
         if s.cache
             .increment(&format!("rl:ip:{action}:ip:{real}:{w}s"), w)
@@ -409,13 +419,10 @@ pub fn handoff_request(s: &State, app: &str, v: &Value) -> Result<Option<Handoff
     }))
 }
 /// Client address for the network match. Only the local Cloudflare tunnel may set it through
-/// cf-connecting-ip (same rule as telemetry); a direct client cannot choose its own address.
+/// cf-connecting-ip (the shared `request_ip` rule); a direct client cannot choose its own address.
 pub fn client_ip(h: &HeaderMap, peer: &str) -> Result<std::net::IpAddr> {
     let peer: std::net::IpAddr = peer.parse().map_err(|_| HandoffFailure::Invalid)?;
-    let ip: std::net::IpAddr = super::telemetry::client_ip(h, peer)
-        .parse()
-        .map_err(|_| HandoffFailure::Invalid)?;
-    Ok(match ip {
+    Ok(match request_ip(h, peer) {
         std::net::IpAddr::V6(ip) => ip
             .to_ipv4_mapped()
             .map(std::net::IpAddr::V4)

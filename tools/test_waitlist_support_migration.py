@@ -14,7 +14,7 @@ spec.loader.exec_module(migration)
 PLAN = "11111111-1111-4111-8111-111111111111"
 
 
-def fake_psql(statuses="", apps="", unique="t", tables=True):
+def fake_psql(statuses="", apps="", unique="t", tables=True, orphans="", user_type="character varying(64)"):
     calls = []
 
     def run(environment, arguments):
@@ -26,6 +26,10 @@ def fake_psql(statuses="", apps="", unique="t", tables=True):
             return "t" if tables else "f"
         if "pg_index" in sql:
             return unique
+        if "format_type" in sql:
+            return user_type if "defaultdb_support_ticket" in sql else "character varying(64)"
+        if "NOT EXISTS (SELECT 1 FROM public.defaultdb_user" in sql:
+            return orphans
         if "GROUP BY status" in sql:
             return statuses
         if "GROUP BY t.source_app" in sql:
@@ -71,11 +75,13 @@ class WaitlistSupportMigrationTests(unittest.TestCase):
             self.assertEqual(db.execute("SELECT count(*) FROM app_waitlist_entries").fetchone()[0], 2)
 
     def test_dry_run_reports_violations_and_never_executes_schema(self):
-        run, calls = fake_psql(statuses="archived|2", apps="legacy-app|3", unique="f")
+        run, calls = fake_psql(statuses="archived|2", apps="legacy-app|3", unique="f", orphans="t-1\nt-2", user_type="uuid")
         with patch.object(migration, "psql", run), patch.object(migration, "migrate_plans") as plans:
             problems = migration.migrate_waitlist_support({}, False)
         plans.assert_called_once_with({}, False)
-        self.assertEqual(len(problems), 3)
+        self.assertEqual(len(problems), 5)
+        self.assertTrue(any(problem.startswith("2 support ticket(s) whose user_id") and problem.endswith("t-1, t-2") for problem in problems))
+        self.assertTrue(any("'uuid'" in problem for problem in problems))
         self.assertTrue(any("legacy-app" in problem and "3" in problem for problem in problems))
         self.assertTrue(any("archived" in problem and "2" in problem for problem in problems))
         self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
@@ -103,6 +109,15 @@ class WaitlistSupportMigrationTests(unittest.TestCase):
             text = path.read_text().upper()
             for word in ("INSERT INTO", "DELETE FROM", "UPDATE PUBLIC", "TRUNCATE", "DROP ", "JSON"):
                 self.assertNotIn(word, text, path)
+
+    def test_apply_refuses_while_tickets_reference_missing_users(self):
+        run, calls = fake_psql(orphans="t-9")
+        with patch.object(migration, "psql", run), patch.object(migration, "migrate_plans") as plans:
+            with self.assertRaises(RuntimeError):
+                migration.migrate_waitlist_support({}, True)
+        plans.assert_not_called()
+        self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
+        self.assertFalse(any("body" in str(call) or "subject" in str(call) for call in calls))
 
     def test_missing_legacy_tables_stop_without_changes(self):
         run, calls = fake_psql(tables=False)

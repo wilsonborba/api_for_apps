@@ -150,8 +150,9 @@ target is a plan or a feature of the same application (composite foreign keys)
 or a stated communication-interest code. Status is `pending`, `contacted`,
 `converted` or `declined`. There are no JSON columns, seed rows or legacy data
 copies; each application moves its own waitlist data at its own cutover.
-Support tickets get a foreign key from `source_app` to `defaultdb_app` and a
-status check (`open`, `pending`, `resolved`, `closed`).
+Support tickets get foreign keys from `source_app` to `defaultdb_app` and from
+`user_id` to `defaultdb_user(uuid_id)` (no cascade; the gateway never deletes
+users), and a status check (`open`, `pending`, `resolved`, `closed`).
 
 ```sh
 python scripts/migrate_waitlist_support.py --env-file /path/to/canonical/.env --dry-run
@@ -159,7 +160,8 @@ python scripts/migrate_waitlist_support.py --env-file /path/to/canonical/.env --
 ```
 
 The dry run only reads and lists existing tickets that would violate the new
-constraints (for example a `source_app` that is not registered). The apply refuses
+constraints (for example a `source_app` that is not registered, or the ids of
+tickets whose `user_id` has no matching user). The apply refuses
 while such rows exist; it never deletes or rewrites rows. Register the
 applications, or resolve the listed rows explicitly, before applying.
 

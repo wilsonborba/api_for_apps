@@ -38,6 +38,23 @@ def unique_user_key(environment):
     )]) == "t"
 
 
+def column_type(environment, table, column):
+    return psql(environment, ["-c", (
+        "SELECT format_type(a.atttypid, a.atttypmod) FROM pg_attribute a "
+        f"WHERE a.attrelid='public.{table}'::regclass AND a.attname='{column}' "
+        "AND a.attnum>0 AND NOT a.attisdropped"
+    )])
+
+
+def orphan_tickets(environment):
+    """Ids only (never ticket content) of tickets whose user_id has no matching user."""
+    return psql(environment, ["-c", (
+        "SELECT t.id FROM public.defaultdb_support_ticket t WHERE t.user_id IS NOT NULL "
+        "AND NOT EXISTS (SELECT 1 FROM public.defaultdb_user u WHERE u.uuid_id=t.user_id) "
+        "ORDER BY t.id"
+    )]).splitlines()
+
+
 def ticket_violations(environment):
     """Read-only report of existing tickets that the new constraints would reject."""
     statuses = counted(psql(environment, ["-c", (
@@ -64,6 +81,21 @@ def migrate_waitlist_support(environment, apply=False):
     problems = []
     if not unique_user_key(environment):
         problems.append("defaultdb_user.uuid_id has no single-column unique index")
+    user_key, ticket_user = (
+        column_type(environment, "defaultdb_user", "uuid_id"),
+        column_type(environment, "defaultdb_support_ticket", "user_id"),
+    )
+    if user_key != ticket_user:
+        problems.append(
+            f"defaultdb_support_ticket.user_id type {ticket_user!r} differs from "
+            f"defaultdb_user.uuid_id type {user_key!r}"
+        )
+    orphans = orphan_tickets(environment)
+    if orphans:
+        problems.append(
+            f"{len(orphans)} support ticket(s) whose user_id has no matching user: "
+            + ", ".join(orphans)
+        )
     statuses, apps = ticket_violations(environment)
     for status, count in statuses:
         problems.append(f"{count} support ticket(s) with status {status!r} outside {STATUSES}")

@@ -751,6 +751,241 @@
         ],
         "type": "object"
       },
+      "CentralFeature": {
+        "properties": {
+          "app_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "app_id",
+          "code",
+          "name",
+          "description",
+          "is_active"
+        ],
+        "type": "object"
+      },
+      "CentralFeatureCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "is_active": {
+            "default": false,
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id",
+          "code",
+          "name"
+        ],
+        "type": "object"
+      },
+      "CentralFeatureUpdate": {
+        "additionalProperties": false,
+        "description": "At least one mutable field is required. id,app_id and code are immutable.",
+        "minProperties": 1,
+        "properties": {
+          "description": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CentralPlan": {
+        "properties": {
+          "app_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "app_id",
+          "code",
+          "name",
+          "description",
+          "is_active"
+        ],
+        "type": "object"
+      },
+      "CentralPlanCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "code": {
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "is_active": {
+            "default": false,
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id",
+          "code",
+          "name"
+        ],
+        "type": "object"
+      },
+      "CentralPlanMembership": {
+        "additionalProperties": false,
+        "properties": {
+          "feature_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "plan_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan_id",
+          "feature_id"
+        ],
+        "type": "object"
+      },
+      "CentralPlanUpdate": {
+        "additionalProperties": false,
+        "description": "At least one mutable field is required. id,app_id and code are immutable. Only code free can be active.",
+        "minProperties": 1,
+        "properties": {
+          "description": {
+            "maxLength": 2048,
+            "type": "string"
+          },
+          "is_active": {
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "CentralPlanView": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CentralPlan"
+          },
+          {
+            "properties": {
+              "features": {
+                "items": {
+                  "$ref": "#/components/schemas/CentralFeature"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "features"
+            ],
+            "type": "object"
+          }
+        ]
+      },
       "CertificationCreatePayload": {
         "properties": {
           "badge_file_key": {
@@ -11640,6 +11875,739 @@
         "x-source-tree-sha256": "05faab27e4bff9aa573b231540ada3282767882a7f639dccdf25b41b5fe87c0f"
       }
     },
+    "/apps/api/v1/admin/features": {
+      "get": {
+        "description": "Central administrator read,including inactive rows. Requires app_id. Plans include all linked feature rows; features are returned as a flat list. Responses disable caching.",
+        "operationId": "gateway_get__apps_api_v1_admin_features",
+        "parameters": [
+          {
+            "description": "Registered application identifier. No additional query fields are accepted.",
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-z][a-z0-9_-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/CentralFeature"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "List application features",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      },
+      "post": {
+        "description": "Central administrator operation. The app must already exist in the SQL app catalog. id is generated by the server; app_id and code remain immutable. Rows default to inactive. A plan may be active only when its stable machine code is free; its display name can change. No migration/startup seeds are added.",
+        "operationId": "gateway_post__apps_api_v1_admin_features",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralFeatureCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CentralFeature"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Create an application feature",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
+    "/apps/api/v1/admin/features/{feature_id}": {
+      "delete": {
+        "description": "Central administrator operation. Deletes the selected row and its plan-feature memberships through foreign keys. Does not delete the registered app or other plans/features.",
+        "operationId": "gateway_delete__apps_api_v1_admin_features_feature_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "feature_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Delete a feature",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      },
+      "patch": {
+        "description": "Central administrator operation. Change name,description or is_active. Immutable app/code identity and unknown fields are rejected. Active non-Free plans are refused. Subsequent reads reflect committed SQL changes.",
+        "operationId": "gateway_patch__apps_api_v1_admin_features_feature_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "feature_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralFeatureUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CentralFeature"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Update a feature",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
+    "/apps/api/v1/admin/plan-features": {
+      "post": {
+        "description": "Central administrator operation. Both rows must exist and belong to the same application. app_id is derived from the stored rows,never from the request. Composite foreign keys also reject cross-app memberships. Duplicate memberships are refused.",
+        "operationId": "gateway_post__apps_api_v1_admin_plan-features",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralPlanMembership"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CentralPlanMembership"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Attach a feature to a plan",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
+    "/apps/api/v1/admin/plan-features/{plan_id}/{feature_id}": {
+      "delete": {
+        "description": "Central administrator operation. Removes this pair only. Does not delete its plan or feature.",
+        "operationId": "gateway_delete__apps_api_v1_admin_plan-features_plan_id_feature_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "feature_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Remove a plan-feature membership",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
+    "/apps/api/v1/admin/plans": {
+      "get": {
+        "description": "Central administrator read,including inactive rows. Requires app_id. Plans include all linked feature rows; features are returned as a flat list. Responses disable caching.",
+        "operationId": "gateway_get__apps_api_v1_admin_plans",
+        "parameters": [
+          {
+            "description": "Registered application identifier. No additional query fields are accepted.",
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-z][a-z0-9_-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/CentralPlanView"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "List application plans",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      },
+      "post": {
+        "description": "Central administrator operation. The app must already exist in the SQL app catalog. id is generated by the server; app_id and code remain immutable. Rows default to inactive. A plan may be active only when its stable machine code is free; its display name can change. No migration/startup seeds are added.",
+        "operationId": "gateway_post__apps_api_v1_admin_plans",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralPlanCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CentralPlan"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Create an application plan",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
+    "/apps/api/v1/admin/plans/{plan_id}": {
+      "delete": {
+        "description": "Central administrator operation. Deletes the selected row and its plan-feature memberships through foreign keys. Does not delete the registered app or other plans/features.",
+        "operationId": "gateway_delete__apps_api_v1_admin_plans_plan_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Delete a plan",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      },
+      "patch": {
+        "description": "Central administrator operation. Change name,description or is_active. Immutable app/code identity and unknown fields are rejected. Active non-Free plans are refused. Subsequent reads reflect committed SQL changes.",
+        "operationId": "gateway_patch__apps_api_v1_admin_plans_plan_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "plan_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CentralPlanUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CentralPlan"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "403": {
+            "description": "AUTH_REQUIRED or ADMIN_REQUIRED. Mutating session requests require matching csrf cookie and X-CSRF-Token."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "AdminKey": []
+          }
+        ],
+        "summary": "Update a plan",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "administrator",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
+      }
+    },
     "/apps/api/v1/client-error": {
       "get": {
         "deprecated": true,
@@ -12440,6 +13408,72 @@
         ],
         "x-access-level": "administrator",
         "x-source": "api_for_apps/src/presentation/logs.rs"
+      }
+    },
+    "/apps/api/v1/plans": {
+      "get": {
+        "description": "Public plan catalog. Returns only active plans and active linked features of the requested active registered application. Free is the only active plan. Unknown,inactive or empty applications return an empty data array. No user entitlements,subscriptions,billing,paid priority or quotas are created. SQL is authoritative; responses use Cache-Control:no-store.",
+        "operationId": "gateway_get__apps_api_v1_plans",
+        "parameters": [
+          {
+            "description": "Registered application identifier. No additional query fields are accepted.",
+            "in": "query",
+            "name": "app_id",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-z][a-z0-9_-]*$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/CentralPlanView"
+                      },
+                      "type": "array"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful operation."
+          },
+          "400": {
+            "description": "INVALID_PLAN_DATA,PLAN_FEATURE_APP_MISMATCH or ONLY_FREE_PLAN_ACTIVE."
+          },
+          "404": {
+            "description": "PLAN_APP_NOT_FOUND or PLAN_RECORD_NOT_FOUND."
+          },
+          "409": {
+            "description": "PLAN_RECORD_CONFLICT: duplicate code/membership or changed relational data."
+          },
+          "503": {
+            "description": "PLAN_SERVICE_UNAVAILABLE. Apply the explicit schema migration before using this API."
+          }
+        },
+        "security": [],
+        "summary": "Read active application plans",
+        "tags": [
+          "gateway"
+        ],
+        "x-access-level": "public",
+        "x-source": "api_for_apps/src/presentation/plans.rs"
       }
     },
     "/apps/api/v1/telemetry/errors": {

@@ -2,6 +2,7 @@ mod annotations;
 pub mod auth_routes;
 pub mod docs;
 pub mod logs;
+pub mod plans;
 pub mod support_routes;
 pub mod telemetry;
 pub mod validation;
@@ -187,6 +188,9 @@ async fn handle(
             target
         };
         return (StatusCode::TEMPORARY_REDIRECT, [("location", target)]).into_response();
+    }
+    if plans::route(path) {
+        return plans::handle(s, m, path, q, h, b).await;
     }
     if validation::method_allowed(m.as_str(), path) == Some(false) {
         return detail(405, "Method Not Allowed");

@@ -1,3 +1,4 @@
+pub mod models;
 pub mod services;
 pub use services::{auth, documentation, proxy, support, verification};
 

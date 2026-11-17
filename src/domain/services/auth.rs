@@ -252,7 +252,7 @@ pub async fn redeem(s: &State, t: &str, expected: &str) -> Result<Value> {
         .await?;
     Ok(u)
 }
-fn session_key(s: &State, u: &Value) -> String {
+pub(super) fn session_key(s: &State, u: &Value) -> String {
     format!(
         "{}:{}",
         s.settings.get("CACHE_AUTH_PREFIX"),
@@ -261,7 +261,7 @@ fn session_key(s: &State, u: &Value) -> String {
 }
 /// Shared session record for the web exchange and the installed-app finish step.
 /// Native sessions also carry their creation and last-use times for the 30 and 90 day limits.
-fn new_session(p: &Value, native: bool, at: i64) -> Value {
+pub(super) fn new_session(p: &Value, native: bool, at: i64) -> Value {
     let mut u = json!({"session_id":token(32),"provider_user_id":p["provider_user_id"],"access_level":p["access_level"],"user_id":p["id"],"user_uuid_id":p["uuid_id"],"email":p["email"],"csrf_token":token(24)});
     if native {
         u["native"] = json!(true);

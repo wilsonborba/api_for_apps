@@ -1,10 +1,10 @@
 use super::*;
-use crate::domain::auth;
+use crate::domain::{auth, services::browser_handoff};
 pub async fn handle(
     s: &State,
     m: &Method,
     path: &str,
-    _q: Option<&str>,
+    q: Option<&str>,
     h: &HeaderMap,
     b: Bytes,
     ip: &str,
@@ -43,6 +43,49 @@ pub async fn handle(
         cookies(s, h, &mut r, None);
         return r;
     }
+    if path == "/apps/api/v1/exchange" && m == Method::GET {
+        let pairs: Vec<(String, String)> = url::form_urlencoded::parse(q.unwrap_or("").as_bytes())
+            .into_owned()
+            .collect();
+        let mut result = match pairs.as_slice() {
+            [(key, id)] if key == "handoff_id" => match browser_handoff::preview(s, h, id).await {
+                Ok(preview) => {
+                    let mut r = response(200, "Continuation preview", preview.data);
+                    continuation_cookie(
+                        h,
+                        &mut r,
+                        browser_handoff::BROWSER_COOKIE,
+                        &preview.browser_cookie,
+                        preview.ttl,
+                        true,
+                        "",
+                    );
+                    if auth::cookie(h, &s.settings.get("CSRF_COOKIE_KEY_NAME")).is_none() {
+                        let host = auth::header(h, "host").split(':').next().unwrap_or("");
+                        let domain = if host.ends_with(&s.settings.get("ASODYA_MAIN_DOMAIN")) {
+                            format!("; Domain={}", s.settings.get("COOKIE_DOMAIN_PROD"))
+                        } else {
+                            String::new()
+                        };
+                        continuation_cookie(
+                            h,
+                            &mut r,
+                            &s.settings.get("CSRF_COOKIE_KEY_NAME"),
+                            &preview.csrf_cookie,
+                            preview.ttl,
+                            false,
+                            &domain,
+                        );
+                    }
+                    r
+                }
+                Err(error) => browser_handoff_error(error),
+            },
+            _ => browser_handoff_error(browser_handoff::Failure::Invalid.into()),
+        };
+        private_continuation(&mut result);
+        return result;
+    }
     let v = match parse(&b) {
         Ok(v) => v,
         Err(r) => {
@@ -54,6 +97,32 @@ pub async fn handle(
         }
     };
     if path == "/apps/api/v1/exchange" && m == Method::POST {
+        if let Some(action) = v.get("action") {
+            let mut r = match action.as_str() {
+                Some("create_browser_handoff") => match browser_handoff::create(s, h, &v).await {
+                    Ok(data) => response(200, "Continuation created", data),
+                    Err(error) => browser_handoff_error(error),
+                },
+                Some("redeem_browser_handoff") => match browser_handoff::redeem(s, h, &v).await {
+                    Ok(result) => {
+                        let mut r =
+                            response(200, "Success", json!({"target_url":result.target_url}));
+                        if let Some(session) = result.session {
+                            cookies(s, h, &mut r, Some(&session));
+                        }
+                        r
+                    }
+                    Err(error) => browser_handoff_error(error),
+                },
+                Some("cancel_browser_handoff") => match browser_handoff::cancel(s, h, &v).await {
+                    Ok(()) => response(200, "Continuation cancelled", Value::Null),
+                    Err(error) => browser_handoff_error(error),
+                },
+                _ => browser_handoff_error(browser_handoff::Failure::Invalid.into()),
+            };
+            private_continuation(&mut r);
+            return r;
+        }
         // Installed-app finish: native branch, no Origin check. The web branch below is unchanged.
         if v.get("handoff_id").is_some_and(|id| !id.is_null()) {
             if !auth::native_enabled(s) {
@@ -514,4 +583,49 @@ fn handoff_error(error: anyhow::Error) -> Response {
             json!({"code":"SERVICE_UNAVAILABLE"}),
         ),
     }
+}
+
+fn browser_handoff_error(error: anyhow::Error) -> Response {
+    match error.downcast_ref::<browser_handoff::Failure>() {
+        Some(failure) => response(
+            failure.status(),
+            failure.message(),
+            json!({"code":failure.code()}),
+        ),
+        None => response(
+            503,
+            "Unable to continue in the browser.",
+            json!({"code":"SERVICE_UNAVAILABLE"}),
+        ),
+    }
+}
+fn private_continuation(r: &mut Response) {
+    r.headers_mut()
+        .insert("cache-control", "no-store".parse().unwrap());
+    r.headers_mut()
+        .insert("pragma", "no-cache".parse().unwrap());
+    r.headers_mut()
+        .insert("referrer-policy", "no-referrer".parse().unwrap());
+}
+fn continuation_cookie(
+    h: &HeaderMap,
+    r: &mut Response,
+    name: &str,
+    value: &str,
+    ttl: u64,
+    http_only: bool,
+    domain: &str,
+) {
+    let secure = if auth::header(h, "x-forwarded-proto").eq_ignore_ascii_case("https") {
+        "; Secure"
+    } else {
+        ""
+    };
+    let http_only = if http_only { "; HttpOnly" } else { "" };
+    r.headers_mut().append(
+        "set-cookie",
+        format!("{name}={value}; Path=/; Max-Age={ttl}; SameSite=lax{domain}{secure}{http_only}")
+            .parse()
+            .unwrap(),
+    );
 }

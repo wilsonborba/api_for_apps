@@ -1639,12 +1639,35 @@ mod native_handoff {
                 .0,
             200
         );
+        // Section 4.3: the first finish that fails only on the network says why.
+        let refused = finish(&s, "annotations", &id, &secret, "203.0.114.1").await;
+        assert_eq!(code(&refused), (403, "LOGIN_REFUSED_NETWORK".into()));
+        assert_eq!(
+            refused.1["message"],
+            "Login refused. The login came from a different location."
+        );
+        assert_eq!(record(&s, &id).await["status"], "used");
+        assert!(record(&s, &id).await["session_id"].is_null());
+        // Later finishes on that record answer used, from any network.
         assert_eq!(
             code(&finish(&s, "annotations", &id, &secret, "203.0.114.1").await),
             (409, "HANDOFF_USED".into())
         );
         assert_eq!(
             code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await),
+            (409, "HANDOFF_USED".into())
+        );
+        // Wrong secret from a wrong network proves nothing about the caller: plain used.
+        let (id, _, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "linux", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        let (_, wrong, _) = device();
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &wrong, "203.0.114.1").await),
             (409, "HANDOFF_USED".into())
         );
         // Wrong application.
@@ -1697,6 +1720,10 @@ mod native_handoff {
         );
         assert_eq!(
             code(&finish(&s, "annotations", &id, &secret, "2001:db8:1:3::1").await),
+            (403, "LOGIN_REFUSED_NETWORK".into())
+        );
+        assert_eq!(
+            code(&finish(&s, "annotations", &id, &secret, "2001:db8:1:2::1").await),
             (409, "HANDOFF_USED".into())
         );
         // A direct client cannot pick its network: cf-connecting-ip counts only from the local tunnel.
@@ -1985,5 +2012,276 @@ mod native_handoff {
         let bytes = rmp_serde::to_vec_named(&v).unwrap();
         let back: Value = rmp_serde::from_slice(&bytes).unwrap();
         assert_eq!(rmp_serde::to_vec_named(&back).unwrap(), bytes);
+    }
+}
+
+// Real Valkey check of the EVAL compare-and-swap path. Runs only when TEST_VALKEY_URL points
+// at a disposable loopback instance (never the services' Valkey or Redis on port 6379).
+mod valkey_handoff {
+    use super::*;
+    use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+    use domain::auth::{self, HandoffFailure, HandoffRequest};
+    use sha2::{Digest, Sha256};
+
+    fn test_url() -> Option<String> {
+        let url = std::env::var("TEST_VALKEY_URL").ok()?;
+        let parsed = url::Url::parse(&url).expect("TEST_VALKEY_URL");
+        assert_eq!(
+            parsed.host_str(),
+            Some("127.0.0.1"),
+            "loopback test instance only"
+        );
+        assert_ne!(
+            parsed.port(),
+            Some(6379),
+            "never the services' Valkey or Redis"
+        );
+        Some(url)
+    }
+    struct Valkey {
+        s: domain::State,
+        raw: redis::aio::ConnectionManager,
+        ns: String,
+    }
+    async fn valkey(url: &str, extra: &[(&str, &str)]) -> Valkey {
+        let mut s = state().await;
+        let ns = format!("test64:{}:", auth::token(8));
+        s.cache = dal::cache::Cache::new(url, &ns).await.unwrap();
+        let mut values = (*s.settings.values).clone();
+        for (k, v) in extra {
+            values.insert((*k).into(), (*v).into());
+        }
+        s.settings.values = Arc::new(values);
+        let raw = redis::Client::open(url)
+            .unwrap()
+            .get_connection_manager()
+            .await
+            .unwrap();
+        Valkey { s, raw, ns }
+    }
+    impl Valkey {
+        async fn ttl(&self, key: &str) -> i64 {
+            let mut c = self.raw.clone();
+            redis::cmd("TTL")
+                .arg(format!("{}{key}", self.ns))
+                .query_async(&mut c)
+                .await
+                .unwrap()
+        }
+        async fn sessions(&self) -> Vec<String> {
+            let mut c = self.raw.clone();
+            redis::cmd("KEYS")
+                .arg(format!("{}exchange_auth_app:*", self.ns))
+                .query_async(&mut c)
+                .await
+                .unwrap()
+        }
+        async fn record(&self, id: &str) -> Value {
+            self.s
+                .cache
+                .get(&format!("handoff:{id}"), false)
+                .await
+                .unwrap()
+                .unwrap()
+        }
+        async fn cleanup(&self) {
+            let mut c = self.raw.clone();
+            let keys: Vec<String> = redis::cmd("KEYS")
+                .arg(format!("{}*", self.ns))
+                .query_async(&mut c)
+                .await
+                .unwrap();
+            if !keys.is_empty() {
+                let _: u64 = redis::cmd("DEL")
+                    .arg(keys)
+                    .query_async(&mut c)
+                    .await
+                    .unwrap();
+            }
+        }
+    }
+    fn device() -> (HandoffRequest, String) {
+        let secret: [u8; 32] = rand::random();
+        (
+            HandoffRequest {
+                id: URL_SAFE_NO_PAD.encode(rand::random::<[u8; 32]>()),
+                challenge: URL_SAFE_NO_PAD.encode(Sha256::digest(secret)),
+                platform: "linux".into(),
+            },
+            URL_SAFE_NO_PAD.encode(secret),
+        )
+    }
+    fn user() -> Value {
+        json!({"app":"annotations","provider":"supabase","id":7,"uuid_id":"u7","email":"valkey@example.test","access_level":3,"is_active":true,"provider_user_id":"p7"})
+    }
+    async fn store(v: &Valkey, h: &HandoffRequest, ip: &str) -> anyhow::Result<i64> {
+        auth::store_handoff(&v.s, "annotations", h, user(), ip.parse().unwrap()).await
+    }
+    async fn finish(
+        v: &Valkey,
+        h: &HandoffRequest,
+        secret: &str,
+        ip: &str,
+    ) -> Result<Value, HandoffFailure> {
+        let mut headers = axum::http::HeaderMap::new();
+        headers.insert("cf-connecting-ip", ip.parse().unwrap());
+        auth::finish_handoff(
+            &v.s,
+            &json!({"app":"annotations","handoff_id":h.id,"secret":secret}),
+            &headers,
+            "127.0.0.1",
+        )
+        .await
+        .map_err(|e| *e.downcast_ref::<HandoffFailure>().expect("handoff answer"))
+    }
+
+    #[tokio::test]
+    async fn valkey_store_finish_retry_and_session_renewal() {
+        let Some(url) = test_url() else {
+            eprintln!("TEST_VALKEY_URL not set: Valkey integration test skipped");
+            return;
+        };
+        let v = valkey(&url, &[]).await;
+        let (h, secret) = device();
+        // SET NX handoff store with the 30 minute record TTL.
+        assert!(store(&v, &h, "203.0.113.10").await.is_ok());
+        let ttl = v.ttl(&format!("handoff:{}", h.id)).await;
+        assert!((1795..=1800).contains(&ttl), "record ttl {ttl}");
+        assert_eq!(
+            store(&v, &h, "203.0.113.10")
+                .await
+                .unwrap_err()
+                .downcast_ref::<HandoffFailure>(),
+            Some(&HandoffFailure::Used)
+        );
+        assert_eq!(v.record(&h.id).await["status"], "done");
+        // Finish success through EVAL: status used, record TTL kept, session created.
+        let done = finish(&v, &h, &secret, "203.0.113.99").await.unwrap();
+        let sid = done["session_id"].as_str().unwrap().to_owned();
+        let record = v.record(&h.id).await;
+        assert_eq!(record["status"], "used");
+        assert_eq!(record["session_id"], sid.as_str());
+        let ttl = v.ttl(&format!("handoff:{}", h.id)).await;
+        assert!((1790..=1800).contains(&ttl), "KEEPTTL kept {ttl}");
+        let session_ttl = v.ttl(&format!("exchange_auth_app:{sid}")).await;
+        assert!(session_ttl > 30 * 86400 - 10, "session ttl {session_ttl}");
+        // Retry window: same secret and network give the same session; wrong network is used.
+        assert_eq!(
+            finish(&v, &h, &secret, "203.0.113.5").await.unwrap()["session_id"],
+            sid.as_str()
+        );
+        assert_eq!(
+            finish(&v, &h, &secret, "198.51.100.5").await,
+            Err(HandoffFailure::Used)
+        );
+        assert_eq!(v.sessions().await.len(), 1);
+        // Native session renewal through EVAL with a new TTL.
+        let key = format!("exchange_auth_app:{sid}");
+        let mut u = v.s.cache.get(&key, false).await.unwrap().unwrap();
+        let at = auth::now();
+        u["last_used_at"] = json!(at - 86400);
+        v.s.cache.set(&key, u, 60, false).await.unwrap();
+        let mut hm = axum::http::HeaderMap::new();
+        hm.insert("cookie", format!("sid={sid}").parse().unwrap());
+        let renewed = auth::session(&v.s, &hm).await.unwrap().unwrap();
+        assert!(renewed["last_used_at"].as_i64().unwrap() >= at);
+        assert!(v.ttl(&key).await > 30 * 86400 - 10);
+        // Revoked session: the retry answers used and never restores it.
+        v.s.cache.delete(&key).await.unwrap();
+        assert_eq!(
+            finish(&v, &h, &secret, "203.0.113.5").await,
+            Err(HandoffFailure::Used)
+        );
+        assert!(v.sessions().await.is_empty());
+        v.cleanup().await;
+    }
+
+    #[tokio::test]
+    async fn valkey_concurrent_finishes_create_one_session() {
+        let Some(url) = test_url() else {
+            eprintln!("TEST_VALKEY_URL not set: Valkey integration test skipped");
+            return;
+        };
+        // Without a retry window exactly one concurrent finish wins.
+        let v = valkey(&url, &[("HANDOFF_RETRY_SECONDS", "0")]).await;
+        let (h, secret) = device();
+        store(&v, &h, "203.0.113.10").await.unwrap();
+        let results = futures_util::future::join_all(
+            (0..16).map(|_| finish(&v, &h, &secret, "203.0.113.10")),
+        )
+        .await;
+        assert_eq!(
+            results.iter().filter(|r| r.is_ok()).count(),
+            1,
+            "{results:?}"
+        );
+        assert!(
+            results
+                .iter()
+                .all(|r| r.is_ok() || *r == Err(HandoffFailure::Used))
+        );
+        assert_eq!(v.sessions().await.len(), 1);
+        v.cleanup().await;
+        // With the retry window the losers get the winner's session, still only one session.
+        let v = valkey(&url, &[]).await;
+        let (h, secret) = device();
+        store(&v, &h, "203.0.113.10").await.unwrap();
+        let results = futures_util::future::join_all(
+            (0..16).map(|_| finish(&v, &h, &secret, "203.0.113.10")),
+        )
+        .await;
+        let ids: std::collections::HashSet<String> = results
+            .iter()
+            .map(|r| {
+                r.as_ref().unwrap()["session_id"]
+                    .as_str()
+                    .unwrap()
+                    .to_owned()
+            })
+            .collect();
+        assert_eq!(ids.len(), 1);
+        assert_eq!(v.sessions().await.len(), 1);
+        v.cleanup().await;
+    }
+
+    #[tokio::test]
+    async fn valkey_expired_and_network_refusal_keep_the_record() {
+        let Some(url) = test_url() else {
+            eprintln!("TEST_VALKEY_URL not set: Valkey integration test skipped");
+            return;
+        };
+        let v = valkey(&url, &[("HANDOFF_VALID_SECONDS", "0")]).await;
+        let (h, secret) = device();
+        store(&v, &h, "203.0.113.10").await.unwrap();
+        assert_eq!(
+            finish(&v, &h, &secret, "203.0.113.10").await,
+            Err(HandoffFailure::Expired)
+        );
+        assert_eq!(v.record(&h.id).await["status"], "expired");
+        assert!(v.ttl(&format!("handoff:{}", h.id)).await > 1790);
+        assert_eq!(
+            finish(&v, &h, &secret, "203.0.113.10").await,
+            Err(HandoffFailure::Expired)
+        );
+        assert!(v.sessions().await.is_empty());
+        v.cleanup().await;
+        let v = valkey(&url, &[]).await;
+        let (h, secret) = device();
+        store(&v, &h, "203.0.113.10").await.unwrap();
+        assert_eq!(
+            finish(&v, &h, &secret, "198.51.100.10").await,
+            Err(HandoffFailure::RefusedNetwork)
+        );
+        assert_eq!(v.record(&h.id).await["status"], "used");
+        assert_eq!(
+            finish(&v, &h, &secret, "198.51.100.10").await,
+            Err(HandoffFailure::Used)
+        );
+        assert_eq!(
+            finish(&v, &h, &secret, "203.0.113.10").await,
+            Err(HandoffFailure::Used)
+        );
+        assert!(v.sessions().await.is_empty());
+        v.cleanup().await;
     }
 }

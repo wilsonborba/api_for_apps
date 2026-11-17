@@ -76,7 +76,7 @@ scripts/migration_status.sh
 
 `check-storage` and `migration-status` perform reads only. The Rust application recognizes the existing Alembic revision `20260909_01`. Historical revision IDs, source hashes, and the Python reference tag are recorded in `src/dal/data/migration_history.json`. Startup and installation never replay historical migrations.
 
-Use designated isolated fixtures for mutation tests. The tools reject production benchmark targets. Real snapshots and measurements stay in the ignored local `docs/` directory. SQLite verification does not establish PostgreSQL locking or concurrency parity.
+The installed-app handoff Valkey tests run only when `TEST_VALKEY_URL` points at a disposable loopback instance (not port 6379), for example `TEST_VALKEY_URL=redis://127.0.0.1:16379/0 cargo test valkey_handoff`. Without it they are skipped. Use designated isolated fixtures for mutation tests. The tools reject production benchmark targets. Real snapshots and measurements stay in the ignored local `docs/` directory. SQLite verification does not establish PostgreSQL locking or concurrency parity.
 
 ## Historical Python baseline
 

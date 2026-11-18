@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+- Start recording before pausing test time to avoid SQLite pool timeout races (#70).
+
 - Apply support-ticket constraints to new writes without requiring old-row cleanup (#68).
 
 - Strip client access-level and project-admin identity headers on generic proxy routes (#72).

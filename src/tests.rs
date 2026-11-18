@@ -829,8 +829,10 @@ async fn app_log_recording_is_admin_only_single_app_and_stop_preserves_streaming
 #[tokio::test]
 async fn recordings_auto_stop_at_the_fixed_30_minute_deadline() {
     let s = log_state().await;
-    tokio::time::pause();
+    // Startup queries SQLite on a worker thread. With paused time, Tokio can
+    // auto-advance the pool timeout before that real worker answers.
     s.recordings.start(s.clone(), "api_for_apps").await.unwrap();
+    tokio::time::pause();
     tokio::task::yield_now().await;
     tokio::time::advance(std::time::Duration::from_secs(
         core::logs::RECORDING_MAX_SECONDS - 1,

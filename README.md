@@ -152,7 +152,7 @@ The central API documentation lists the request and response contracts.
 target is a plan or a feature of the same application (composite foreign keys)
 or a stated communication-interest code. Status is `pending`, `contacted`,
 `converted` or `declined`. There are no JSON columns, seed rows or legacy data
-copies; each application moves its own waitlist data at its own cutover.
+copies. Old waitlist rows are not copied.
 Support tickets get foreign keys from `source_app` to `defaultdb_app` and from
 `user_id` to `defaultdb_user(uuid_id)` (no cascade; the gateway never deletes
 users), and a status check (`open`, `pending`, `resolved`, `closed`).
@@ -164,9 +164,11 @@ python scripts/migrate_waitlist_support.py --env-file /path/to/canonical/.env --
 
 The dry run only reads and lists existing tickets that would violate the new
 constraints (for example a `source_app` that is not registered, or the ids of
-tickets whose `user_id` has no matching user). The apply refuses
-while such rows exist; it never deletes or rewrites rows. Register the
-applications, or resolve the listed rows explicitly, before applying.
+tickets whose `user_id` has no matching user). These findings are informational.
+Apply adds `NOT VALID` foreign keys and checks, so old rows remain unchanged
+and do not block installation. PostgreSQL enforces the constraints for new
+writes. The tool still refuses incompatible column types or a missing unique
+user key. It never deletes, copies or rewrites rows.
 
 `POST /apps/api/v1/waitlist` is public and rate limited. Repeated sign-ups are
 no-ops, and the response is the same whether or not the email was already listed.

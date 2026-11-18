@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+- Apply support-ticket constraints to new writes without requiring old-row cleanup (#68).
+
 - Strip client access-level and project-admin identity headers on generic proxy routes (#72).
 
 - Add trusted login location and atomic installed-app handoff cancellation (#64).

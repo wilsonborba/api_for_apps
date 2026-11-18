@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Explicit central waitlist schema and support-ticket constraints.
 
-No seed rows, no legacy data copy and no deletion. The dry run only reads. The
-apply refuses, without changing rows, when existing tickets would violate a new
-constraint.
+No seed rows, no legacy data copy and no deletion. The dry run only reads.
+Existing ticket violations are informational: NOT VALID constraints enforce new
+rows without checking or rewriting old rows. Incompatible table structure blocks apply.
 """
 import argparse
 from pathlib import Path
@@ -90,6 +90,7 @@ def migrate_waitlist_support(environment, apply=False):
             f"defaultdb_support_ticket.user_id type {ticket_user!r} differs from "
             f"defaultdb_user.uuid_id type {user_key!r}"
         )
+    structural_problems = list(problems)
     orphans = orphan_tickets(environment)
     if orphans:
         problems.append(
@@ -108,10 +109,11 @@ def migrate_waitlist_support(environment, apply=False):
         migrate_plans(environment, False)
         print("Dry run: no schema or data changes.")
         return problems
-    if problems:
+    if structural_problems:
         raise RuntimeError(
-            "Refusing to apply: resolve the reported rows explicitly first. Nothing was changed."
+            "Refusing to apply: incompatible table structure. Nothing was changed."
         )
+    print("Old row violations do not block apply. NOT VALID constraints enforce new writes.")
     migrate_plans(environment, True)
     psql(environment, ["--single-transaction", "-f", str(WAITLIST)])
     psql(environment, ["--single-transaction", "-f", str(SUPPORT)])

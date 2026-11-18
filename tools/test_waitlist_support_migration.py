@@ -87,13 +87,13 @@ class WaitlistSupportMigrationTests(unittest.TestCase):
         self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
         self.assertFalse(any(word in " ".join(map(str, call)).upper() for call in calls for word in ("DELETE", "UPDATE", "INSERT", "ALTER")))
 
-    def test_apply_refuses_before_any_change_when_rows_would_violate(self):
-        run, calls = fake_psql(apps="legacy-app|1")
+    def test_apply_accepts_old_status_and_app_violations(self):
+        run, calls = fake_psql(statuses="archived|2", apps="legacy-app|1")
         with patch.object(migration, "psql", run), patch.object(migration, "migrate_plans") as plans:
-            with self.assertRaises(RuntimeError):
-                migration.migrate_waitlist_support({}, True)
-        plans.assert_not_called()
-        self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
+            problems = migration.migrate_waitlist_support({}, True)
+        self.assertEqual(len(problems), 2)
+        plans.assert_called_once_with({}, True)
+        self.assertEqual(sum(call[0] == "--single-transaction" for call in calls), 2)
 
     def test_apply_runs_explicit_transactions_without_seed_or_data_rewrites(self):
         run, calls = fake_psql()
@@ -110,14 +110,22 @@ class WaitlistSupportMigrationTests(unittest.TestCase):
             for word in ("INSERT INTO", "DELETE FROM", "UPDATE PUBLIC", "TRUNCATE", "DROP ", "JSON"):
                 self.assertNotIn(word, text, path)
 
-    def test_apply_refuses_while_tickets_reference_missing_users(self):
+    def test_apply_accepts_old_orphaned_users(self):
         run, calls = fake_psql(orphans="t-9")
         with patch.object(migration, "psql", run), patch.object(migration, "migrate_plans") as plans:
-            with self.assertRaises(RuntimeError):
-                migration.migrate_waitlist_support({}, True)
-        plans.assert_not_called()
-        self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
+            self.assertEqual(len(migration.migrate_waitlist_support({}, True)), 1)
+        plans.assert_called_once_with({}, True)
+        self.assertEqual(sum(call[0] == "--single-transaction" for call in calls), 2)
         self.assertFalse(any("body" in str(call) or "subject" in str(call) for call in calls))
+
+    def test_apply_refuses_incompatible_structure_before_schema_changes(self):
+        for kwargs in ({"unique":"f"}, {"user_type":"uuid"}):
+            run, calls = fake_psql(**kwargs)
+            with patch.object(migration,"psql",run), patch.object(migration,"migrate_plans") as plans:
+                with self.assertRaisesRegex(RuntimeError,"incompatible table structure"):
+                    migration.migrate_waitlist_support({},True)
+            plans.assert_not_called()
+            self.assertFalse(any(call[0] == "--single-transaction" for call in calls))
 
     def test_missing_legacy_tables_stop_without_changes(self):
         run, calls = fake_psql(tables=False)

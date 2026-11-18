@@ -28,8 +28,17 @@
   "HANDOFF_RETRY_SECONDS": 120,
   "NATIVE_HANDOFF_ENABLED": true,
   "NATIVE_APP_PLATFORMS": {
-    "annotations": ["linux", "macos", "android", "ios", "ipados"],
-    "cortex": ["android", "cli"]
+    "annotations": [
+      "linux",
+      "macos",
+      "android",
+      "ios",
+      "ipados"
+    ],
+    "cortex": [
+      "android",
+      "cli"
+    ]
   },
   "EXCHANGE_ARTIFACT_TTL_SECONDS": 60,
   "DEFAULT_EXCHANGE_APP": "certifications",
@@ -175,8 +184,10 @@
         "/health",
         "/ready",
         "/catalog",
-        "/posts",
-        "/posts/*",
+        "/notes",
+        "/notes/*",
+        "/authors/*",
+        "/projects/*",
         "/links/preview",
         "/media/*",
         "/instant/*"
@@ -188,6 +199,12 @@
       ],
       "PUT": [
         "/instant/*"
+      ],
+      "PATCH": [
+        "/instant/*"
+      ],
+      "DELETE": [
+        "/instant/*/items/*"
       ]
     }
   },
@@ -206,6 +223,25 @@
       "GET": [
         "/projects/*/reports/*",
         "/projects/*/datasets/*"
+      ]
+    },
+    "annotations": {
+      "GET": [
+        "/models",
+        "/models/*",
+        "/me/*"
+      ],
+      "POST": [
+        "/me/*"
+      ],
+      "PUT": [
+        "/me/*"
+      ],
+      "PATCH": [
+        "/me/*"
+      ],
+      "DELETE": [
+        "/me/*"
       ]
     }
   },
@@ -276,6 +312,7 @@
     },
     "annotations": {
       "GET": [
+        "/logs/stream",
         "/admin/*"
       ],
       "POST": [

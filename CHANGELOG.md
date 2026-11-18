@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+- Expose Annotations v2 public, session, and admin gateway routes with streaming, Range, feedback rate limits, and updated central OpenAPI docs (#73).
+
 - Start recording before pausing test time to avoid SQLite pool timeout races (#70).
 
 - Apply support-ticket constraints to new writes without requiring old-row cleanup (#68).

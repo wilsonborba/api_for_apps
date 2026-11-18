@@ -290,21 +290,34 @@ def rust_annotations(repo):
     i+=1
    expr=text[start:i-1]
    for method in re.findall(r'\b(get|post|put|patch|delete)\(',expr):
+    if path in ('/posts','/posts/{key}','/admin/posts/{id}','/admin/posts/{id}/publish','/admin/images','/admin/images/{key}'):continue
     params=[];body=None
-    if path=='/posts':params=[{'name':k,'in':'query','required':False,'schema':v} for k,v in components['AnnotationsQuery']['properties'].items()]
-    elif path in ('/posts/{key}','/admin/posts/{id}') and method=='get':params=[{'name':'lang','in':'query','schema':{'type':'string'}},{'name':'channel','in':'query','schema':{'type':'string'}}]
-    if path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
-    model= 'Draft' if path=='/admin/schemas' and method=='post' else 'WritePost' if path=='/admin/posts/{id}' and method=='put' else 'Edit' if path.endswith('/items') and method=='post' else None
+    if path=='/notes':params=[{'name':k,'in':'query','required':False,'schema':{'type':'integer' if k=='limit' else 'string'}} for k in ('q','author_id','language','tag','project_id','cursor','limit','browse_token')]
+    elif path=='/notes/{note_id}':params=[{'name':'view','in':'query','schema':{'type':'string'}},{'name':'language','in':'query','schema':{'type':'string'}}]
+    elif path in ('/authors/{author_id}/projects','/me/projects','/admin/projects','/me/tasks'):params=[{'name':k,'in':'query','schema':{'type':'integer' if k=='limit' else 'string'}} for k in ('cursor','limit')]
+    elif path=='/models':params=[{'name':'platform','in':'query','schema':{'type':'string'}},{'name':'language','in':'query','schema':{'type':'string'}}]
+    elif path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
+    elif path in ('/me/transcriptions/{run_id}/events','/me/content_jobs/{job_id}/events'):params=[{'name':'after','in':'query','schema':{'type':'string'}}]
+    elif path=='/me/model_downloads/{download_id}/content':params=[{'name':'Range','in':'header','required':False,'schema':{'type':'string'}}]
+    model='Draft' if path=='/admin/schemas' and method=='post' else 'Edit' if path.endswith('/items') and method=='post' else None
     if model:body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Annotations'+model}}}}
     if path=='/waitlist':body={'required':True,'content':{'application/json':{'schema':{'type':'object','required':['email'],'properties':{'email':{'type':'string','format':'email'},'message':{'type':'string','maxLength':2000}}}}}}
-    if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections. Each entry has id/name; owners use display_name; languages use code/label.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
-    if path.endswith('/files') or path=='/admin/images':
-     params=[{'name':'size' if path.endswith('/files') else 'owner_id','in':'query','required':True,'schema':{'type':'integer','minimum':1,'maximum':50000000} if path.endswith('/files') else {'type':'string'}}]
-     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'}}}}}}
-    binary=method=='get' and (path.startswith('/media/') or path.startswith('/admin/images/') or '/files/' in path)
-    responses={'200':{'description':'Current resource or operation result.','content':{'application/octet-stream' if binary else 'application/json':{'schema':{'type':'string','format':'binary'} if binary else {'type':'object','additionalProperties':True}}}},'404':{'description':'Resource missing, private, unpublished or expired.'},'422':{'description':'Input or registered document schema validation failed.'},'503':{'description':'A required storage service is unavailable.'}}
+    if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
+    if method=='put' and path.endswith('/content') and '/files/' in path:
+     body={'required':True,'content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}}
+    elif method in ('post','put','patch') and not body and path!='/admin/schemas/{name}/versions/{version}/publish':
+     body={'required':True,'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}}
+    sse=method=='get' and (path=='/logs/stream' or path.endswith('/events'))
+    binary=method=='get' and (path.startswith('/media/') or path.endswith('/content') or re.fullmatch(r'/instant/\{[^}]+\}/files/\{[^}]+\}',path) is not None)
+    if sse:
+     responses={'200':{'description':'Server-sent events stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'id: 1\ndata: {}\n\n'}}},'401':{'description':'Authentication required.'},'404':{'description':'Resource missing or not owned by caller.'}}
+    elif path=='/me/model_downloads/{download_id}/content':
+     responses={'200':{'description':'Full model artifact stream.','content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range model artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'401':{'description':'Authentication required.'},'404':{'description':'Download missing or expired.'}}
+    else:
+     responses={'200':{'description':'Current resource or operation result.','content':{'application/octet-stream' if binary else 'application/json':{'schema':{'type':'string','format':'binary'} if binary else {'type':'object','additionalProperties':True}}}},'404':{'description':'Resource missing, private, unpublished or expired.'},'422':{'description':'Input or registered document schema validation failed.'},'503':{'description':'A required storage or adapter service is unavailable.'}}
+    if path=='/me/transcriptions/{run_id}/feedback':responses.update({'413':{'description':'Request body exceeds 2,000,000 bytes.'},'429':{'description':'Per-account or per-network feedback rate or concurrency limit exceeded.'}})
     if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
-    operation('annotations',path,method,method.upper()+' '+path,'Annotations service. Persistent writes, private JSON and schema management require gateway administrator access. Direct trusted LAN calls have no service authentication. Room expiry is fixed, not sliding. Schema definitions are managed only by an administrator; documents require a published registered version.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+    operation('annotations',path,method,method.upper()+' '+path,'Annotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
 
 def rust_cortex(repo):
  source=repo/'src/presentation'

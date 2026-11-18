@@ -22,6 +22,8 @@ pub fn blocked(k: &str) -> bool {
             | "upgrade"
             | "host"
             | "x-uuid"
+            | "x-access-level"
+            | "x-project-admin"
             | "x-display-name"
             | "x-certifications-service-key"
             | "x-certifications-waitlist-registered"

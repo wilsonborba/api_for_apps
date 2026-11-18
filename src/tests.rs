@@ -4724,3 +4724,70 @@ async fn proxy_display_name_uses_current_account_and_strips_spoofed_headers() {
     }
     task.abort();
 }
+
+#[tokio::test]
+async fn generic_proxy_permission_headers_are_gateway_owned() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let h=request.headers();
+        axum::Json(json!({"access":h.get("x-access-level").map(|v|v.to_str().unwrap()),"admin":h.get("x-project-admin").map(|v|v.to_str().unwrap())}))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("DOMAIN_UPSTREAM".into(), format!("http://{address}"));
+    let fake = [
+        ("x-access-level", "1"),
+        ("X-Access-Level", "2"),
+        ("x-project-admin", "true"),
+        ("X-Project-Admin", "true"),
+    ];
+    let (status, value) = call(
+        s.clone(),
+        "GET",
+        "/apps/domain/v1/projects",
+        json!({}),
+        &fake,
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(value, json!({"access":null,"admin":null}));
+    let mut api_key = fake.to_vec();
+    api_key.push(("authorization", "test-admin"));
+    let (status, value) = call(
+        s.clone(),
+        "POST",
+        "/apps/domain/v1/projects",
+        json!({}),
+        &api_key,
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(value, json!({"access":null,"admin":null}));
+    s.cache
+        .set(
+            "exchange_auth_app:permissions",
+            json!({"user_uuid_id":"account","access_level":3,"is_project_admin":false}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    let mut session = fake.to_vec();
+    session.push(("cookie", "sid=permissions"));
+    let (status, value) = call(
+        s,
+        "GET",
+        "/apps/domain/v1/legal/status",
+        json!({}),
+        &session,
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(value, json!({"access":"3","admin":"false"}));
+    task.abort();
+}

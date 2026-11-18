@@ -460,19 +460,56 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
     let (_, v) = call(
         s.clone(),
         "GET",
-        "/apps/annotations/v1/posts?lang=th",
+        "/apps/annotations/v1/notes?lang=th",
         json!({}),
         &[("cf-connecting-ip", "203.0.113.8"), ("x-access-level", "1")],
     )
     .await;
-    assert_eq!(v["path"], "/posts?lang=th");
+    assert_eq!(v["path"], "/notes?lang=th");
     assert_eq!(v["ip"], "203.0.113.8");
     assert_eq!(v["level"], "");
+    // MVP routes are removed at v2 cutover.
+    assert_eq!(
+        call(
+            s.clone(),
+            "GET",
+            "/apps/annotations/v1/posts",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        404
+    );
     assert_eq!(
         call(
             s.clone(),
             "PUT",
             "/apps/annotations/v1/admin/posts/a",
+            json!({}),
+            &[("authorization", "test-admin")]
+        )
+        .await
+        .0,
+        404
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "GET",
+            "/apps/annotations/v1/admin/images/a",
+            json!({}),
+            &[("authorization", "test-admin")]
+        )
+        .await
+        .0,
+        404
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "PUT",
+            "/apps/annotations/v1/admin/notes/a",
             json!({}),
             &[]
         )
@@ -493,7 +530,7 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
         call(
             s.clone(),
             "PUT",
-            "/apps/annotations/v1/admin/posts/a",
+            "/apps/annotations/v1/admin/notes/a",
             json!({}),
             &[("cookie", "sid=ordinary; csrf=c"), ("x-csrf-token", "c")]
         )
@@ -504,7 +541,7 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
     let (status, admin) = call(
         s.clone(),
         "PUT",
-        "/apps/annotations/v1/admin/posts/a",
+        "/apps/annotations/v1/admin/notes/a",
         json!({}),
         &[("authorization", "test-admin")],
     )
@@ -526,8 +563,8 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
     assert_eq!(
         call(
             s,
-            "POST",
-            "/apps/annotations/v1/instant/phone/files?size=12",
+            "PUT",
+            "/apps/annotations/v1/instant/phone/files/f1/content",
             json!({}),
             &[("content-length", "51000000")]
         )
@@ -535,6 +572,194 @@ async fn annotations_boundary_forwards_public_requests_and_rejects_non_admin_wri
         .0,
         413
     );
+    task.abort();
+}
+
+#[tokio::test]
+async fn annotations_v2_session_streaming_range_and_feedback_limits() {
+    use axum::{Router, body::Body, extract::Request as Incoming, http::Response, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let path = request.uri().to_string();
+        if path.ends_with("/content") && request.method() == "GET" {
+            let range = request
+                .headers()
+                .get("range")
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("")
+                .to_string();
+            return Response::builder()
+                .status(206)
+                .header("content-range", format!("bytes 0-3/10 ({range})"))
+                .header("accept-ranges", "bytes")
+                .header("content-length", "4")
+                .header("etag", "\"m1\"")
+                .body(Body::from("abcd"))
+                .unwrap();
+        }
+        if path.contains("/events") {
+            return Response::builder()
+                .status(200)
+                .header("content-type", "text/event-stream")
+                .body(Body::from("id: 2\ndata: ok\n\n"))
+                .unwrap();
+        }
+        let uuid = request
+            .headers()
+            .get("x-uuid")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let display = request
+            .headers()
+            .get("x-display-name")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        let bytes = to_bytes(request.into_body(), 10_000_000).await.unwrap();
+        Response::builder()
+            .status(200)
+            .header("content-type", "application/json")
+            .body(Body::from(
+                json!({"uuid":uuid,"display":display,"path":path,"bytes":bytes.len()}).to_string(),
+            ))
+            .unwrap()
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("ANNOTATIONS_UPSTREAM".into(), format!("http://{address}"));
+
+    // Anonymous and admin-key-without-user calls to session routes fail with 401.
+    for path in [
+        "/apps/annotations/v1/me/notes",
+        "/apps/annotations/v1/models",
+        "/apps/annotations/v1/models/v1",
+    ] {
+        assert_eq!(call(s.clone(), "GET", path, json!({}), &[]).await.0, 401);
+        assert_eq!(
+            call(
+                s.clone(),
+                "GET",
+                path,
+                json!({}),
+                &[("authorization", "test-admin")]
+            )
+            .await
+            .0,
+            401
+        );
+    }
+
+    s.cache
+        .set(
+            "exchange_auth_app:sess1",
+            json!({
+                "access_level": 3,
+                "user_id": 42,
+                "user_uuid_id": "uuid-42",
+                "csrf_token": "c1"
+            }),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    s.db.insert(
+        "defaultdb_user",
+        &json!({"id":42,"uuid_id":"uuid-42","first_name":"Ana","last_name":"Silva"}),
+    )
+    .await
+    .unwrap();
+
+    // Session route forwards x-uuid and x-display-name, stripping spoofed headers.
+    let (status, body) = call(
+        s.clone(),
+        "GET",
+        "/apps/annotations/v1/me/notes",
+        json!({}),
+        &[
+            ("cookie", "sid=sess1"),
+            ("x-uuid", "spoofed"),
+            ("x-display-name", "Spoofed"),
+        ],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(body["uuid"], "uuid-42");
+    assert_eq!(body["display"], "Ana%20Silva");
+
+    // Large binary PUT (> 2 MB) streams through /me/files/{id}/content.
+    let app = crate::presentation::router(s.clone());
+    let mut big_req = Request::builder()
+        .method("PUT")
+        .uri("/apps/annotations/v1/me/files/f1/content")
+        .header("cookie", "sid=sess1; csrf=c1")
+        .header("x-csrf-token", "c1")
+        .body(Body::from(vec![b'x'; 2_500_000]))
+        .unwrap();
+    big_req
+        .extensions_mut()
+        .insert(ConnectInfo(std::net::SocketAddr::from(([127, 0, 0, 1], 1))));
+    let big_res = app.clone().oneshot(big_req).await.unwrap();
+    assert_eq!(big_res.status(), 200);
+    let big_json: Value =
+        serde_json::from_slice(&to_bytes(big_res.into_body(), 1024 * 1024).await.unwrap()).unwrap();
+    assert_eq!(big_json["bytes"], 2_500_000);
+
+    // Model download passes Range and preserves 206 + Content-Range/Accept-Ranges/Content-Length/ETag.
+    let mut dl_req = Request::builder()
+        .method("GET")
+        .uri("/apps/annotations/v1/me/model_downloads/dl-1/content")
+        .header("cookie", "sid=sess1")
+        .header("range", "bytes=0-3")
+        .body(Body::empty())
+        .unwrap();
+    dl_req
+        .extensions_mut()
+        .insert(ConnectInfo(std::net::SocketAddr::from(([127, 0, 0, 1], 1))));
+    let dl_res = app.clone().oneshot(dl_req).await.unwrap();
+    assert_eq!(dl_res.status(), 206);
+    assert_eq!(
+        dl_res.headers().get("content-range").unwrap(),
+        "bytes 0-3/10 (bytes=0-3)"
+    );
+    assert_eq!(dl_res.headers().get("accept-ranges").unwrap(), "bytes");
+    assert_eq!(dl_res.headers().get("etag").unwrap(), "\"m1\"");
+
+    // SSE routes set x-accel-buffering: no.
+    let mut sse_req = Request::builder()
+        .method("GET")
+        .uri("/apps/annotations/v1/me/transcriptions/r1/events?after=1")
+        .header("cookie", "sid=sess1")
+        .body(Body::empty())
+        .unwrap();
+    sse_req
+        .extensions_mut()
+        .insert(ConnectInfo(std::net::SocketAddr::from(([127, 0, 0, 1], 1))));
+    let sse_res = app.clone().oneshot(sse_req).await.unwrap();
+    assert_eq!(sse_res.status(), 200);
+    assert_eq!(sse_res.headers().get("x-accel-buffering").unwrap(), "no");
+
+    // Feedback route enforces per-account rate limit (429 after 30 calls).
+    for i in 0..31 {
+        let (st, _) = call(
+            s.clone(),
+            "POST",
+            "/apps/annotations/v1/me/transcriptions/r1/feedback",
+            json!({"events":[]}),
+            &[("cookie", "sid=sess1; csrf=c1"), ("x-csrf-token", "c1")],
+        )
+        .await;
+        if i < 30 {
+            assert_eq!(st, 200);
+        } else {
+            assert_eq!(st, 429);
+        }
+    }
     task.abort();
 }
 #[tokio::test]
@@ -4688,7 +4913,7 @@ async fn proxy_display_name_uses_current_account_and_strips_spoofed_headers() {
         .unwrap();
         for path in [
             "/apps/cortex/v1/private",
-            "/apps/annotations/v1/admin/posts",
+            "/apps/annotations/v1/admin/notes",
         ] {
             let (status, value) = call(
                 s.clone(),

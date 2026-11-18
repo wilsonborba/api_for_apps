@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+- Add trusted login location and atomic installed-app handoff cancellation (#64).
+
 - Forward the account display name as a trusted Unicode-safe identity header (#71).
 
 ### 🚀 Features

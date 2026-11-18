@@ -136,7 +136,10 @@ pub async fn handle(
                 };
             }
             return match auth::finish_handoff(s, &v, h, ip).await {
-                Ok(data) => response(200, "Success", data),
+                Ok(data) => {
+                    let message = auth::handoff_success_message(&data, &v);
+                    response(200, &message, data)
+                }
                 Err(e) => handoff_error(e),
             };
         }

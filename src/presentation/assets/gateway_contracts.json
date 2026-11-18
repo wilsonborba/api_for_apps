@@ -12168,6 +12168,11 @@
           "maxLength": 43,
           "pattern": "^[A-Za-z0-9_-]{43}$",
           "description": "Device-only raw32-byte secret encoded as unpadded base64url."
+        },
+        "cancel": {
+          "type": "boolean",
+          "default": false,
+          "description": "Cancel this pending native login using the device secret."
         }
       }
     },

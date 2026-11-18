@@ -1337,6 +1337,7 @@ async fn cortex_log_source_reads_sse_without_websocket_upgrade() {
 // Installed-app login handoff (FINAL v2). Local Supabase double and the memory cache only.
 mod native_handoff {
     use super::*;
+    use crate::domain::auth;
     use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
     use sha2::{Digest, Sha256};
     use std::sync::atomic::{AtomicUsize, Ordering};
@@ -1441,6 +1442,230 @@ mod native_handoff {
     }
 
     #[tokio::test]
+    async fn trusted_browser_location_survives_finish_and_retry() {
+        let (s, task) = native_state(&[]).await;
+        for (peer, city, country, expected) in [
+            (
+                "127.0.0.1",
+                Some("Bangkok"),
+                Some("TH"),
+                json!({"city":"Bangkok","country":"TH"}),
+            ),
+            ("::1", None, Some("BR"), json!({"country":"BR"})),
+            ("198.51.100.1", Some("spoof"), Some("US"), Value::Null),
+            ("127.0.0.1", None, None, Value::Null),
+        ] {
+            let (id, secret, challenge) = device();
+            let mut headers = axum::http::HeaderMap::new();
+            if let Some(city) = city {
+                headers.insert("cf-ipcity", city.parse().unwrap());
+            }
+            if let Some(country) = country {
+                headers.insert("cf-ipcountry", country.parse().unwrap());
+            }
+            let handoff = auth::HandoffRequest {
+                id: id.clone(),
+                challenge,
+                platform: "linux".into(),
+            };
+            auth::complete_login(
+                &s,
+                "native-access",
+                "annotations",
+                Some(&handoff),
+                &headers,
+                peer,
+            )
+            .await
+            .unwrap();
+            let v = json!({"app":"annotations","handoff_id":id,"secret":secret});
+            for _ in 0..2 {
+                let result = auth::finish_handoff(&s, &v, &axum::http::HeaderMap::new(), peer)
+                    .await
+                    .unwrap();
+                assert_eq!(result["location"], expected);
+                let message = auth::handoff_success_message(&result, &v);
+                assert_eq!(
+                    message,
+                    if expected.is_null() {
+                        "Logged in"
+                    } else if expected["city"].is_null() {
+                        "Logged in from BR"
+                    } else {
+                        "Logged in from Bangkok, TH"
+                    }
+                );
+            }
+        }
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn app_cancel_blocks_late_browser_login_and_finish() {
+        for before_login in [true, false] {
+            let (s, task) = native_state(&[]).await;
+            let (id, secret, challenge) = device();
+            if !before_login {
+                assert_eq!(
+                    login(&s, "annotations", &id, &challenge, "linux", "203.0.113.1")
+                        .await
+                        .0,
+                    200
+                );
+            }
+            let cancel = json!({"app":"annotations","handoff_id":id,"secret":secret,"cancel":true});
+            let mut wrong = cancel.clone();
+            wrong["secret"] = json!(device().1);
+            if !before_login {
+                assert_eq!(
+                    code(
+                        &send(
+                            &s,
+                            "POST",
+                            "/apps/api/v1/exchange",
+                            wrong,
+                            "203.0.113.1",
+                            None
+                        )
+                        .await
+                    )
+                    .1,
+                    "INVALID_HANDOFF"
+                );
+                assert_eq!(record(&s, &id).await["status"], "done");
+            }
+            for _ in 0..2 {
+                let r = send(
+                    &s,
+                    "POST",
+                    "/apps/api/v1/exchange",
+                    cancel.clone(),
+                    "203.0.113.1",
+                    None,
+                )
+                .await;
+                assert_eq!(r.0, 200);
+                assert_eq!(r.1["data"], json!({"status":"cancelled"}));
+            }
+            assert_eq!(
+                code(&finish(&s, "annotations", &id, &secret, "203.0.113.1").await).1,
+                "HANDOFF_CANCELLED"
+            );
+            assert_eq!(
+                code(&login(&s, "annotations", &id, &challenge, "linux", "203.0.113.1").await).1,
+                "HANDOFF_CANCELLED"
+            );
+            let status =
+                json!({"app":"annotations","handoff_id":id,"challenge":challenge,"status":true});
+            let e = auth::finish_handoff(&s, &status, &axum::http::HeaderMap::new(), "127.0.0.1")
+                .await
+                .unwrap_err();
+            assert_eq!(
+                e.downcast_ref::<auth::HandoffFailure>(),
+                Some(&auth::HandoffFailure::Cancelled)
+            );
+            task.abort();
+        }
+    }
+
+    #[tokio::test]
+    async fn browser_status_contains_no_credentials_and_requires_matching_challenge() {
+        let (s, task) = native_state(&[]).await;
+        let (id, secret, challenge) = device();
+        assert_eq!(
+            login(&s, "annotations", &id, &challenge, "linux", "203.0.113.1")
+                .await
+                .0,
+            200
+        );
+        let status =
+            json!({"app":"annotations","handoff_id":id,"challenge":challenge,"status":true});
+        let r = send(
+            &s,
+            "POST",
+            "/apps/api/v1/exchange",
+            status.clone(),
+            "203.0.113.1",
+            None,
+        )
+        .await;
+        assert_eq!(r.0, 200);
+        assert_eq!(r.1["data"].as_object().unwrap().len(), 2);
+        assert_eq!(r.1["data"]["status"], "done");
+        let mut wrong = status.clone();
+        wrong["challenge"] = json!(device().2);
+        assert_eq!(
+            code(
+                &send(
+                    &s,
+                    "POST",
+                    "/apps/api/v1/exchange",
+                    wrong,
+                    "203.0.113.1",
+                    None
+                )
+                .await
+            )
+            .1,
+            "INVALID_HANDOFF"
+        );
+        let r = finish(&s, "annotations", &id, &secret, "203.0.113.1").await;
+        assert_eq!(r.0, 200);
+        let r = send(
+            &s,
+            "POST",
+            "/apps/api/v1/exchange",
+            status,
+            "203.0.113.1",
+            None,
+        )
+        .await;
+        assert_eq!(r.0, 200);
+        assert_eq!(r.1["data"]["status"], "used");
+        assert!(r.1["data"].get("session_id").is_none());
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn cancel_and_finish_race_has_one_terminal_outcome() {
+        let s = state().await;
+        for _ in 0..16 {
+            let (id, secret, challenge) = device();
+            let h = auth::HandoffRequest {
+                id: id.clone(),
+                challenge,
+                platform: "linux".into(),
+            };
+            auth::store_handoff(
+                &s,
+                "annotations",
+                &h,
+                json!({"id":1}),
+                "127.0.0.1".parse().unwrap(),
+                Value::Null,
+            )
+            .await
+            .unwrap();
+            let v = json!({"app":"annotations","handoff_id":id,"secret":secret});
+            let mut cancel = v.clone();
+            cancel["cancel"] = json!(true);
+            let headers = axum::http::HeaderMap::new();
+            let (finish, cancel) = tokio::join!(
+                auth::finish_handoff(&s, &v, &headers, "127.0.0.1"),
+                auth::finish_handoff(&s, &cancel, &headers, "127.0.0.1")
+            );
+            assert_ne!(finish.is_ok(), cancel.is_ok());
+            let saved = record(&s, &id).await;
+            if cancel.is_ok() {
+                assert_eq!(saved["status"], "cancelled");
+                assert!(saved["session_id"].is_null());
+            } else {
+                assert_eq!(saved["status"], "used");
+            }
+        }
+    }
+
+    #[tokio::test]
     async fn login_stores_handoff_and_finish_returns_one_device_session() {
         let (s, task) = native_state(&[]).await;
         let (id, secret, challenge) = device();
@@ -1482,7 +1707,7 @@ mod native_handoff {
         // Finish from the same /24, without any Origin header.
         let r = finish(&s, "annotations", &id, &secret, "203.0.113.77").await;
         assert_eq!(r.0, 200, "{}", r.1);
-        assert_eq!(r.1["message"], "Success");
+        assert_eq!(r.1["message"], "Logged in");
         let sid = r.1["data"]["session_id"].as_str().unwrap().to_owned();
         let csrf = r.1["data"]["csrf_token"].as_str().unwrap().to_owned();
         assert_eq!(r.1["data"]["expires_in"], 30 * DAY);
@@ -2128,7 +2353,15 @@ mod valkey_handoff {
         json!({"app":"annotations","provider":"supabase","id":7,"uuid_id":"u7","email":"valkey@example.test","access_level":3,"is_active":true,"provider_user_id":"p7"})
     }
     async fn store(v: &Valkey, h: &HandoffRequest, ip: &str) -> anyhow::Result<i64> {
-        auth::store_handoff(&v.s, "annotations", h, user(), ip.parse().unwrap()).await
+        auth::store_handoff(
+            &v.s,
+            "annotations",
+            h,
+            user(),
+            ip.parse().unwrap(),
+            Value::Null,
+        )
+        .await
     }
     async fn finish(
         v: &Valkey,

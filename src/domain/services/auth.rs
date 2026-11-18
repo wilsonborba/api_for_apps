@@ -341,6 +341,7 @@ pub enum HandoffFailure {
     Expired,
     Used,
     RefusedNetwork,
+    Cancelled,
 }
 impl HandoffFailure {
     pub fn code(self) -> &'static str {
@@ -351,6 +352,7 @@ impl HandoffFailure {
             Self::Expired => "HANDOFF_EXPIRED",
             Self::Used => "HANDOFF_USED",
             Self::RefusedNetwork => "LOGIN_REFUSED_NETWORK",
+            Self::Cancelled => "HANDOFF_CANCELLED",
         }
     }
     pub fn message(self) -> &'static str {
@@ -362,6 +364,7 @@ impl HandoffFailure {
             }
             Self::Expired => "This login expired. Start again.",
             Self::Used => "Start again.",
+            Self::Cancelled => "Login cancelled. Start again.",
             Self::RefusedNetwork => "Login refused. The login came from a different location.",
         }
     }
@@ -460,26 +463,58 @@ pub async fn complete_login(
             if !native_enabled(s) {
                 bail!(HandoffFailure::Disabled)
             }
+            let location = visitor_location(h, ip);
             let ip = client_ip(h, ip)?;
             let user = authenticated_user(s, access, app).await?;
-            let expires = store_handoff(s, app, handoff, user, ip).await?;
+            let expires = store_handoff(s, app, handoff, user, ip, location).await?;
             Ok(json!({"expires_at":expires}))
         }
     }
 }
+fn visitor_location(h: &HeaderMap, peer: &str) -> Value {
+    if !peer
+        .parse::<std::net::IpAddr>()
+        .is_ok_and(|ip| ip.is_loopback())
+    {
+        return Value::Null;
+    }
+    let mut location = json!({});
+    for (key, name) in [("cf-ipcity", "city"), ("cf-ipcountry", "country")] {
+        let Some(raw) = h
+            .get(key)
+            .and_then(|v| std::str::from_utf8(v.as_bytes()).ok())
+        else {
+            continue;
+        };
+        let value = raw.trim();
+        if !(value.is_empty()
+            || value.chars().any(char::is_control)
+            || name == "country" && matches!(value, "XX" | "T1"))
+        {
+            location[name] = json!(value);
+        }
+    }
+    if location.as_object().is_some_and(|v| v.is_empty()) {
+        Value::Null
+    } else {
+        location
+    }
+}
+
 pub async fn store_handoff(
     s: &State,
     app: &str,
     handoff: &HandoffRequest,
     user: Value,
     ip: std::net::IpAddr,
+    location: Value,
 ) -> Result<i64> {
     if !native_enabled(s) {
         bail!(HandoffFailure::Disabled)
     }
     let at = now();
     let expires = at + s.settings.number("HANDOFF_VALID_SECONDS", 300) as i64;
-    let record = json!({"app":app,"platform":handoff.platform,"challenge":handoff.challenge,"user":user,"ip":ip.to_string(),"network":network(ip),"created_at":at,"expires_at":expires,"status":"done","used_at":null,"session_id":null,"csrf_token":null});
+    let record = json!({"app":app,"platform":handoff.platform,"challenge":handoff.challenge,"user":user,"ip":ip.to_string(),"network":network(ip),"created_at":at,"expires_at":expires,"status":"done","used_at":null,"session_id":null,"csrf_token":null,"location":location});
     if !s
         .cache
         .set(
@@ -490,14 +525,25 @@ pub async fn store_handoff(
         )
         .await?
     {
+        if let Some(old) = s.cache.get(&handoff_key(s, &handoff.id), false).await?
+            && old["status"] == "cancelled"
+            && old["app"] == app
+            && same_secret(old["challenge"].as_str().unwrap_or(""), &handoff.challenge)
+        {
+            bail!(HandoffFailure::Cancelled)
+        }
         bail!(HandoffFailure::Used)
     }
     Ok(expires)
 }
-fn native_result(u: &Value, at: i64) -> Value {
+fn native_result(u: &Value, at: i64, location: &Value) -> Value {
     let remaining =
         (u["created_at"].as_i64().unwrap_or(0) + NATIVE_ABSOLUTE_SECONDS - at).max(0) as u64;
-    json!({"session_id":u["session_id"],"csrf_token":u["csrf_token"],"expires_in":NATIVE_IDLE_SECONDS.min(remaining)})
+    let mut result = json!({"session_id":u["session_id"],"csrf_token":u["csrf_token"],"expires_in":NATIVE_IDLE_SECONDS.min(remaining)});
+    if !location.is_null() {
+        result["location"] = location.clone();
+    }
+    result
 }
 pub async fn finish_handoff(
     s: &State,
@@ -507,6 +553,18 @@ pub async fn finish_handoff(
 ) -> Result<Value> {
     if !native_enabled(s) {
         bail!(HandoffFailure::Disabled)
+    }
+    if v.get("cancel").is_some_and(|x| !x.is_boolean())
+        || v.get("status").is_some_and(|x| !x.is_boolean())
+        || (v["cancel"] == true && v["status"] == true)
+    {
+        bail!(HandoffFailure::Invalid)
+    }
+    if v["cancel"] == true {
+        return cancel_handoff(s, v).await;
+    }
+    if v["status"] == true {
+        return handoff_status(s, v).await;
     }
     let id = v["handoff_id"].as_str().ok_or(HandoffFailure::Invalid)?;
     let secret = v["secret"].as_str().ok_or(HandoffFailure::Invalid)?;
@@ -553,11 +611,12 @@ pub async fn finish_handoff(
                         && at < u["last_used_at"].as_i64().unwrap_or(0) + NATIVE_IDLE_SECONDS as i64
                     {
                         // Return the same live session; never write or revive it from the saved result.
-                        return Ok(native_result(&u, at));
+                        return Ok(native_result(&u, at, &old["location"]));
                     }
                 }
                 bail!(HandoffFailure::Used)
             }
+            Some("cancelled") if owner => bail!(HandoffFailure::Cancelled),
             Some("expired") => bail!(HandoffFailure::Expired),
             Some("done") => {}
             _ => bail!(HandoffFailure::Used),
@@ -602,7 +661,98 @@ pub async fn finish_handoff(
             )
             .await?
         {
-            return Ok(native_result(&u, at));
+            return Ok(native_result(&u, at, &old["location"]));
         }
+    }
+}
+
+/// Cancellation uses the device secret; status reads use the browser's challenge only.
+async fn cancel_handoff(s: &State, v: &Value) -> Result<Value> {
+    let id = v["handoff_id"].as_str().ok_or(HandoffFailure::Invalid)?;
+    let secret = v["secret"].as_str().ok_or(HandoffFailure::Invalid)?;
+    let app = v["app"].as_str().ok_or(HandoffFailure::Invalid)?;
+    bytes32(id)?;
+    let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(bytes32(secret)?));
+    if !s.settings.allowed_app(app) {
+        bail!(HandoffFailure::Invalid)
+    }
+    let key = handoff_key(s, id);
+    loop {
+        let Some(old) = s.cache.get(&key, false).await? else {
+            let tombstone = json!({"app":app,"challenge":challenge,"status":"cancelled"});
+            if s.cache
+                .set(
+                    &key,
+                    tombstone,
+                    s.settings.number("HANDOFF_RECORD_TTL_SECONDS", 1800),
+                    true,
+                )
+                .await?
+            {
+                return Ok(json!({"status":"cancelled"}));
+            }
+            continue;
+        };
+        if old["app"] != app || !same_secret(&challenge, old["challenge"].as_str().unwrap_or("")) {
+            bail!(HandoffFailure::Invalid)
+        }
+        match old["status"].as_str() {
+            Some("cancelled") => return Ok(json!({"status":"cancelled"})),
+            Some("used") => bail!(HandoffFailure::Used),
+            Some("expired") => bail!(HandoffFailure::Expired),
+            Some("done") => {}
+            _ => bail!(HandoffFailure::Invalid),
+        }
+        let mut next = old.clone();
+        next["status"] = json!("cancelled");
+        if s.cache
+            .compare_and_swap(&key, &old, next, None, None)
+            .await?
+        {
+            return Ok(json!({"status":"cancelled"}));
+        }
+    }
+}
+async fn handoff_status(s: &State, v: &Value) -> Result<Value> {
+    let id = v["handoff_id"].as_str().ok_or(HandoffFailure::Invalid)?;
+    let challenge = v["challenge"].as_str().ok_or(HandoffFailure::Invalid)?;
+    bytes32(id)?;
+    bytes32(challenge)?;
+    let old = s
+        .cache
+        .get(&handoff_key(s, id), false)
+        .await?
+        .ok_or(HandoffFailure::NotFinished)?;
+    if old["app"] != v["app"] || !same_secret(challenge, old["challenge"].as_str().unwrap_or("")) {
+        bail!(HandoffFailure::Invalid)
+    }
+    if old["status"] == "cancelled" {
+        bail!(HandoffFailure::Cancelled)
+    }
+    if old["status"] == "expired" || now() >= old["expires_at"].as_i64().unwrap_or(0) {
+        bail!(HandoffFailure::Expired)
+    }
+    Ok(json!({"status":old["status"],"expires_at":old["expires_at"]}))
+}
+
+pub fn handoff_success_message(data: &Value, request: &Value) -> String {
+    if data["status"] == "cancelled" {
+        return "Login cancelled.".to_owned();
+    }
+    if request["status"] == true {
+        return "Login status".to_owned();
+    }
+    let place = [
+        data["location"]["city"].as_str(),
+        data["location"]["country"].as_str(),
+    ]
+    .into_iter()
+    .flatten()
+    .collect::<Vec<_>>()
+    .join(", ");
+    if place.is_empty() {
+        "Logged in".to_owned()
+    } else {
+        format!("Logged in from {place}")
     }
 }

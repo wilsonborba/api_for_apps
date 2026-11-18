@@ -44,6 +44,9 @@ scripts/app_dev_run.sh
 
 The gateway forwards `/apps/{app}/v1/{path}` to each registered backend. It validates sessions and permissions before adding internal identity headers. Authentication uses Supabase through the gateway, single-use Fernet exchange artifacts, and Redis-backed `sid`/`csrf` sessions. Installed apps use the same routes: the browser login stores a one-use handoff, and the app finishes it with one `POST /apps/api/v1/exchange` carrying `handoff_id` and `secret` (no polling, no new route). Their sessions renew a 30 day idle limit on each use and end after 90 days. `NATIVE_HANDOFF_ENABLED=false` turns this path off. The central API documentation lists the fields and answers.
 
+Backends receive `x-display-name` when an authenticated account has a first or last name. The gateway reads the current account record, joins nonblank stored first and last names with one space, and percent-encodes the UTF-8 bytes. Decode once with a UTF-8 percent decoder, not a form decoder. For example, `Jos%C3%A9%20Silva` decodes to `José Silva`. The header is omitted when no name exists or no account identity is attached. Client-sent copies are always removed, including on public routes. This adds no route or user setting.
+
+
 PostgreSQL stores identity, the ticket index, logs and frontend telemetry. CouchDB stores support threads. SQLite is limited to isolated test fixtures.
 
 ## Central documentation

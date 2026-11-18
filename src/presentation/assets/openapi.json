@@ -9856,7 +9856,7 @@
     }
   },
   "info": {
-    "description": "Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents.",
+    "description": "Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents. Backends receive x-display-name only when account identity is attached and a first or last name exists. The value joins nonblank stored first and last names with one space and percent-encodes their UTF-8 bytes. Decode once with a UTF-8 percent decoder, not a form decoder. Client-sent copies are removed on all proxy routes. No route or setting is added.",
     "title": "Asodya Application Gateway API",
     "version": "1.3.0"
   },

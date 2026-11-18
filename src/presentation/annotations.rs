@@ -50,7 +50,11 @@ pub async fn forward(
     let mut extra = HeaderMap::new();
     if administrator {
         match auth::verify(s, incoming, method.as_str(), true).await {
-            Ok(Some(user)) => super::identity(&mut extra, &user),
+            Ok(Some(user)) => {
+                if super::identity(s, &mut extra, &user).await.is_err() {
+                    return super::detail(503, "Account information unavailable");
+                }
+            }
             Ok(None) => {
                 extra.insert("x-access-level", "1".parse().unwrap());
             }

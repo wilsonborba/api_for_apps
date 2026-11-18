@@ -4407,3 +4407,87 @@ mod central_waitlist {
             .unwrap();
     }
 }
+
+#[tokio::test]
+async fn proxy_display_name_uses_current_account_and_strips_spoofed_headers() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        axum::Json(
+            json!({"name": request.headers().get("x-display-name").map(|v| v.to_str().unwrap())}),
+        )
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    for app in ["CORTEX_UPSTREAM", "ANNOTATIONS_UPSTREAM", "DOMAIN_UPSTREAM"] {
+        Arc::make_mut(&mut s.settings.values).insert(app.into(), format!("http://{address}"));
+    }
+    s.db.insert("defaultdb_user", &json!({"id":1,"uuid_id":"account"}))
+        .await
+        .unwrap();
+    s.cache
+        .set(
+            "exchange_auth_app:named",
+            json!({"user_id":1,"user_uuid_id":"account","access_level":1}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    for (first, last, expected) in [
+        (json!("สมชาย"), json!("ใจดี"), Some("สมชาย ใจดี")),
+        (json!("José"), json!("Gonçalves"), Some("José Gonçalves")),
+        (json!(" A+%\r\n"), Value::Null, Some(" A+%\r\n")),
+        (Value::Null, json!("Silva"), Some("Silva")),
+        (json!(" "), Value::Null, None),
+    ] {
+        s.db.update(
+            "defaultdb_user",
+            &json!(1),
+            &json!({"first_name":first,"last_name":last}),
+        )
+        .await
+        .unwrap();
+        for path in [
+            "/apps/cortex/v1/private",
+            "/apps/annotations/v1/admin/posts",
+        ] {
+            let (status, value) = call(
+                s.clone(),
+                "GET",
+                path,
+                json!({}),
+                &[
+                    ("cookie", "sid=named"),
+                    ("x-display-name", "spoofed"),
+                    ("X-Display-Name", "another-spoof"),
+                ],
+            )
+            .await;
+            assert_eq!(status, 200, "{path}");
+            let decoded = value["name"].as_str().map(|v| {
+                percent_encoding::percent_decode_str(v)
+                    .decode_utf8()
+                    .unwrap()
+                    .into_owned()
+            });
+            assert_eq!(decoded.as_deref(), expected, "{path}");
+        }
+    }
+    for path in ["/apps/domain/v1/projects", "/apps/annotations/v1/catalog"] {
+        let (status, value) = call(
+            s.clone(),
+            "GET",
+            path,
+            json!({}),
+            &[("x-display-name", "spoofed")],
+        )
+        .await;
+        assert_eq!(status, 200, "{path}");
+        assert!(value["name"].is_null(), "{path}");
+    }
+    task.abort();
+}

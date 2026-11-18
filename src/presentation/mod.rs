@@ -257,12 +257,16 @@ async fn handle(
                             None => auth::session(s, h).await.ok().flatten(),
                         };
                         if let Some(u) = u {
-                            identity(&mut extra, &u)
+                            if identity(s, &mut extra, &u).await.is_err() {
+                                return detail(503, "Account information unavailable");
+                            }
                         } else {
                             return response(400, "Bad request", Value::Null);
                         }
-                    } else if let Ok(Some(u)) = auth::session(s, h).await {
-                        identity(&mut extra, &u)
+                    } else if let Ok(Some(u)) = auth::session(s, h).await
+                        && identity(s, &mut extra, &u).await.is_err()
+                    {
+                        return detail(503, "Account information unavailable");
                     }
                 }
                 Err(e) => return response(403, &e.to_string(), Value::Null),
@@ -272,7 +276,7 @@ async fn handle(
     }
     detail(404, "Not Found")
 }
-pub fn identity(h: &mut HeaderMap, u: &Value) {
+pub async fn identity(s: &State, h: &mut HeaderMap, u: &Value) -> anyhow::Result<()> {
     for (key, field) in [
         ("x-uuid", "user_uuid_id"),
         ("x-access-level", "access_level"),
@@ -288,6 +292,23 @@ pub fn identity(h: &mut HeaderMap, u: &Value) {
             }
         }
     }
+    if !u["user_id"].is_null()
+        && let Some(account) = s.db.find("defaultdb_user", "id", &u["user_id"]).await?
+    {
+        let name = ["first_name", "last_name"]
+            .into_iter()
+            .filter_map(|field| account[field].as_str())
+            .filter(|part| !part.trim().is_empty())
+            .collect::<Vec<_>>()
+            .join(" ");
+        if !name.is_empty() {
+            let encoded =
+                percent_encoding::utf8_percent_encode(&name, percent_encoding::NON_ALPHANUMERIC)
+                    .to_string();
+            h.insert("x-display-name", encoded.parse()?);
+        }
+    }
+    Ok(())
 }
 pub fn parse(b: &Bytes) -> Result<Value, Box<Response>> {
     serde_json::from_slice(b).map_err(|_| Box::new(detail(422, "Invalid JSON request body")))

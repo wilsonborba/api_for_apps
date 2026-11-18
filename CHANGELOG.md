@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+- Forward the account display name as a trusted Unicode-safe identity header (#71).
+
 ### 🚀 Features
 
 - *(db)* Merge app catalog foundation (#57) ([`0f84b21`](https://github.com/wilsonborba/api_for_apps/commit/0f84b215706c26d86875861d3f983ecce65e0c32))

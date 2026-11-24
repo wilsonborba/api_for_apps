@@ -333,7 +333,7 @@ def rust_cortex(repo):
  if not selected and (source/'mod.rs').exists():
   mod_text=(source/'mod.rs').read_text()
   app_fn=mod_text[mod_text.find('pub fn app_router'):] if 'pub fn app_router' in mod_text else mod_text
-  selected=set(re.findall(r'(\w+)::(?:router|routes)\(',app_fn))
+  selected=set(re.findall(r'(\w+)::(?:router\w*|routes)\(',app_fn))
  if not selected:
   gaps.append({'app':'cortex','gaps':['Cortex router composition is unresolved; source review is required.']})
   return set(),set()

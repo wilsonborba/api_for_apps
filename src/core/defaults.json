@@ -158,6 +158,7 @@
         "/health",
         "/ready",
         "/catalog",
+        "/templates",
         "/projects",
         "/projects/*",
         "/projects/*/theme",
@@ -171,6 +172,7 @@
         "/health",
         "/ready",
         "/catalog",
+        "/templates",
         "/projects",
         "/projects/*",
         "/projects/*/theme",
@@ -226,8 +228,23 @@
     },
     "reports": {
       "GET": [
+        "/me",
+        "/me/*",
         "/projects/*/reports/*",
         "/projects/*/datasets/*"
+      ],
+      "POST": [
+        "/me/*",
+        "/projects/*/reports/*/cards/*/snapshots"
+      ],
+      "PUT": [
+        "/me/*"
+      ],
+      "PATCH": [
+        "/me/*"
+      ],
+      "DELETE": [
+        "/me/*"
       ]
     },
     "annotations": {
@@ -302,17 +319,29 @@
       ]
     },
     "reports": {
+      "GET": [
+        "/logs/stream",
+        "/admin/*",
+        "/render_jobs/*"
+      ],
       "POST": [
-        "/projects/*/admin/*"
+        "/projects/*/admin/*",
+        "/admin/*",
+        "/render_jobs",
+        "/render_jobs/*"
       ],
       "PUT": [
-        "/projects/*/admin/*"
+        "/projects/*/admin/*",
+        "/admin/*"
       ],
       "PATCH": [
-        "/projects/*/admin/*"
+        "/projects/*/admin/*",
+        "/admin/*"
       ],
       "DELETE": [
-        "/projects/*/admin/*"
+        "/projects/*/admin/*",
+        "/admin/*",
+        "/render_jobs/*"
       ]
     },
     "annotations": {

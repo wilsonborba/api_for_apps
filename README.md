@@ -62,8 +62,8 @@ Only `/docs` serves the gateway documentation UI. `/scalar` is not a gateway doc
 ## Administrative live logs
 
 - `GET /apps/api/v1/logs/stream`: gateway Server-Sent Events.
-- `WS /apps/cortex/v1/logs/stream`: existing Cortex backend stream through the gateway.
-- `WS /apps/certifications/v1/logs/stream`: existing Certifications stream through the gateway.
+- `GET /apps/cortex/v1/logs/stream`: Cortex backend Server-Sent Events stream through the gateway.
+- `WS /apps/certifications/v1/logs/stream`: existing Certifications stream through the gateway (adapted to SSE at `/apps/certifications/v1/logs/stream`).
 
 These require an administrator session or administrative credential. The gateway rechecks authorization during each connection. Streams use bounded buffering and create no new archive. Existing system logging continues normally.
 
@@ -201,8 +201,8 @@ files. Existing historical files are not deleted by installation.
 
 Administrators can read SSE at `/apps/api/v1/logs/stream` and
 `/apps/{registered-app}/v1/logs/stream`. Ordinary sessions and guests receive 403.
-Cortex and Certifications keep their existing WebSocket upgrades; the gateway can
-also adapt those streams to SSE without changing their backends. Other app streams
+Cortex uses its SSE `/logs/stream` endpoint; Certifications keeps its existing WebSocket upgrade, and the gateway
+adapts that stream to SSE without changing its backend. Other app streams
 use the LAN `/logs/stream` endpoint. An unavailable or not-yet-migrated source
 returns 503. App targets come from the server registry, never from a caller URL.
 The gateway does not forward browser cookies or credentials to the LAN stream.

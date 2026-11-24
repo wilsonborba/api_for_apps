@@ -5271,3 +5271,99 @@ async fn annotations_web_exchange_sets_session_cookies_and_rejects_unregistered_
         assert_eq!(replay_status, StatusCode::BAD_REQUEST);
     }
 }
+
+#[tokio::test]
+async fn reports_gateway_v2_route_access_boundaries() {
+    let upstream = axum::Router::new().fallback(|request: axum::extract::Request| async move {
+        let path = request.uri().to_string();
+        axum::Json(json!({"ok": true, "path": path}))
+    });
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("REPORTS_UPSTREAM".into(), format!("http://{address}"));
+    // Guest can list public templates.
+    let (status, body) = call(
+        s.clone(),
+        "GET",
+        "/apps/reports/v1/templates",
+        json!({}),
+        &[],
+    )
+    .await;
+    assert_eq!(status, 200, "{body}");
+    assert_eq!(body["path"], "/templates");
+    // Session-protected owner routes reject anonymous callers.
+    assert_eq!(
+        call(s.clone(), "GET", "/apps/reports/v1/me", json!({}), &[])
+            .await
+            .0,
+        403
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/reports/v1/me/projects/p/items",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        403
+    );
+    // Trusted service/admin routes reject non-admin callers and allow test-admin.
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/reports/v1/render_jobs",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        403
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "GET",
+            "/apps/reports/v1/admin/operations",
+            json!({}),
+            &[]
+        )
+        .await
+        .0,
+        403
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "POST",
+            "/apps/reports/v1/render_jobs",
+            json!({}),
+            &[("authorization", "test-admin")]
+        )
+        .await
+        .0,
+        200
+    );
+    assert_eq!(
+        call(
+            s.clone(),
+            "GET",
+            "/apps/reports/v1/admin/operations",
+            json!({}),
+            &[("authorization", "test-admin")]
+        )
+        .await
+        .0,
+        200
+    );
+    task.abort();
+}

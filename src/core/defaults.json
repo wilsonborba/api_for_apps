@@ -86,6 +86,15 @@
       "http://172.17.0.1:8106",
       "https://asodya.com",
       "https://www.asodya.com"
+    ],
+    "annotations": [
+      "http://localhost:8112",
+      "http://127.0.0.1:8112",
+      "http://192.168.1.103:8112",
+      "http://172.20.10.4:8112",
+      "http://100.93.16.79:8112",
+      "http://172.17.0.1:8112",
+      "https://annotations.asodya.com"
     ]
   },
   "CORTEX_WEB_LOCAL_ORIGIN": "",

@@ -5018,3 +5018,125 @@ async fn generic_proxy_permission_headers_are_gateway_owned() {
     assert_eq!(value, json!({"access":"3","admin":"false"}));
     task.abort();
 }
+
+#[tokio::test]
+async fn annotations_web_exchange_sets_session_cookies_and_rejects_unregistered_origin() {
+    let s = state().await;
+    let fernet = fernet::Fernet::new(&s.settings.get("FERNET_KEY_SECRET")).unwrap();
+
+    for origin in ["https://annotations.asodya.com", "http://localhost:8112"] {
+        let jti = format!("jti-{}", uuid::Uuid::new_v4());
+        let payload = json!({
+            "jti": jti,
+            "app": "annotations",
+            "uuid_id": "ann-user-1",
+            "email": "ann@example.test",
+            "access_level": 3,
+            "is_active": true,
+            "id": 42,
+            "provider_user_id": "sub-ann-1",
+            "provider": "supabase",
+            "exp": domain::auth::now() + 60,
+        });
+        let artifact = fernet.encrypt(&serde_json::to_vec(&payload).unwrap());
+        s.cache
+            .set(
+                &format!("exchange_artifact:{jti}"),
+                json!({"app": "annotations"}),
+                60,
+                true,
+            )
+            .await
+            .unwrap();
+
+        let send_exchange = |req_origin: &str, body: Value| {
+            let state_clone = s.clone();
+            let req_origin = req_origin.to_owned();
+            async move {
+                let mut req = Request::builder()
+                    .method("POST")
+                    .uri("/apps/api/v1/exchange")
+                    .header("content-type", "application/json")
+                    .header("origin", req_origin)
+                    .body(Body::from(serde_json::to_vec(&body).unwrap()))
+                    .unwrap();
+                req.extensions_mut().insert(ConnectInfo(
+                    "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+                ));
+                let res = presentation::router(state_clone)
+                    .oneshot(req)
+                    .await
+                    .unwrap();
+                let status = res.status();
+                let headers = res.headers().clone();
+                let body_json: Value =
+                    serde_json::from_slice(&to_bytes(res.into_body(), 65536).await.unwrap())
+                        .unwrap();
+                (status, headers, body_json)
+            }
+        };
+
+        let (bad_status, bad_headers, bad_body) = send_exchange(
+            "https://unregistered.example.com",
+            json!({"auth_exchange_token": artifact, "app": "annotations"}),
+        )
+        .await;
+        assert_eq!(bad_status, StatusCode::BAD_REQUEST, "{bad_body}");
+        assert_eq!(
+            bad_body["message"],
+            "Exchange origin is not registered for an application"
+        );
+        assert_eq!(bad_headers.get_all("set-cookie").iter().count(), 0);
+
+        let (mismatch_status, mismatch_headers, mismatch_body) = send_exchange(
+            origin,
+            json!({"auth_exchange_token": artifact, "app": "reports"}),
+        )
+        .await;
+        assert_eq!(mismatch_status, StatusCode::BAD_REQUEST, "{mismatch_body}");
+        assert_eq!(mismatch_headers.get_all("set-cookie").iter().count(), 0);
+
+        let (ok_status, ok_headers, ok_body) = send_exchange(
+            origin,
+            json!({"auth_exchange_token": artifact, "app": "annotations"}),
+        )
+        .await;
+        assert_eq!(ok_status, StatusCode::OK, "{origin}: {ok_body}");
+        assert_eq!(
+            ok_headers
+                .get("access-control-allow-origin")
+                .and_then(|v| v.to_str().ok()),
+            Some(origin)
+        );
+        assert_eq!(
+            ok_headers
+                .get("access-control-allow-credentials")
+                .and_then(|v| v.to_str().ok()),
+            Some("true")
+        );
+        let cookies: Vec<&str> = ok_headers
+            .get_all("set-cookie")
+            .iter()
+            .map(|v| v.to_str().unwrap())
+            .collect();
+        assert!(
+            cookies
+                .iter()
+                .any(|c| c.starts_with("sid=") && c.contains("HttpOnly")),
+            "missing HttpOnly sid cookie for {origin}: {cookies:?}"
+        );
+        assert!(
+            cookies
+                .iter()
+                .any(|c| c.starts_with("csrf=") && !c.contains("HttpOnly")),
+            "missing readable csrf cookie for {origin}: {cookies:?}"
+        );
+
+        let (replay_status, _, _) = send_exchange(
+            origin,
+            json!({"auth_exchange_token": artifact, "app": "annotations"}),
+        )
+        .await;
+        assert_eq!(replay_status, StatusCode::BAD_REQUEST);
+    }
+}

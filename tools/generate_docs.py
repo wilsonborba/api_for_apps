@@ -262,8 +262,14 @@ def rust_reports(repo):
     for rm in re.finditer(r'status\s*=\s*(\d+)\s*,\s*description\s*=\s*"([^"]+)"(?:\s*,\s*body\s*=\s*([^\)]+))?',annotation):
      status,desc,typ=rm.groups();responses[status]={'description':desc}
      if typ:responses[status]['content']={'application/json':{'schema':rust_schema(typ.strip()),'example':example(rust_schema(typ.strip()))}}
+    full_path=prefix+path
+    if not responses and (full_path=='/me/projects/{project}/items' and method=='post' or full_path=='/me/items/{id}' and method in ('get','patch') or full_path=='/me/items/{id}/dataset' and method=='put'):
+     ok_code='201' if full_path=='/me/projects/{project}/items' else '200'
+     responses={ok_code:{'description':'Owner report item detail.','content':{'application/json':{'schema':rust_schema('OwnerItemDetail'),'example':example(rust_schema('OwnerItemDetail'))}}},'401':{'description':'Unauthorized'},'403':{'description':'Forbidden'},'404':{'description':'Project, template, or item not found'},'409':{'description':'ETag precondition or duplicate idempotency key conflict'}}
+    elif not responses and full_path=='/me/items/{id}' and method=='delete':
+     responses={'200':{'description':'Owner report item deleted.','content':{'application/json':{'schema':rust_schema('DeleteOwnerItemOutcome'),'example':example(rust_schema('DeleteOwnerItemOutcome'))}}},'401':{'description':'Unauthorized'},'403':{'description':'Forbidden'},'404':{'description':'Item not found'},'409':{'description':'Delete requires confirmation query (?confirm=true) when referenced'}}
     if not responses:unknown.append('Dynamic Rust response shape requires central review.')
-    operation('reports',prefix+path,method,summary_match.group(1) if summary_match else method.upper()+' '+path,desc_match.group(1) if desc_match else 'Reports operation discovered directly from route registration and handler source.',params,body,responses or None,str(f.relative_to(a.workspace))+':'+str(text[:pos].count('\n')+1),unknown=unknown)
+    operation('reports',full_path,method,summary_match.group(1) if summary_match else method.upper()+' '+path,desc_match.group(1) if desc_match else 'Reports operation discovered directly from route registration and handler source.',params,body,responses or None,str(f.relative_to(a.workspace))+':'+str(text[:pos].count('\n')+1),unknown=unknown)
 
 def rust_annotations(repo):
  if not (repo/'lib/presentation/mod.rs').exists():return
@@ -324,6 +330,10 @@ def rust_cortex(repo):
  if not source.exists():return set(),set()
  main=repo/'src/main.rs'
  selected=set(re.findall(r'cortex_api::presentation::(\w+)::router',main.read_text())) if main.exists() else set()
+ if not selected and (source/'mod.rs').exists():
+  mod_text=(source/'mod.rs').read_text()
+  app_fn=mod_text[mod_text.find('pub fn app_router'):] if 'pub fn app_router' in mod_text else mod_text
+  selected=set(re.findall(r'(\w+)::(?:router|routes)\(',app_fn))
  if not selected:
   gaps.append({'app':'cortex','gaps':['Cortex router composition is unresolved; source review is required.']})
   return set(),set()
@@ -441,12 +451,12 @@ def rust_cortex(repo):
      unknown=[]
     if method=='post' and path=='/files':
      responses['200']={'description':'Upload could not be saved. The notice number explains why; no file_id is returned.'}
-    if path=='/logs/stream' or path.endswith('/events') and path.startswith('/chats/'):
-     responses['200']={'description':'Live SSE events. Logs require administrator access.','content':{'text/event-stream':{'schema':{'type':'string'}}}};unknown=[]
+    if method=='get' and (path=='/logs/stream' or path.endswith('/events') or path.endswith('/commands')):
+     responses['200']={'description':'Live SSE events. Stage streams emit session_id and output_id in the initial event and support Last-Event-ID/after/cursor resumption. Logs require administrator access.','content':{'text/event-stream':{'schema':{'type':'string'}}}};unknown=[]
     elif method=='get' and path=='/files/{file_id}/content':
      responses['200']={'description':'Stored file bytes. Content-Type follows the stored file.','content':{'*/*':{'schema':{'type':'string','format':'binary'}}}};unknown=[]
     if method=='post' and path in ['/chats','/chats/{session_id}/inputs']:
-     responses['200']={'description':'When stream=true, live progress, answer and terminal SSE events.','content':{'text/event-stream':{'schema':{'type':'string'}}}}
+     responses['200']={'description':'When stream=true, live progress, stage (initial event emits session_id and output_id), answer and terminal SSE events.','content':{'text/event-stream':{'schema':{'type':'string'}}}}
     operation('cortex',path,method,method.upper()+' '+path,'Cortex Rust v2. The gateway owns authentication and supplies identity. Requests stay JSON except multipart file uploads. Model context format does not change the HTTP contract.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1),unknown=unknown)
  return new,old
 

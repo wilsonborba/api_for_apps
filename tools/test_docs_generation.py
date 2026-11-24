@@ -59,4 +59,20 @@ async fn create(Json(body): Json<NewChat>) -> Response { response() }
    offline=root/'cortex-offline';repo.rename(offline);cached=generate();self.assertIn('/apps/cortex/v1/questions',cached['paths']);offline.rename(repo)
    route.unlink();doc=generate();self.assertNotIn('/apps/cortex/v1/questions',doc['paths'])
 
+ def test_cortex_app_router_composition_and_remote_sse(self):
+  with tempfile.TemporaryDirectory(prefix='cortex-app-router-') as tmp:
+   root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True)
+   shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
+   for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
+   shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   repo=root/'cortex_api';(repo/'src/presentation').mkdir(parents=True);(repo/'src/domain/models').mkdir(parents=True)
+   (repo/'src/main.rs').write_text('fn main() { cortex_api::presentation::app_router(services); }')
+   (repo/'src/presentation/mod.rs').write_text('pub fn app_router(s: S) -> Router { Router::new().merge(remote_cli::routes(s.remote)) }')
+   (repo/'src/presentation/remote_cli.rs').write_text('pub fn routes(s: S) -> Router { Router::new().route("/remote/sessions/{id}/commands", get(cli_commands_sse)) }')
+   subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],check=True,capture_output=True)
+   doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
+   op=doc['paths']['/apps/cortex/v1/remote/sessions/{id}/commands']['get']
+   self.assertIn('text/event-stream',op['responses']['200']['content'])
+   self.assertNotIn('x-discovery-gaps',op)
+
 if __name__=='__main__':unittest.main()

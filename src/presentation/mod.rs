@@ -45,7 +45,7 @@ async fn dispatch(
     let ip = addr.ip().to_string();
     let query = parts.uri.query().map(str::to_owned);
     let origin = auth::header(&h, "origin").to_owned();
-    let cors = allowed_origin(&origin);
+    let cors = allowed_origin(&s, &origin);
     let is_preflight = method == Method::OPTIONS
         && !origin.is_empty()
         && h.contains_key("access-control-request-method");
@@ -119,7 +119,7 @@ async fn dispatch(
     tracing::info!(method=%method,path=%path,status=out.status().as_u16(),"Request completed");
     out
 }
-fn allowed_origin(origin: &str) -> bool {
+fn allowed_origin(s: &State, origin: &str) -> bool {
     if matches!(
         origin,
         "https://auth.asodya.com"
@@ -134,7 +134,8 @@ fn allowed_origin(origin: &str) -> bool {
             | "https://oryza-elo.asodya.com"
             | "https://wilsonborba.com"
             | "https://www.wilsonborba.com"
-    ) {
+    ) || s.settings.origin_app(origin).is_some()
+    {
         return true;
     }
     regex::Regex::new(r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.\d+\.\d+\.\d+|100\.\d+\.\d+\.\d+)(:\d+)?$").unwrap().is_match(origin)

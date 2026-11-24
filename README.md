@@ -105,9 +105,10 @@ supply a validated `CF-Connecting-IP`. Annotations receives the resulting IP for
 its aggregate temporary upload quota. No downstream service credential or LAN
 authentication system was introduced. Central source discovery includes the
 Annotations Rust `lib/presentation` routes and namespaced request contracts. The
-Annotations browser origin (`https://annotations.asodya.com` and configured local
-development/preview origins on port `8112`) is registered in `APP_EXCHANGE_ORIGINS`
-for `POST /apps/api/v1/exchange`.
+Annotations public browser origin (`https://annotations.asodya.com`) and loopback
+defaults (`http://localhost:8112`, `http://127.0.0.1:8112`) are registered in
+`APP_EXCHANGE_ORIGINS` for `POST /apps/api/v1/exchange`; any deployment-specific
+development/preview origins are configured through runtime `APP_EXCHANGE_ORIGINS`.
 
 ## App catalog schema foundation
 

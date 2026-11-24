@@ -26,7 +26,7 @@ pub async fn dispatch(
     if method != Method::POST || suffix == "sessions" {
         return detail(405, "Method Not Allowed");
     }
-    if h.contains_key("origin") && !allowed_origin(auth::header(h, "origin")) {
+    if h.contains_key("origin") && !allowed_origin(s, auth::header(h, "origin")) {
         return detail(403, "Forbidden origin");
     }
     let ip = model::client_ip(h, peer);
@@ -143,7 +143,7 @@ pub async fn legacy(
     if method != Method::POST {
         return detail(405, "Method Not Allowed");
     }
-    if h.contains_key("origin") && !allowed_origin(auth::header(h, "origin")) {
+    if h.contains_key("origin") && !allowed_origin(s, auth::header(h, "origin")) {
         return detail(403, "Forbidden origin");
     }
     let ip = model::client_ip(h, peer);

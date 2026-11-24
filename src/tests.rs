@@ -5020,6 +5020,137 @@ async fn generic_proxy_permission_headers_are_gateway_owned() {
 }
 
 #[tokio::test]
+async fn annotations_exchange_defaults_exclude_private_networks_and_support_runtime_override() {
+    let base = state().await;
+    let exchange_origins = base.settings.value("APP_EXCHANGE_ORIGINS");
+    let default_origins = exchange_origins["annotations"]
+        .as_array()
+        .expect("annotations default exchange origins")
+        .iter()
+        .filter_map(|v| v.as_str())
+        .collect::<Vec<_>>();
+    assert!(default_origins.contains(&"https://annotations.asodya.com"));
+    for entry in &default_origins {
+        let parsed = url::Url::parse(entry).expect("valid origin url");
+        if let Some(host) = parsed.host_str()
+            && let Ok(ipv4) = host.parse::<std::net::Ipv4Addr>()
+        {
+            let octets = ipv4.octets();
+            let is_cgnat = octets[0] == 100 && (64..=127).contains(&octets[1]);
+            assert!(
+                ipv4.is_loopback(),
+                "annotations default origin must not contain non-loopback IPv4: {entry}"
+            );
+            assert!(
+                !ipv4.is_private() && !ipv4.is_link_local() && !is_cgnat,
+                "annotations default origin must not expose private/CGNAT addresses: {entry}"
+            );
+        }
+    }
+
+    let mut values = (*base.settings.values).clone();
+    values.insert(
+        "APP_EXCHANGE_ORIGINS".into(),
+        serde_json::to_string(&json!({
+            "annotations": [
+                "https://annotations.asodya.com",
+                "https://preview.example.test",
+                "http://198.51.100.10:8112"
+            ]
+        }))
+        .unwrap(),
+    );
+    let override_settings = core::settings::Settings {
+        values: Arc::new(values),
+        defaults: base.settings.defaults.clone(),
+    };
+    let s = domain::State {
+        settings: override_settings,
+        ..base
+    };
+    let fernet = fernet::Fernet::new(&s.settings.get("FERNET_KEY_SECRET")).unwrap();
+
+    for allowed_origin in [
+        "https://annotations.asodya.com",
+        "https://preview.example.test",
+        "http://198.51.100.10:8112",
+    ] {
+        let jti = format!("jti-override-{}", uuid::Uuid::new_v4());
+        let payload = json!({
+            "jti": jti,
+            "app": "annotations",
+            "uuid_id": "ann-override-1",
+            "email": "ann@example.test",
+            "access_level": 3,
+            "is_active": true,
+            "id": 43,
+            "provider_user_id": "sub-ann-override",
+            "provider": "supabase",
+            "exp": domain::auth::now() + 60,
+        });
+        let artifact = fernet.encrypt(&serde_json::to_vec(&payload).unwrap());
+        s.cache
+            .set(
+                &format!("exchange_artifact:{jti}"),
+                json!({"app": "annotations"}),
+                60,
+                true,
+            )
+            .await
+            .unwrap();
+
+        let mut bad_req = Request::builder()
+            .method("POST")
+            .uri("/apps/api/v1/exchange")
+            .header("content-type", "application/json")
+            .header("origin", "https://not-configured.example.test")
+            .body(Body::from(
+                serde_json::to_vec(&json!({"auth_exchange_token": artifact, "app": "annotations"}))
+                    .unwrap(),
+            ))
+            .unwrap();
+        bad_req.extensions_mut().insert(ConnectInfo(
+            "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+        ));
+        let bad_res = presentation::router(s.clone())
+            .oneshot(bad_req)
+            .await
+            .unwrap();
+        assert_eq!(bad_res.status(), StatusCode::BAD_REQUEST);
+
+        let mut ok_req = Request::builder()
+            .method("POST")
+            .uri("/apps/api/v1/exchange")
+            .header("content-type", "application/json")
+            .header("origin", allowed_origin)
+            .body(Body::from(
+                serde_json::to_vec(&json!({"auth_exchange_token": artifact, "app": "annotations"}))
+                    .unwrap(),
+            ))
+            .unwrap();
+        ok_req.extensions_mut().insert(ConnectInfo(
+            "127.0.0.1:5000".parse::<std::net::SocketAddr>().unwrap(),
+        ));
+        let ok_res = presentation::router(s.clone())
+            .oneshot(ok_req)
+            .await
+            .unwrap();
+        assert_eq!(
+            ok_res.status(),
+            StatusCode::OK,
+            "failed for {allowed_origin}"
+        );
+        assert_eq!(
+            ok_res
+                .headers()
+                .get("access-control-allow-origin")
+                .and_then(|v| v.to_str().ok()),
+            Some(allowed_origin)
+        );
+    }
+}
+
+#[tokio::test]
 async fn annotations_web_exchange_sets_session_cookies_and_rejects_unregistered_origin() {
     let s = state().await;
     let fernet = fernet::Fernet::new(&s.settings.get("FERNET_KEY_SECRET")).unwrap();

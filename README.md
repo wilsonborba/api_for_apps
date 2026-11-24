@@ -104,7 +104,10 @@ removed. Client IP comes from the socket, except that a loopback reverse proxy m
 supply a validated `CF-Connecting-IP`. Annotations receives the resulting IP for
 its aggregate temporary upload quota. No downstream service credential or LAN
 authentication system was introduced. Central source discovery includes the
-Annotations Rust `lib/presentation` routes and namespaced request contracts.
+Annotations Rust `lib/presentation` routes and namespaced request contracts. The
+Annotations browser origin (`https://annotations.asodya.com` and configured local
+development/preview origins on port `8112`) is registered in `APP_EXCHANGE_ORIGINS`
+for `POST /apps/api/v1/exchange`.
 
 ## App catalog schema foundation
 

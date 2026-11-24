@@ -326,7 +326,7 @@
           "format": "uri"
         },
         "example": "https://reports.asodya.com",
-        "description": "Required for the web artifact branch: must identify the registered application that receives the session. Not used by the installed-app branch. Continuation preview/redeem/browser-cancel require the configured auth-app origin or a registered bound-target origin; redeem/cancel must equal preview Origin."
+        "description": "Required for the web artifact branch: must identify the registered application that receives the session (annotations, certifications, cortex, asodya-domain, reports). Not used by the installed-app branch. Continuation preview/redeem/browser-cancel require the configured auth-app origin or a registered bound-target origin; redeem/cancel must equal preview Origin."
       },
       {
         "name": "X-CSRF-Token",

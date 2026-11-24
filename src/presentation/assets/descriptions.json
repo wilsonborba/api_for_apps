@@ -2747,5 +2747,17 @@
   },
   "POST /user/sync/v1/sign-up": {
     "description": "Create an account through the configured identity provider. Send email, password, optional display_name, and the initiating app. If the provider establishes a session immediately, data contains an exchange artifact. If email confirmation is required, the response is still 201 but data is null and the message explains the confirmation requirement. Use password sign-in after confirmation. Requests are limited by IP and email. Installed apps (handoff mode): send the optional handoff_id, challenge and platform with app. handoff_id and challenge are base64url without padding of 32 bytes; challenge is base64url(SHA256(the 32 raw secret bytes)); the secret never leaves the device. platform must be listed for app in NATIVE_APP_PLATFORMS (annotations: linux, macos, android, ios, ipados; cortex: android, cli). When the provider returns a session immediately, the gateway stores the handoff (one login per handoff_id, valid 5 minutes) with the browser IP and network and answers \"Login complete. Return to the app.\" with data {\"expires_at\": <unix seconds>} and no exchange artifact. Errors carry data.code: INVALID_HANDOFF (400), NATIVE_HANDOFF_DISABLED (403), HANDOFF_USED (409, handoff_id already used). Without handoff_id the response is unchanged. When email confirmation is required no handoff is stored; the user confirms, then logs in again in the same browser with the same fields. Installed-app cancellation returns HANDOFF_CANCELLED (409) instead of completing a cancelled login."
+  },
+  "POST /apps/annotations/v1/me/notes/{note_id}/reports": {
+    "description": "Register a Reports item reference (created_for_note or linked) for an owned note. Session + CSRF required. For created_for_note, annotations_api verifies owner access with Reports (GET /me/items/{id}) and rejects duplicate creation claims across notes."
+  },
+  "GET /apps/annotations/v1/me/notes/{note_id}/reports/delete-preview": {
+    "description": "List created_for_note Reports items (with other-note reuse warnings) and linked Reports items before deleting an owned note. Session required."
+  },
+  "POST /apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup": {
+    "description": "Idempotently retry pending or failed created_for_note Reports item deletions recorded during a prior cascade note delete. Session + CSRF required."
+  },
+  "DELETE /apps/annotations/v1/me/notes/{note_id}": {
+    "description": "Delete an owned note (If-Match revision required, session + CSRF). Optional query delete_owned_reports=true cascades deletion strictly to same-owner created_for_note Reports items and returns 200 JSON DeleteNoteOutcome; false/omitted returns 204 No Content and leaves all Reports items untouched."
   }
 }

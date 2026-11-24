@@ -279,3 +279,29 @@ Existing consent remains unchanged. No additional banner is required.
 The old `client-error` and `client-reports` routes remain compatible with deployed
 reporters but write to the relational error table. The gateway no longer initializes
 or writes the telemetry CouchDB store. Historical CouchDB data remains untouched.
+
+## Recent service contracts (pending review / unreleased cutover)
+
+- **Annotations v2 (`annotations_api#37`, `26d3b49` Reports card identity)**:
+  - Notes embed references accept the explicit `(project_slug, report_slug, dataset_id)`
+    tuple and owner UUID (`report_id`) for `source: "upload"` (`26d3b49`, pending review).
+  - Scoped note-deletion cascade (`annotations_api#37`, pending review):
+    `POST /apps/annotations/v1/me/notes/{note_id}/reports`,
+    `GET /apps/annotations/v1/me/notes/{note_id}/reports/delete-preview`,
+    `DELETE /apps/annotations/v1/me/notes/{note_id}?delete_owned_reports=true`, and
+    `POST /apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup`.
+- **Certifications Rust v2 rewrite (`certifications_api#35` repair & `#48`, pending cutover/review)**:
+  - `POST /apps/certifications/v1/studies/{study_id}/sources` (JSON + `multipart/form-data`,
+    bounded by `max_file_bytes + 64 KiB`, audio magic-byte validation),
+    `GET .../content` (`Range` 200/206/416 bounded by `max_file_bytes`, `Cache-Control: no-store`),
+    `GET .../preview` (`content_url`, `supports_range`, PDF structure `page_count`, WAV `duration_seconds`),
+    `POST /studies/prepared` (`x-service-key` or owned `sources.fsm_ref`), and
+    `GET|POST /studies/{study_id}/analysis/stream` (SSE optional analysis).
+  - `certifications_api#43` (attempt history/overview/public stats) and `#49` (public question-version reuse)
+    remain unreleased/pending review and are not claimed as deployed gateway behavior.
+- **Reports v2 (`reports#70` consumer definitions, pending review)**:
+  - Reproducible `aggregate_snapshot` v1 schema, `technical-aggregates` public report, and
+    7 card/dataset IDs (`projects-by-status`, `categories-distribution`,
+    `languages-distribution`, `project-language-bytes`, `skill-frequency`,
+    `issuer-counts`, `certification-type-counts`) in `scripts/catalog/aggregates.py`
+    (activated only with explicit `--project <slug>` / `REPORTS_AGGREGATE_PROJECT`).

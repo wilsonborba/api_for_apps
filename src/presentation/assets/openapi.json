@@ -11182,7 +11182,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/files": {
@@ -11254,7 +11254,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:88",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/files/{file_id}": {
@@ -11323,7 +11323,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:89",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /admin/files/{file_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11381,7 +11381,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:89",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/files/{file_id}/content": {
@@ -11441,7 +11441,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:93",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /admin/files/{file_id}/content. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11519,7 +11519,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:93",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/notes": {
@@ -11570,7 +11570,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:61",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /admin/notes. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11640,7 +11640,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:61",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/notes/{note_id}": {
@@ -11709,7 +11709,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11767,7 +11767,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11845,7 +11845,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -11923,7 +11923,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/notes/{note_id}/publication": {
@@ -11992,7 +11992,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /admin/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12050,7 +12050,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /admin/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12128,7 +12128,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/projects": {
@@ -12194,7 +12194,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:77",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /admin/projects. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12278,7 +12278,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:77",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/projects/{project_id}": {
@@ -12347,7 +12347,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /admin/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12405,7 +12405,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /admin/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12483,7 +12483,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/schemas": {
@@ -12534,7 +12534,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:32",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -12603,7 +12603,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:32",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
@@ -12680,7 +12680,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:33",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/authors/{author_id}": {
@@ -12733,7 +12733,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:20",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/authors/{author_id}/projects": {
@@ -12800,7 +12800,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:21",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/catalog": {
@@ -12844,7 +12844,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:13",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/health": {
@@ -12888,7 +12888,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:27",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}": {
@@ -12950,7 +12950,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -13021,7 +13021,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -13092,7 +13092,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}/files": {
@@ -13165,7 +13165,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:22",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}": {
@@ -13235,7 +13235,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:27",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}/content": {
@@ -13316,7 +13316,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:23",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}/items": {
@@ -13388,7 +13388,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/instant/{code}/items/{id}": {
@@ -13458,7 +13458,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /instant/{code}/items/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -13537,7 +13537,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /instant/{code}/items/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -13616,7 +13616,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/links/preview": {
@@ -13670,7 +13670,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:15",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/logs/stream": {
@@ -13778,7 +13778,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:24",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}": {
@@ -13835,7 +13835,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:25",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}/events": {
@@ -13896,7 +13896,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:26",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}/execution": {
@@ -13962,7 +13962,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:27",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/files": {
@@ -14031,7 +14031,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:32",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/files/{file_id}": {
@@ -14097,7 +14097,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:33",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /me/files/{file_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14152,7 +14152,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:33",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/files/{file_id}/content": {
@@ -14209,7 +14209,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /me/files/{file_id}/content. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14284,7 +14284,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/model_downloads": {
@@ -14353,7 +14353,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:24",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/model_downloads/{download_id}": {
@@ -14410,7 +14410,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:25",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/model_downloads/{download_id}/content": {
@@ -14478,7 +14478,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:26",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/notes": {
@@ -14526,7 +14526,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:29",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /me/notes. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14593,12 +14593,12 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:29",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}": {
       "delete": {
-        "description": "DELETE /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
+        "description": "Delete an owned note (If-Match revision required, session + CSRF). Optional query delete_owned_reports=true cascades deletion strictly to same-owner created_for_note Reports items and returns 200 JSON DeleteNoteOutcome; false/omitted returns 204 No Content and leaves all Reports items untouched.",
         "operationId": "annotations_delete__me_notes__note_id_",
         "parameters": [
           {
@@ -14659,7 +14659,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14714,7 +14714,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14789,7 +14789,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14864,7 +14864,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/publication": {
@@ -14929,8 +14929,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "annotations_api/lib/presentation/notes.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source": "annotations_api/lib/presentation/notes.rs:43",
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /me/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -14984,8 +14984,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "annotations_api/lib/presentation/notes.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source": "annotations_api/lib/presentation/notes.rs:43",
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /me/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15059,8 +15059,219 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
+        "x-source": "annotations_api/lib/presentation/notes.rs:43",
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
+      }
+    },
+    "/apps/annotations/v1/me/notes/{note_id}/reports": {
+      "post": {
+        "description": "Register a Reports item reference (created_for_note or linked) for an owned note. Session + CSRF required. For created_for_note, annotations_api verifies owner access with Reports (GET /me/items/{id}) and rejects duplicate creation claims across notes.",
+        "operationId": "annotations_post__me_notes__note_id__reports",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage or adapter service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "POST /me/notes/{note_id}/reports",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+          }
+        ],
         "x-source": "annotations_api/lib/presentation/notes.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
+      }
+    },
+    "/apps/annotations/v1/me/notes/{note_id}/reports/delete-preview": {
+      "get": {
+        "description": "List created_for_note Reports items (with other-note reuse warnings) and linked Reports items before deleting an owned note. Session required.",
+        "operationId": "annotations_get__me_notes__note_id__reports_delete_preview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage or adapter service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /me/notes/{note_id}/reports/delete-preview",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports/delete-preview' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/notes.rs:35",
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
+      }
+    },
+    "/apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup": {
+      "post": {
+        "description": "Idempotently retry pending or failed created_for_note Reports item deletions recorded during a prior cascade note delete. Session + CSRF required.",
+        "operationId": "annotations_post__me_notes__note_id__reports_retry_cleanup",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "note_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Current resource or operation result."
+          },
+          "404": {
+            "description": "Resource missing, private, unpublished or expired."
+          },
+          "422": {
+            "description": "Input or registered document schema validation failed."
+          },
+          "503": {
+            "description": "A required storage or adapter service is unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "POST /me/notes/{note_id}/reports/retry-cleanup",
+        "tags": [
+          "annotations"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+          }
+        ],
+        "x-source": "annotations_api/lib/presentation/notes.rs:39",
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/projects": {
@@ -15123,7 +15334,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:17",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /me/projects. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15204,7 +15415,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:17",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/projects/{project_id}": {
@@ -15270,7 +15481,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /me/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15325,7 +15536,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /me/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15400,7 +15611,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}": {
@@ -15474,7 +15685,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "put": {
         "description": "PUT /me/projects/{project_id}/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15557,7 +15768,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/tasks": {
@@ -15620,7 +15831,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "post": {
         "description": "POST /me/tasks. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15701,7 +15912,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/tasks/{task_id}": {
@@ -15767,7 +15978,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "get": {
         "description": "GET /me/tasks/{task_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15822,7 +16033,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       },
       "patch": {
         "description": "PATCH /me/tasks/{task_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -15897,7 +16108,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions": {
@@ -15966,7 +16177,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:30",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}": {
@@ -16023,7 +16234,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:31",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/events": {
@@ -16084,7 +16295,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:32",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/execution": {
@@ -16150,7 +16361,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:34",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/feedback": {
@@ -16233,7 +16444,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:35",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/result": {
@@ -16310,7 +16521,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:33",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/media/{key}": {
@@ -16363,7 +16574,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:26",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/models": {
@@ -16426,7 +16637,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:22",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/models/{model_version}": {
@@ -16483,7 +16694,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:23",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/notes": {
@@ -16592,7 +16803,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:18",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/notes/{note_id}": {
@@ -16659,7 +16870,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:19",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/projects/{project_id}": {
@@ -16712,7 +16923,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:22",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/ready": {
@@ -16756,7 +16967,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:31",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/annotations/v1/waitlist": {
@@ -16823,7 +17034,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:14",
-        "x-source-tree-sha256": "6dea91132680e6be4e4c77824b9265525fcaee4017c4aea29c151986854ecd8d"
+        "x-source-tree-sha256": "088464338194f1976a41175cfe2bb174fe2b871caaa5d495d3baade07465de6f"
       }
     },
     "/apps/api/v1/admin/features": {
@@ -25557,7 +25768,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/categories_route.py:12",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/flutter-icons": {
@@ -25627,7 +25838,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/categories_route.py:18",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/landing": {
@@ -25667,7 +25878,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/landing_route.py:10",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/legal/accept": {
@@ -25734,7 +25945,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/legal_route.py:25",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/legal/status": {
@@ -25778,7 +25989,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/legal_route.py:18",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/logs/stream": {
@@ -25892,7 +26103,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:18",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       },
       "post": {
         "description": "Create project. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -25969,7 +26180,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:82",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/projects/{slug}": {
@@ -26034,7 +26245,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:106",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       },
       "get": {
         "description": "Get project detail. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -26081,7 +26292,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:28",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       },
       "patch": {
         "description": "Update project. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -26164,7 +26375,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:97",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       },
       "put": {
         "description": "Replace project. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -26233,7 +26444,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:88",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/projects/{slug}/cover": {
@@ -26302,7 +26513,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:38",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/projects/{slug}/files": {
@@ -26355,7 +26566,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:52",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       },
       "post": {
         "description": "Upload project file. This operation belongs to domain. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -26434,7 +26645,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:114",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/projects/{slug}/files/{file_id}/download": {
@@ -26511,7 +26722,7 @@
         ],
         "x-discovery-gaps": [],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:61",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/projects/{slug}/image": {
@@ -26592,7 +26803,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:129",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/search": {
@@ -26667,7 +26878,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/search_route.py:10",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/system/health": {
@@ -26707,7 +26918,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/system_route.py:10",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/system/sync-stats": {
@@ -26764,7 +26975,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/system_route.py:15",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/domain/v1/system/sync-stats/{slug}": {
@@ -26829,7 +27040,7 @@
           }
         ],
         "x-source": "domain_api/src/presentation/routes/system_route.py:21",
-        "x-source-tree-sha256": "e2fcee6b407b423f66a189379093d418b17061a19b3e0273c00b937082bbdcf1"
+        "x-source-tree-sha256": "fe6896aecd2c2f6c64f467ec17a7ddb6fe24f1c908e22973926e3a02d1dbaf65"
       }
     },
     "/apps/reports/v1/": {
@@ -34952,8 +35163,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/certifications'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:275",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:267",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Create certification. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35038,8 +35249,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"others\", \"is_visible\": true, \"sort_order\": 0}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:293",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:285",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/certifications/{slug_or_id}": {
@@ -35103,8 +35314,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:315",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:301",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "get": {
         "description": "Get certification. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -35158,8 +35369,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:284",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:276",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update certification. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35251,8 +35462,8 @@
             "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:302",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:292",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Update certification. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35344,8 +35555,8 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:302",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:292",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/certifications/{slug_or_id}/download": {
@@ -35409,8 +35620,8 @@
           }
         ],
         "x-discovery-gaps": [],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:340",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:324",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/certifications/{slug_or_id}/file": {
@@ -35490,8 +35701,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}/file' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:325",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:309",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/contact": {
@@ -35539,8 +35750,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/contact'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:475",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:459",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Upsert contact. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35613,8 +35824,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:482",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:466",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Upsert contact. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35687,8 +35898,8 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:482",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:466",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/content": {
@@ -35745,7 +35956,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:47",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/content/refresh": {
@@ -35820,7 +36031,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:57",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/documents": {
@@ -35890,8 +36101,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/documents'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:359",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:343",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Create document. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -35967,8 +36178,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"doc_type\": \"example\", \"locale\": \"en\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"application/pdf\", \"is_primary\": false, \"sort_order\": 0}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:377",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:361",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/documents/upload": {
@@ -36096,8 +36307,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:383",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:367",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/documents/{slug_or_id}": {
@@ -36161,8 +36372,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:420",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:404",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "get": {
         "description": "Get document. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -36208,8 +36419,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:368",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:352",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update document. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36292,8 +36503,8 @@
             "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:411",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:395",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Update document. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36376,8 +36587,8 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:411",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:395",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/documents/{slug_or_id}/download": {
@@ -36441,8 +36652,8 @@
           }
         ],
         "x-discovery-gaps": [],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:428",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:412",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/educations": {
@@ -36491,7 +36702,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:127",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Create education. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36567,7 +36778,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:142",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/educations/{edu_id}": {
@@ -36632,7 +36843,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:158",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "get": {
         "description": "Get education. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -36679,7 +36890,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:133",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update education. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36762,7 +36973,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:149",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Update education. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36845,7 +37056,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:149",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/experiences": {
@@ -36894,7 +37105,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:85",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Create experience. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -36971,7 +37182,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:100",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/experiences/{exp_id}": {
@@ -37036,7 +37247,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:116",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "get": {
         "description": "Get experience. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -37083,7 +37294,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:91",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update experience. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37167,7 +37378,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:107",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Update experience. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37251,7 +37462,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:107",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/logs/stream": {
@@ -37370,8 +37581,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/media/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:447",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:431",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/media/{file_key}": {
@@ -37439,8 +37650,8 @@
           }
         ],
         "x-discovery-gaps": [],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:462",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:446",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/profile": {
@@ -37489,7 +37700,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:69",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Upsert profile. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37563,7 +37774,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:76",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Upsert profile. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37637,7 +37848,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:76",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/projects": {
@@ -37701,8 +37912,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/projects'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:219",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:211",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/projects/preferences": {
@@ -37741,8 +37952,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:233",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:225",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Upsert project preference. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37821,8 +38032,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:240",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:232",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Upsert project preference. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -37901,8 +38112,8 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:240",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:232",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/projects/preferences/{slug}": {
@@ -37966,8 +38177,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:255",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:247",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update project preference. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -38053,8 +38264,8 @@
             "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"is_visible\": true, \"is_highlighted\": true, \"sort_order\": 1, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:246",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:238",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/projects/{slug}": {
@@ -38110,8 +38321,8 @@
             "source": "curl --request GET 'https://api.asodya.com/apps/wilson_borba/v1/projects/{slug}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:263",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:255",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/skills": {
@@ -38160,7 +38371,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:169",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "post": {
         "description": "Create skill group. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -38231,7 +38442,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:184",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/skills/{group_id}": {
@@ -38295,8 +38506,8 @@
             "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:206",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:200",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "get": {
         "description": "Get skill group. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.",
@@ -38343,7 +38554,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:175",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "patch": {
         "description": "Update skill group. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -38420,8 +38631,8 @@
             "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:193",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:191",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       },
       "put": {
         "description": "Update skill group. This operation belongs to wilson_borba. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.",
@@ -38498,8 +38709,8 @@
             "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:193",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:191",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/sync/domain": {
@@ -38555,8 +38766,8 @@
             "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/sync/domain' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
-        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:491",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:475",
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/system/cache/refresh": {
@@ -38631,7 +38842,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:57",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/apps/wilson_borba/v1/system/health": {
@@ -38671,7 +38882,7 @@
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:39",
-        "x-source-tree-sha256": "2787dae1b1530e09e0107004b85c6bb8d8b64bc3294996ac455397cab55aaa94"
+        "x-source-tree-sha256": "f92abc588e44a29f6cd69c3c5c42533769ca46997209c076fd2b35905b64154a"
       }
     },
     "/user/info/v1/": {

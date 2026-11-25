@@ -102,13 +102,26 @@
   "PUBLIC_PROXY_ROUTES": {
     "certifications": {
       "GET": [
-        "/quiz/certifications/*"
+        "/quiz/certifications/*",
+        "/health",
+        "/ready",
+        "/catalog",
+        "/catalog/*",
+        "/quizzes/*",
+        "/certificates/*"
       ],
       "HEAD": [
-        "/quiz/certifications/*"
+        "/quiz/certifications/*",
+        "/health",
+        "/ready",
+        "/catalog",
+        "/catalog/*",
+        "/quizzes/*",
+        "/certificates/*"
       ],
       "OPTIONS": [
-        "/quiz/certifications/*"
+        "/quiz/certifications/*",
+        "/*"
       ],
       "POST": [
         "/waitlist"
@@ -216,6 +229,35 @@
     }
   },
   "FORCE_AUTH_PROXY_ROUTES": {
+    "certifications": {
+      "GET": [
+        "/studies",
+        "/studies/*",
+        "/generations/*",
+        "/attempts",
+        "/attempts/*",
+        "/me/*",
+        "/reports/picker"
+      ],
+      "POST": [
+        "/studies",
+        "/studies/*",
+        "/generations/*",
+        "/attempts/*",
+        "/quizzes/*/attempts"
+      ],
+      "PUT": [
+        "/attempts/*",
+        "/me/*"
+      ],
+      "PATCH": [
+        "/studies/*"
+      ],
+      "DELETE": [
+        "/studies/*",
+        "/quizzes/*"
+      ]
+    },
     "domain": {
       "GET": [
         "/projects/*/files",
@@ -280,10 +322,29 @@
   ],
   "CORTEX_API_HOST": "localhost",
   "CORTEX_API_PORT": 8003,
+  "CERTIFICATIONS_API_PORT": 8103,
   "DOMAIN_API_PORT": 8104,
   "WILSON_BORBA_API_PORT": 8107,
   "REPORTS_API_PORT": 8109,
   "ADMIN_PROTECTED_PROXY_ROUTES": {
+    "certifications": {
+      "GET": [
+        "/logs/stream",
+        "/admin/*"
+      ],
+      "POST": [
+        "/admin/*"
+      ],
+      "PUT": [
+        "/admin/*"
+      ],
+      "PATCH": [
+        "/admin/*"
+      ],
+      "DELETE": [
+        "/admin/*"
+      ]
+    },
     "domain": {
       "POST": [
         "/projects",

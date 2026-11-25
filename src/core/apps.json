@@ -1,9 +1,10 @@
 {
   "certifications": {
     "port": 8103,
+    "port_setting": "CERTIFICATIONS_API_PORT",
     "source": "certifications_api",
-    "language": "python",
-    "live_logs": "websocket"
+    "language": "rust",
+    "live_logs": "sse"
   },
   "cortex": {
     "port": 8003,

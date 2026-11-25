@@ -325,6 +325,177 @@ def rust_annotations(repo):
     if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
     operation('annotations',path,method,method.upper()+' '+path,'Annotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
 
+def rust_certifications(repo):
+ if not (repo/'lib/presentation/mod.rs').exists():return
+ import copy
+ before=copy.deepcopy(components)
+ rust_models(repo,'lib')
+ selected_names=[
+  'PreparedSourceRef','PreparedStudyInput','CreateStudyInput','UpdateStudyInput',
+  'SelectionInput','StudySummary','SourceSummary','QuotaMeter','StudyDetail',
+  'AnalysisSummary','EstimateResponse','StartGenerationInput','GenerationJobSummary',
+  'QuestionAlternative','QuestionVisual','AuthorQuestion','CreateQuestionInput',
+  'UpdateQuestionInput','CsvImportBody','CsvImportResult','VisualRenderBody',
+  'TagInfo','CatalogQuizSummary','CatalogPage','PublicQuestionPreview','PublicQuizDetail',
+  'PublicQuizStats','PublishBody','TakingQuestion','AttemptView','AnswerBody',
+  'ActivityEventInput','EventsBody','AttemptHistoryItem','StatsGroup','ThreeGroupStats',
+  'ActivityEventRecord','ActivitySummary','ReviewedQuestion','AttemptResults',
+  'HolderIdentity','IdentityBody','CertificateRecord','PublicCertificateVerification',
+  'RuntimeSettingItem','UpdateSettingInput','SettingsPatchBody','OriginOverrideBody',
+  'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody'
+ ]
+ selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
+ components.clear();components.update(before)
+ def namespace(value):
+  if isinstance(value,dict):
+   return {k:('#/components/schemas/Certifications_'+v.rsplit('/',1)[-1] if k=='$ref' and v.rsplit('/',1)[-1] in selected else namespace(v)) for k,v in value.items()}
+  if isinstance(value,list):return [namespace(x) for x in value]
+  return value
+ for name,model in selected.items():components['Certifications_'+name]=namespace(model)
+ if 'Certifications_PublicQuizStats' in components:
+  components['Certifications_PublicQuizStats']['properties']['score_distribution_report_view']={
+   'type':'object',
+   'properties':{
+    'template_definition':{'type':'object','additionalProperties':True},
+    'visual':{'type':'string'},
+    'data':{'type':'array','items':{'type':'object','additionalProperties':True}}
+   }
+  }
+ desc='Certifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.'
+ for f in sorted((repo/'lib/presentation').glob('*.rs')):
+  text=f.read_text()
+  for match in re.finditer(r'\.route\(\s*"([^"]+)"\s*,',text):
+   path=match[1];i=match.end();start=i;depth=1
+   while i<len(text) and depth:
+    if text[i]=='(':depth+=1
+    elif text[i]==')':depth-=1
+    i+=1
+   expr=text[start:i-1]
+   for method in re.findall(r'\b(get|post|put|patch|delete)\(',expr):
+    params=[];body=None;responses={}
+    for p_match in re.finditer(r'\{(\w+)\}',path):
+     params.append({'name':p_match.group(1),'in':'path','required':True,'schema':{'type':'string'}})
+    if path=='/studies' and method=='get':
+     params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
+    elif path=='/reports/picker':
+     params.extend([{'name':'q','in':'query','schema':{'type':'string'}},{'name':'limit','in':'query','schema':{'type':'integer'}}])
+    elif path=='/studies/{study_id}/estimate':
+     params.extend([{'name':'language','in':'query','schema':{'type':'string'}},{'name':'count','in':'query','schema':{'type':'integer'}}])
+    elif path=='/generations/{job_id}/events':
+     params.append({'name':'after','in':'query','schema':{'type':'integer'}})
+    elif path=='/catalog' and method=='get':
+     params.extend([{'name':'q','in':'query','schema':{'type':'string'}},{'name':'language','in':'query','schema':{'type':'string'}},{'name':'tag','in':'query','schema':{'type':'string'}},{'name':'origin','in':'query','schema':{'type':'string'}},{'name':'suggest','in':'query','schema':{'type':'boolean'}},{'name':'limit','in':'query','schema':{'type':'integer'}},{'name':'offset','in':'query','schema':{'type':'integer'}}])
+    elif path=='/catalog/questions':
+     params.extend([{'name':'q','in':'query','schema':{'type':'string'}},{'name':'language','in':'query','schema':{'type':'string'}},{'name':'origin','in':'query','schema':{'type':'string'}},{'name':'limit','in':'query','schema':{'type':'integer'}}])
+    elif path=='/attempts' and method=='get':
+     params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
+    elif path=='/admin/cleanup' and method=='get':
+     params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
+    elif path=='/studies/{study_id}/sources/{source_id}/content':
+     params.append({'name':'Range','in':'header','schema':{'type':'string'}})
+    if path=='/studies' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_CreateStudyInput'}}}}
+    elif path=='/studies/prepared' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PreparedStudyInput'}}}}
+    elif path=='/studies/{study_id}' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UpdateStudyInput'}}}}
+    elif path=='/studies/{study_id}/sources' and method=='post':
+     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'},'selection_spec':{'type':'string'},'selection_kind':{'type':'string'},'is_restricted':{'type':'boolean'}}}}}}
+    elif path=='/studies/{study_id}/sources/{source_id}/selection' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SelectionInput'}}}}
+    elif path=='/studies/{study_id}/generations' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_StartGenerationInput'}}}}
+    elif path=='/studies/{study_id}/questions' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_CreateQuestionInput'}}}}
+    elif path=='/studies/{study_id}/questions/import' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_CsvImportBody'}}}}
+    elif path=='/studies/{study_id}/questions/{question_id}' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UpdateQuestionInput'}}}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_VisualRenderBody'}}}}
+    elif path=='/studies/{study_id}/publication' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublishBody'}}}}
+    elif path=='/me/identity' and method=='put':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_IdentityBody'}}}}
+    elif path=='/attempts/{attempt_id}/answers/{question_id}' and method=='put':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_AnswerBody'}}}}
+    elif path=='/attempts/{attempt_id}/events' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_EventsBody'}}}}
+    elif path=='/admin/settings' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SettingsPatchBody'}}}}
+    elif path=='/admin/schemas/{schema_name}/versions' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SchemaDraftBody'}}}}
+    elif path=='/admin/schemas/{schema_name}/versions/{version}' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SchemaDraftBody'}}}}
+    elif path=='/admin/schemas/{schema_name}/versions/{version}/status' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SchemaStatusBody'}}}}
+    elif path=='/admin/quizzes/{quiz_id}/origin' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_OriginOverrideBody'}}}}
+    elif path=='/admin/holders/{holder_id}' and method=='patch':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_HolderUpdateBody'}}}}
+    elif path=='/admin/certificates/{certificate_code}/revocation' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_RevokeBody'}}}}
+    sse=method=='get' and (path=='/logs/stream' or path.endswith('/events'))
+    if sse:
+     responses={'200':{'description':'Server-sent events stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: ready\n\n'}}}}
+    elif path=='/certificates/{certificate_code}/files/{format}':
+     responses={'200':{'description':'Rendered certificate file (PDF or SVG).','content':{'application/pdf':{'schema':{'type':'string','format':'binary'}},'image/svg+xml':{'schema':{'type':'string'}}}},'404':{'description':'Certificate not found or format unsupported.'}}
+    elif path=='/studies/{study_id}/sources/{source_id}/content':
+     responses={'200':{'description':'Full source artifact stream.', 'content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range source artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'404':{'description':'Source not found.'}}
+    else:
+     schema_map={
+      ('/studies','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_StudySummary'}}}},
+      ('/studies','post'):{'type':'object','properties':{'study':{'$ref':'#/components/schemas/Certifications_StudySummary'}}},
+      ('/studies/prepared','post'):{'type':'object','properties':{'study_id':{'type':'string'},'quiz_id':{'type':'string'}}},
+      ('/studies/{study_id}','get'):{'$ref':'#/components/schemas/Certifications_StudyDetail'},
+      ('/studies/{study_id}','patch'):{'$ref':'#/components/schemas/Certifications_StudySummary'},
+      ('/studies/{study_id}/sources','post'):{'$ref':'#/components/schemas/Certifications_SourceSummary'},
+      ('/studies/{study_id}/sources/{source_id}','get'):{'$ref':'#/components/schemas/Certifications_SourceSummary'},
+      ('/studies/{study_id}/sources/{source_id}/selection','patch'):{'$ref':'#/components/schemas/Certifications_SourceSummary'},
+      ('/studies/{study_id}/analysis','post'):{'$ref':'#/components/schemas/Certifications_AnalysisSummary'},
+      ('/studies/{study_id}/analysis','get'):{'$ref':'#/components/schemas/Certifications_AnalysisSummary'},
+      ('/studies/{study_id}/estimate','get'):{'$ref':'#/components/schemas/Certifications_EstimateResponse'},
+      ('/studies/{study_id}/generations','post'):{'$ref':'#/components/schemas/Certifications_GenerationJobSummary'},
+      ('/generations/{job_id}','get'):{'$ref':'#/components/schemas/Certifications_GenerationJobSummary'},
+      ('/generations/{job_id}/stop','post'):{'$ref':'#/components/schemas/Certifications_GenerationJobSummary'},
+      ('/generations/{job_id}/resume','post'):{'$ref':'#/components/schemas/Certifications_GenerationJobSummary'},
+      ('/studies/{study_id}/questions','get'):{'type':'object','properties':{'questions':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AuthorQuestion'}}}},
+      ('/studies/{study_id}/questions','post'):{'$ref':'#/components/schemas/Certifications_AuthorQuestion'},
+      ('/studies/{study_id}/questions/import','post'):{'$ref':'#/components/schemas/Certifications_CsvImportResult'},
+      ('/studies/{study_id}/questions/{question_id}','patch'):{'$ref':'#/components/schemas/Certifications_AuthorQuestion'},
+      ('/studies/{study_id}/questions/{question_id}/visual','post'):{'$ref':'#/components/schemas/Certifications_QuestionVisual'},
+      ('/catalog','get'):{'$ref':'#/components/schemas/Certifications_CatalogPage'},
+      ('/catalog/questions','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_PublicQuestionPreview'}}}},
+      ('/quizzes/{quiz_id}','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizDetail'},
+      ('/quizzes/{quiz_id}/statistics','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizStats'},
+      ('/studies/{study_id}/tags/suggestions','get'):{'type':'object','properties':{'suggestions':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_TagInfo'}}}},
+      ('/studies/{study_id}/publication','post'):{'$ref':'#/components/schemas/Certifications_CatalogQuizSummary'},
+      ('/me/identity','get'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
+      ('/me/identity','put'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
+      ('/quizzes/{quiz_id}/attempts','post'):{'$ref':'#/components/schemas/Certifications_AttemptView'},
+      ('/attempts','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AttemptHistoryItem'}}}},
+      ('/attempts/{attempt_id}','get'):{'$ref':'#/components/schemas/Certifications_AttemptView'},
+      ('/attempts/{attempt_id}/answers/{question_id}','put'):{'type':'object','properties':{'saved':{'type':'boolean'}}},
+      ('/attempts/{attempt_id}/events','post'):{'type':'object','properties':{'recorded':{'type':'integer'}}},
+      ('/attempts/{attempt_id}/submit','post'):{'$ref':'#/components/schemas/Certifications_AttemptResults'},
+      ('/attempts/{attempt_id}/results','get'):{'$ref':'#/components/schemas/Certifications_AttemptResults'},
+      ('/attempts/{attempt_id}/certificate','post'):{'$ref':'#/components/schemas/Certifications_CertificateRecord'},
+      ('/certificates/{certificate_code}','get'):{'$ref':'#/components/schemas/Certifications_PublicCertificateVerification'},
+      ('/admin/settings','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_RuntimeSettingItem'}}}},
+      ('/admin/settings','patch'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_RuntimeSettingItem'}}}},
+      ('/admin/statistics','get'):{'$ref':'#/components/schemas/Certifications_AdminStatistics'},
+      ('/admin/holders/{holder_id}','patch'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
+     }
+     sc=schema_map.get((path,method),{'type':'object','additionalProperties':True})
+     status_code='201' if method=='post' and (path.endswith('/attempts') or path.endswith('/prepared') or path.endswith('/sources') or path.endswith('/generations') or path.endswith('/certificate') or path.endswith('/visual') or path=='/studies') else '204' if method=='delete' and path.endswith('/{question_id}') else '200'
+     if status_code=='204':
+      responses={'204':{'description':'Operation completed. The response has no body.'}}
+     else:
+      responses={status_code:{'description':'Operation result.','content':{'application/json':{'schema':sc}}}}
+     responses['404']={'description':'Resource not found.'}
+     responses['422']={'description':'Input validation failed.'}
+    operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+
 def rust_cortex(repo):
  source=repo/'src/presentation'
  if not source.exists():return set(),set()
@@ -470,6 +641,7 @@ for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in r
  else:gaps.append({'app':app,'gaps':['Source repository not available']})
 rust_reports(a.workspace/'reports')
 rust_annotations(a.workspace/'annotations_api')
+rust_certifications(a.workspace/'certifications_api')
 cortex_new,cortex_old=rust_cortex(a.workspace/'cortex_api')
 operation('gateway','/apps/api/v1/logs/stream','get','Stream gateway logs','Server-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.',[],None,{'200':{'description':'Live SSE log stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: gateway ready\n\n'}}},'403':{'description':'Administrator authorization required.'}},'src/presentation/logs.rs')
 if OVERRIDE.exists():
@@ -480,7 +652,7 @@ if OVERRIDE.exists():
 previous=json.loads(OUT.read_text()) if OUT.exists() else {}
 for app,entry in registry.items():
  repo=a.workspace/entry['source']
- if not repo.exists() or entry['language']=='rust' and not (repo/('src/presentation' if app=='cortex' else 'lib/presentation/mod.rs' if app=='annotations' else 'engine/src/presentation/api/server.rs')).exists():
+ if not repo.exists() or entry['language']=='rust' and not (repo/('src/presentation' if app=='cortex' else 'lib/presentation/mod.rs' if app in ('annotations','certifications') else 'engine/src/presentation/api/server.rs')).exists():
   for path,ms in previous.get('paths',{}).items():
    for method,op in ms.items():
     if op.get('tags')==[app]:operations.setdefault(path,{})[method]=op

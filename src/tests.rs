@@ -202,7 +202,7 @@ async fn docs_only_and_public_spec() {
 fn central_runtime_discovers_route_add_change_remove_without_service_openapi() {
     let workspace =
         std::env::temp_dir().join(format!("asodya-source-test-{}", uuid::Uuid::new_v4()));
-    let repo = workspace.join("certifications_api");
+    let repo = workspace.join("domain_api");
     std::fs::create_dir_all(&repo).unwrap();
     let source = repo.join("routes.py");
     let base = json!({"paths":{}});
@@ -212,24 +212,24 @@ fn central_runtime_discovers_route_add_change_remove_without_service_openapi() {
     )
     .unwrap();
     let one = domain::documentation::refresh(base, &workspace);
-    assert!(one["paths"]["/apps/certifications/v1/fixture/one"]["get"].is_object());
+    assert!(one["paths"]["/apps/domain/v1/fixture/one"]["get"].is_object());
     std::fs::write(
         &source,
         "r=APIRouter(prefix='/fixture')\n@r.post('/two')\nasync def two(): pass\n",
     )
     .unwrap();
     let two = domain::documentation::refresh(one, &workspace);
-    assert!(two["paths"]["/apps/certifications/v1/fixture/one"].is_null());
-    assert!(two["paths"]["/apps/certifications/v1/fixture/two"]["post"].is_object());
+    assert!(two["paths"]["/apps/domain/v1/fixture/one"].is_null());
+    assert!(two["paths"]["/apps/domain/v1/fixture/two"]["post"].is_object());
     std::fs::write(&source,"r=APIRouter(prefix='/fixture')\n@r.post('/two')\nasync def two(): return {'changed':True}\n").unwrap();
     let changed = domain::documentation::refresh(two.clone(), &workspace);
     assert_eq!(
-        changed["paths"]["/apps/certifications/v1/fixture/two"]["post"]["x-source-outdated"],
+        changed["paths"]["/apps/domain/v1/fixture/two"]["post"]["x-source-outdated"],
         true
     );
     std::fs::write(&source, "r=APIRouter(prefix='/fixture')\n").unwrap();
     let removed = domain::documentation::refresh(two, &workspace);
-    assert!(removed["paths"]["/apps/certifications/v1/fixture/two"].is_null());
+    assert!(removed["paths"]["/apps/domain/v1/fixture/two"].is_null());
     std::fs::remove_dir_all(workspace).unwrap();
 }
 

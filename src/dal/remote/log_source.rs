@@ -38,7 +38,15 @@ pub async fn open(state: &State, app: &str) -> Result<Source> {
         .settings
         .target(app)
         .ok_or_else(|| anyhow::anyhow!("Unknown log source"))?;
-    if app == "certifications" {
+    static APPS: std::sync::LazyLock<serde_json::Value> = std::sync::LazyLock::new(|| {
+        serde_json::from_str(include_str!("../../core/apps.json")).unwrap()
+    });
+    if APPS
+        .get(app)
+        .and_then(|v| v.get("live_logs"))
+        .and_then(|v| v.as_str())
+        == Some("websocket")
+    {
         let url = format!(
             "{}/logs/stream",
             target

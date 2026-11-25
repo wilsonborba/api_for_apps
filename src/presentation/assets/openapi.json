@@ -21479,15 +21479,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "quiz_id": {
-                      "type": "string"
-                    },
-                    "study_id": {
-                      "type": "string"
-                    }
-                  },
-                  "type": "object"
+                  "$ref": "#/components/schemas/Certifications_StudyDetail"
                 }
               }
             },

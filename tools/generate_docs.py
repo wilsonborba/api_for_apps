@@ -332,7 +332,7 @@ def rust_certifications(repo):
  before=copy.deepcopy(components)
  rust_models(repo,'lib')
  selected_names=[
-  'PreparedSourceRef','PreparedStudyInput','CreateStudyInput','UpdateStudyInput',
+  'PreparedSourceRef','PreparedStudyInput','PreparedStudyConfig','CreateStudyInput','UpdateStudyInput',
   'SelectionInput','StudySummary','SourceSummary','QuotaMeter','StudyDetail',
   'AnalysisSummary','EstimateResponse','StartGenerationInput','GenerationJobSummary',
   'QuestionAlternative','QuestionVisual','AuthorQuestion','CreateQuestionInput',
@@ -447,7 +447,7 @@ def rust_certifications(repo):
      schema_map={
       ('/studies','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_StudySummary'}}}},
       ('/studies','post'):{'type':'object','properties':{'study':{'$ref':'#/components/schemas/Certifications_StudySummary'}}},
-      ('/studies/prepared','post'):{'type':'object','properties':{'study_id':{'type':'string'},'quiz_id':{'type':'string'}}},
+      ('/studies/prepared','post'):{'$ref':'#/components/schemas/Certifications_StudyDetail'},
       ('/studies/{study_id}','get'):{'$ref':'#/components/schemas/Certifications_StudyDetail'},
       ('/studies/{study_id}','patch'):{'$ref':'#/components/schemas/Certifications_StudySummary'},
       ('/studies/{study_id}/sources','post'):{'$ref':'#/components/schemas/Certifications_SourceSummary'},

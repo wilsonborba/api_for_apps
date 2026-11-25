@@ -3,10 +3,27 @@
 Run from api_for_apps. Reads sibling sources without importing their applications.
 Unknown contracts remain marked x-discovery-gaps. Central overrides can fill them.
 """
-import ast,json,pathlib,re,argparse,hashlib
+import ast,json,pathlib,re,argparse,hashlib,os
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-default_ws=ROOT.parent if (ROOT.parent/'certifications_api').exists() else pathlib.Path('/home/main-server/Documents/Others/Asodya') if pathlib.Path('/home/main-server/Documents/Others/Asodya').exists() else ROOT.parent
-p=argparse.ArgumentParser();p.add_argument('--workspace',type=pathlib.Path,default=default_ws);p.add_argument('--check',action='store_true');a=p.parse_args()
+def discover_workspace():
+ env=os.environ.get('ASODYA_WORKSPACE')
+ if env and pathlib.Path(env).is_dir():return pathlib.Path(env).resolve()
+ if (ROOT.parent/'certifications_api').is_dir():return ROOT.parent.resolve()
+ git_file=ROOT/'.git'
+ if git_file.is_file():
+  try:
+   text=git_file.read_text().strip()
+   if text.startswith('gitdir:'):
+    gd=pathlib.Path(text[7:].strip())
+    ws=gd.parents[3]
+    if (ws/'certifications_api').is_dir():return ws.resolve()
+  except Exception:pass
+ for p in ROOT.parents:
+  if (p/'certifications_api').is_dir():return p.resolve()
+ return ROOT.parent.resolve()
+p=argparse.ArgumentParser();p.add_argument('--workspace',type=pathlib.Path,default=None);p.add_argument('--check',action='store_true');a=p.parse_args()
+if a.workspace is None:a.workspace=discover_workspace()
+if not a.workspace.is_dir():raise SystemExit(f"Workspace directory not found: {a.workspace}")
 def source_hash(repo,extension):
  h=hashlib.sha256()
  for f in sorted(repo.rglob('*.'+extension)):
@@ -343,7 +360,8 @@ def rust_certifications(repo):
   'ActivityEventRecord','ActivitySummary','ReviewedQuestion','AttemptResults',
   'HolderIdentity','IdentityBody','CertificateRecord','PublicCertificateVerification',
   'RuntimeSettingItem','UpdateSettingInput','SettingsPatchBody','OriginOverrideBody',
-  'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody'
+  'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody',
+  'AvailableStudyTag','StudyHistoryPage'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  components.clear();components.update(before)
@@ -353,13 +371,72 @@ def rust_certifications(repo):
   if isinstance(value,list):return [namespace(x) for x in value]
   return value
  for name,model in selected.items():components['Certifications_'+name]=namespace(model)
+ components['Certifications_PreparedStudyConfig']={
+  'type':'object',
+  'properties':{
+   'language':{'type':'string','default':'en'},
+   'count':{'type':'integer','default':10,'minimum':1,'maximum':20}
+  },
+  'additionalProperties':False
+ }
+ components.setdefault('Certifications_PreparedStudyInput',{'type':'object','properties':{}})
+ components['Certifications_PreparedStudyInput'].setdefault('properties',{})
+ components['Certifications_PreparedStudyInput']['properties']['config']={
+  'anyOf':[{'$ref':'#/components/schemas/Certifications_PreparedStudyConfig'},{'type':'null'}]
+ }
+ components.setdefault('Certifications_StudyDetail',{'type':'object','properties':{}})
+ components['Certifications_StudyDetail'].setdefault('properties',{})
+ components['Certifications_StudyDetail']['properties'].setdefault('study',{'$ref':'#/components/schemas/Certifications_StudySummary'})
+ components['Certifications_StudyDetail']['properties'].setdefault('sources',{'type':'array','items':{'$ref':'#/components/schemas/Certifications_SourceSummary'}})
+ components['Certifications_StudyDetail']['properties'].setdefault('quota',{'$ref':'#/components/schemas/Certifications_QuotaMeter'})
+ components['Certifications_StudyDetail']['properties']['config']={
+  'anyOf':[{'$ref':'#/components/schemas/Certifications_PreparedStudyConfig'},{'type':'null'}]
+ }
+ components['Certifications_AvailableStudyTag']={
+  'type':'object',
+  'properties':{
+   'slug':{'type':'string'},
+   'label':{'type':'string'}
+  },
+  'required':['slug','label']
+ }
+ components['Certifications_StudyHistoryPage']={
+  'type':'object',
+  'properties':{
+   'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_StudySummary'}},
+   'total':{'type':'integer'},
+   'limit':{'type':'integer'},
+   'offset':{'type':'integer'},
+   'available_tags':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AvailableStudyTag'}}
+  },
+  'required':['items','total','limit','offset','available_tags']
+ }
  if 'Certifications_PublicQuizStats' in components:
   components['Certifications_PublicQuizStats']['properties']['score_distribution_report_view']={
    'type':'object',
    'properties':{
-    'template_definition':{'type':'object','additionalProperties':True},
-    'visual':{'type':'string'},
-    'data':{'type':'array','items':{'type':'object','additionalProperties':True}}
+    'descriptor':{
+     'type':'object',
+     'properties':{
+      'dataset_id':{'type':'string'},
+      'title':{'type':'string'},
+      'description':{'type':'string'},
+      'equation':{'type':['string','null']},
+      'fields':{'type':'array','items':{'type':'object','additionalProperties':True}},
+      'filters':{'type':'array','items':{'type':'object','additionalProperties':True}},
+      'data_tier':{'type':'string'},
+      'can_view':{'type':'boolean'},
+      'visibility':{'type':'string','enum':['public','restricted']},
+      'meta':{'type':'object','additionalProperties':True}
+     },
+     'required':['dataset_id','title','fields','data_tier','can_view','visibility']
+    },
+    'rows':{'type':'array','items':{'type':'object','additionalProperties':True}},
+    'offset':{'type':'integer'},
+    'limit':{'type':'integer'},
+    'total_rows':{'type':'integer'},
+    'visual':{'type':'object','additionalProperties':True},
+    'template_definition':{'type':'object','additionalProperties':True}
    }
   }
  desc='Certifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.'
@@ -377,7 +454,16 @@ def rust_certifications(repo):
     for p_match in re.finditer(r'\{(\w+)\}',path):
      params.append({'name':p_match.group(1),'in':'path','required':True,'schema':{'type':'string'}})
     if path=='/studies' and method=='get':
-     params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
+     params.extend([
+      {'name':'limit','in':'query','schema':{'type':'integer'}},
+      {'name':'offset','in':'query','schema':{'type':'integer'}},
+      {'name':'q','in':'query','schema':{'type':'string'}},
+      {'name':'created_from','in':'query','schema':{'type':'integer'}},
+      {'name':'created_to','in':'query','schema':{'type':'integer'}},
+      {'name':'status','in':'query','schema':{'type':'string'}},
+      {'name':'quiz_id','in':'query','schema':{'type':'string'}},
+      {'name':'tag','in':'query','schema':{'type':'string'}}
+     ])
     elif path=='/reports/picker':
      params.extend([{'name':'q','in':'query','schema':{'type':'string'}},{'name':'limit','in':'query','schema':{'type':'integer'}}])
     elif path=='/studies/{study_id}/estimate':
@@ -401,7 +487,7 @@ def rust_certifications(repo):
     elif path=='/studies/{study_id}' and method=='patch':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UpdateStudyInput'}}}}
     elif path=='/studies/{study_id}/sources' and method=='post':
-     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'},'selection_spec':{'type':'string'},'selection_kind':{'type':'string'},'is_restricted':{'type':'boolean'}}}}}}
+     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'},'kind':{'type':'string'},'filename':{'type':'string'},'mime_type':{'type':'string'},'content_text':{'type':'string'},'external_ref':{'type':'string'},'fsm_ref':{'type':'string'},'size_bytes':{'type':'integer'},'selection_spec':{'type':'string'},'selection_kind':{'type':'string'},'is_restricted':{'type':'boolean'}}}}}}
     elif path=='/studies/{study_id}/sources/{source_id}/selection' and method=='patch':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SelectionInput'}}}}
     elif path=='/studies/{study_id}/generations' and method=='post':
@@ -445,7 +531,7 @@ def rust_certifications(repo):
      responses={'200':{'description':'Full source artifact stream.', 'content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range source artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'404':{'description':'Source not found.'}}
     else:
      schema_map={
-      ('/studies','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_StudySummary'}}}},
+      ('/studies','get'):{'$ref':'#/components/schemas/Certifications_StudyHistoryPage'},
       ('/studies','post'):{'type':'object','properties':{'study':{'$ref':'#/components/schemas/Certifications_StudySummary'}}},
       ('/studies/prepared','post'):{'$ref':'#/components/schemas/Certifications_StudyDetail'},
       ('/studies/{study_id}','get'):{'$ref':'#/components/schemas/Certifications_StudyDetail'},
@@ -469,6 +555,7 @@ def rust_certifications(repo):
       ('/catalog/questions','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_PublicQuestionPreview'}}}},
       ('/quizzes/{quiz_id}','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizDetail'},
       ('/quizzes/{quiz_id}/statistics','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizStats'},
+      ('/me/quizzes/{quiz_id}/statistics','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizStats'},
       ('/studies/{study_id}/tags/suggestions','get'):{'type':'object','properties':{'suggestions':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_TagInfo'}}}},
       ('/studies/{study_id}/publication','post'):{'$ref':'#/components/schemas/Certifications_CatalogQuizSummary'},
       ('/me/identity','get'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
@@ -496,6 +583,8 @@ def rust_certifications(repo):
      responses['404']={'description':'Resource not found.'}
      responses['422']={'description':'Input validation failed.'}
     operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+ if ('/apps/certifications/v1/me/quizzes/{quiz_id}/statistics','get') not in seen:
+  operation('certifications','/me/quizzes/{quiz_id}/statistics','get','GET /me/quizzes/{quiz_id}/statistics',desc,[{'name':'quiz_id','in':'path','required':True,'schema':{'type':'string'}}],None,{'200':{'description':'Operation result.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublicQuizStats'}}}},'404':{'description':'Resource not found.'},'422':{'description':'Input validation failed.'}},'lib/presentation/catalog.rs:1')
 
 def rust_cortex(repo):
  source=repo/'src/presentation'

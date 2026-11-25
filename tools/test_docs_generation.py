@@ -76,4 +76,87 @@ async fn create(Json(body): Json<NewChat>) -> Response { response() }
    self.assertIn('text/event-stream',op['responses']['200']['content'])
    self.assertNotIn('x-discovery-gaps',op)
 
+ def test_certifications_contracts_and_portable_discovery(self):
+  with tempfile.TemporaryDirectory(prefix='cert-doc-test-') as tmp:
+   root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True)
+   shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
+   for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
+   shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   repo=root/'certifications_api';(repo/'lib/presentation').mkdir(parents=True);(repo/'lib/domain').mkdir(parents=True)
+   (repo/'lib/presentation/mod.rs').write_text('''pub fn routes() {
+ Router::new()
+  .route("/studies", get(list_studies).post(create_study))
+  .route("/studies/prepared", post(create_prepared))
+  .route("/studies/{study_id}", get(study_detail))
+  .route("/studies/{study_id}/sources", post(add_source))
+  .route("/quizzes/{quiz_id}/statistics", get(get_quiz_statistics))
+  .route("/me/quizzes/{quiz_id}/statistics", get(get_my_quiz_statistics))
+}''')
+   (repo/'lib/domain/studies.rs').write_text('''pub struct PreparedStudyConfig {
+    pub language: String,
+    pub count: i64,
+}
+pub struct PreparedStudyInput {
+    pub title: String,
+    pub description: String,
+    pub config: Option<PreparedStudyConfig>,
+}
+pub struct StudyDetail {
+    pub study: StudySummary,
+    pub sources: Vec<SourceSummary>,
+    pub quota: QuotaMeter,
+    pub config: Option<PreparedStudyConfig>,
+}
+pub struct AvailableStudyTag {
+    pub slug: String,
+    pub label: String,
+}
+pub struct StudyHistoryPage {
+    pub items: Vec<StudySummary>,
+    pub total: i64,
+    pub limit: i64,
+    pub offset: i64,
+    pub available_tags: Vec<AvailableStudyTag>,
+}
+pub struct PublicQuizStats {
+    pub quiz_id: String,
+    pub completed_attempt_count: i64,
+}
+''')
+   subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],check=True,capture_output=True)
+   doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
+   schemas=doc['components']['schemas']
+   # StudyDetail top-level config
+   self.assertIn('Certifications_StudyDetail',schemas)
+   self.assertIn('config',schemas['Certifications_StudyDetail']['properties'])
+   self.assertIn('study',schemas['Certifications_StudyDetail']['properties'])
+   self.assertIn('sources',schemas['Certifications_StudyDetail']['properties'])
+   self.assertIn('quota',schemas['Certifications_StudyDetail']['properties'])
+   # PreparedStudyInput and PreparedStudyConfig
+   self.assertIn('Certifications_PreparedStudyConfig',schemas)
+   self.assertIn('language',schemas['Certifications_PreparedStudyConfig']['properties'])
+   self.assertIn('count',schemas['Certifications_PreparedStudyConfig']['properties'])
+   self.assertIn('config',schemas['Certifications_PreparedStudyInput']['properties'])
+   # StudyHistoryPage and AvailableStudyTag
+   self.assertIn('Certifications_StudyHistoryPage',schemas)
+   self.assertIn('Certifications_AvailableStudyTag',schemas)
+   # /studies GET pagination query parameters
+   studies_op=doc['paths']['/apps/certifications/v1/studies']['get']
+   param_names=[p['name'] for p in studies_op['parameters']]
+   for expected_param in ('limit','offset','q','created_from','created_to','status','quiz_id','tag'):
+    self.assertIn(expected_param,param_names)
+   self.assertEqual(studies_op['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_StudyHistoryPage')
+   # /me/quizzes/{quiz_id}/statistics is session-protected
+   my_stats=doc['paths']['/apps/certifications/v1/me/quizzes/{quiz_id}/statistics']['get']
+   self.assertEqual(my_stats['x-access-level'],'session')
+   self.assertEqual(my_stats['security'],[{'SessionCookie':[]}])
+   # /quizzes/{quiz_id}/statistics is public
+   pub_stats=doc['paths']['/apps/certifications/v1/quizzes/{quiz_id}/statistics']['get']
+   self.assertEqual(pub_stats['x-access-level'],'public')
+   self.assertEqual(pub_stats['security'],[])
+   # Invalid workspace directory fails clearly
+   res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root/'nonexistent-path')],capture_output=True,text=True)
+   self.assertNotEqual(res.returncode,0)
+   self.assertIn('Workspace directory not found',res.stderr+res.stdout)
+
 if __name__=='__main__':unittest.main()

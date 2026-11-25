@@ -1915,6 +1915,21 @@
         ],
         "type": "object"
       },
+      "Certifications_AvailableStudyTag": {
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "label"
+        ],
+        "type": "object"
+      },
       "Certifications_CatalogPage": {
         "properties": {
           "items": {
@@ -2371,8 +2386,34 @@
         ],
         "type": "object"
       },
+      "Certifications_PreparedStudyConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "default": 10,
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "language": {
+            "default": "en",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "Certifications_PreparedStudyInput": {
         "properties": {
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Certifications_PreparedStudyConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "description": {
             "type": "string"
           },
@@ -2556,7 +2597,72 @@
           },
           "score_distribution_report_view": {
             "properties": {
-              "data": {
+              "descriptor": {
+                "properties": {
+                  "can_view": {
+                    "type": "boolean"
+                  },
+                  "data_tier": {
+                    "type": "string"
+                  },
+                  "dataset_id": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "equation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "fields": {
+                    "items": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "filters": {
+                    "items": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "meta": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "visibility": {
+                    "enum": [
+                      "public",
+                      "restricted"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "dataset_id",
+                  "title",
+                  "fields",
+                  "data_tier",
+                  "can_view",
+                  "visibility"
+                ],
+                "type": "object"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "offset": {
+                "type": "integer"
+              },
+              "rows": {
                 "items": {
                   "additionalProperties": true,
                   "type": "object"
@@ -2567,8 +2673,12 @@
                 "additionalProperties": true,
                 "type": "object"
               },
+              "total_rows": {
+                "type": "integer"
+              },
               "visual": {
-                "type": "string"
+                "additionalProperties": true,
+                "type": "object"
               }
             },
             "type": "object"
@@ -2891,6 +3001,16 @@
       },
       "Certifications_StudyDetail": {
         "properties": {
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Certifications_PreparedStudyConfig"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "quota": {
             "$ref": "#/components/schemas/Certifications_QuotaMeter"
           },
@@ -2908,6 +3028,39 @@
           "study",
           "sources",
           "quota"
+        ],
+        "type": "object"
+      },
+      "Certifications_StudyHistoryPage": {
+        "properties": {
+          "available_tags": {
+            "items": {
+              "$ref": "#/components/schemas/Certifications_AvailableStudyTag"
+            },
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Certifications_StudySummary"
+            },
+            "type": "array"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset",
+          "available_tags"
         ],
         "type": "object"
       },
@@ -20993,6 +21146,59 @@
         "x-source-tree-sha256": "9a275dbed7160ca43166d222d1abd60985872475acc442784c2b3ace19ee390f"
       }
     },
+    "/apps/certifications/v1/me/quizzes/{quiz_id}/statistics": {
+      "get": {
+        "description": "GET /me/quizzes/{quiz_id}/statistics. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCertifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.",
+        "operationId": "certifications_get__me_quizzes__quiz_id__statistics",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quiz_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Certifications_PublicQuizStats"
+                }
+              }
+            },
+            "description": "Operation result."
+          },
+          "404": {
+            "description": "Resource not found."
+          },
+          "422": {
+            "description": "Input validation failed."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /me/quizzes/{quiz_id}/statistics",
+        "tags": [
+          "certifications"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/certifications/v1/me/quizzes/{quiz_id}/statistics' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+          }
+        ],
+        "x-source": "lib/presentation/catalog.rs:1",
+        "x-source-tree-sha256": "9a275dbed7160ca43166d222d1abd60985872475acc442784c2b3ace19ee390f"
+      }
+    },
     "/apps/certifications/v1/quizzes/{quiz_id}": {
       "delete": {
         "description": "DELETE /quizzes/{quiz_id}. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCertifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.",
@@ -21333,6 +21539,48 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "created_from",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "created_to",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "quiz_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -21340,15 +21588,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "items": {
-                      "items": {
-                        "$ref": "#/components/schemas/Certifications_StudySummary"
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "type": "object"
+                  "$ref": "#/components/schemas/Certifications_StudyHistoryPage"
                 }
               }
             },
@@ -21506,7 +21746,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"sources\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"sources\": [], \"config\": {\"language\": \"en\", \"count\": 10}}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:51",
@@ -22473,18 +22713,39 @@
             "multipart/form-data": {
               "schema": {
                 "properties": {
+                  "content_text": {
+                    "type": "string"
+                  },
+                  "external_ref": {
+                    "type": "string"
+                  },
                   "file": {
                     "format": "binary",
                     "type": "string"
                   },
+                  "filename": {
+                    "type": "string"
+                  },
+                  "fsm_ref": {
+                    "type": "string"
+                  },
                   "is_restricted": {
                     "type": "boolean"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
                   },
                   "selection_kind": {
                     "type": "string"
                   },
                   "selection_spec": {
                     "type": "string"
+                  },
+                  "size_bytes": {
+                    "type": "integer"
                   }
                 },
                 "required": [

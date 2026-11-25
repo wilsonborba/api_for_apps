@@ -5,7 +5,8 @@ Unknown contracts remain marked x-discovery-gaps. Central overrides can fill the
 """
 import ast,json,pathlib,re,argparse,hashlib
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--workspace',type=pathlib.Path,default=ROOT.parent);p.add_argument('--check',action='store_true');a=p.parse_args()
+default_ws=ROOT.parent if (ROOT.parent/'certifications_api').exists() else pathlib.Path('/home/main-server/Documents/Others/Asodya') if pathlib.Path('/home/main-server/Documents/Others/Asodya').exists() else ROOT.parent
+p=argparse.ArgumentParser();p.add_argument('--workspace',type=pathlib.Path,default=default_ws);p.add_argument('--check',action='store_true');a=p.parse_args()
 def source_hash(repo,extension):
  h=hashlib.sha256()
  for f in sorted(repo.rglob('*.'+extension)):

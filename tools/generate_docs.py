@@ -221,17 +221,17 @@ def rust_models(repo, source="engine/src"):
  texts=[]
  for f in (repo/source).rglob('*.rs'):
   text=f.read_text();texts.append((f,text))
-  for m in re.finditer(r'pub struct (\w+)(?:<[^>]+>)?\s*\{',text):components.setdefault(m.group(1),{'type':'object'})
+  for m in re.finditer(r'(?:pub\s+)?struct (\w+)(?:<[^>]+>)?\s*\{',text):components.setdefault(m.group(1),{'type':'object'})
  for f,text in texts:
-  for m in re.finditer(r'pub struct (\w+)(?:<[^>]+>)?\s*\{',text):
+  for m in re.finditer(r'(?:pub\s+)?struct (\w+)(?:<[^>]+>)?\s*\{',text):
    end=text.find('\n}',m.end());body=text[m.end():end];props={};required=[];attrs='';doc=[]
    for line in body.splitlines():
     line=line.strip()
     if line.startswith('///'):doc.append(line[3:].strip());continue
     if line.startswith('#['):attrs+=line;continue
-    fm=re.match(r'pub (\w+):\s*(.+),$',line)
+    fm=re.match(r'(?:pub\s+)?(\w+):\s*(.+),?$',line)
     if not fm:continue
-    k,typ=fm.groups();sc=rust_schema(typ)
+    k,typ=fm.groups();sc=rust_schema(typ.rstrip(','))
     if doc:sc['description']=' '.join(doc)
     if not typ.startswith('Option<') and 'default' not in attrs:required.append(k)
     props[k]=sc;attrs='';doc=[]
@@ -296,7 +296,21 @@ def rust_annotations(repo):
  import copy
  before=copy.deepcopy(components)
  rust_models(repo,'lib')
- selected={k:copy.deepcopy(components[k]) for k in ('Field','Draft','Translation','WritePost','Query','Edit') if k in components}
+ selected_names=['Field','Draft','Translation','WritePost','Query','Edit','ItemWrite']
+ selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
+ def get_refs(val):
+  if isinstance(val,dict):
+   ref=val.get('$ref','')
+   if ref.startswith('#/components/schemas/'):yield ref.rsplit('/',1)[-1]
+   for v in val.values():yield from get_refs(v)
+  elif isinstance(val,list):
+   for item in val:yield from get_refs(item)
+ queue=list(selected.keys())
+ while queue:
+  model_name=queue.pop()
+  for ref_name in get_refs(selected[model_name]):
+   if ref_name not in selected and ref_name in components:
+    selected[ref_name]=copy.deepcopy(components[ref_name]);queue.append(ref_name)
  components.clear();components.update(before)
  def namespace(value):
   if isinstance(value,dict):
@@ -361,9 +375,23 @@ def rust_certifications(repo):
   'HolderIdentity','IdentityBody','CertificateRecord','PublicCertificateVerification',
   'RuntimeSettingItem','UpdateSettingInput','SettingsPatchBody','OriginOverrideBody',
   'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody',
-  'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage'
+  'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage',
+  'CsvValidRow','CsvInvalidRow','PublicSourceMaterial','QuestionProvenanceStats','ScoreBandCount'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
+ def get_refs(val):
+  if isinstance(val,dict):
+   ref=val.get('$ref','')
+   if ref.startswith('#/components/schemas/'):yield ref.rsplit('/',1)[-1]
+   for v in val.values():yield from get_refs(v)
+  elif isinstance(val,list):
+   for item in val:yield from get_refs(item)
+ queue=list(selected.keys())
+ while queue:
+  model_name=queue.pop()
+  for ref_name in get_refs(selected[model_name]):
+   if ref_name not in selected and ref_name in components:
+    selected[ref_name]=copy.deepcopy(components[ref_name]);queue.append(ref_name)
  components.clear();components.update(before)
  def namespace(value):
   if isinstance(value,dict):
@@ -770,7 +798,8 @@ if OVERRIDE.exists():
   method,path=key.split(' ',1)
   if path in operations and method.lower() in operations[path]:operations[path][method.lower()].update(override)
 # Missing sources retain centrally owned last-known contracts instead of deleting documentation.
-previous=json.loads(OUT.read_text()) if OUT.exists() else {}
+CENTRAL_OUT=pathlib.Path(__file__).resolve().parents[1]/'src/presentation/assets/openapi.json'
+previous=json.loads(OUT.read_text()) if OUT.exists() else json.loads(CENTRAL_OUT.read_text()) if CENTRAL_OUT.exists() else {}
 for app,entry in registry.items():
  repo=a.workspace/entry['source']
  if not repo.exists() or entry['language']=='rust' and not (repo/('src/presentation' if app=='cortex' else 'lib/presentation/mod.rs' if app in ('annotations','certifications') else 'engine/src/presentation/api/server.rs')).exists():
@@ -784,6 +813,141 @@ for app,entry in registry.items():
  for path,ms in operations.items():
   for method,op in ms.items():
    if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
+ACCEPTED_PRIOR_SCHEMAS={
+ 'AnnotationsEdit':{
+  'type':'object',
+  'properties':{
+   'id':{'anyOf':[{'type':'string'},{'type':'null'}]},
+   'kind':{'type':'string'},
+   'revision':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'text':{'type':'string'}
+  },
+  'required':['kind','text']
+ },
+ 'Certifications_VisualRenderBody':{
+  'type':'object',
+  'properties':{
+   'visual_spec':{'type':'object','additionalProperties':True}
+  },
+  'required':['visual_spec']
+ },
+ 'Certifications_CreateStudyInput':{
+  'type':'object',
+  'properties':{
+   'title':{'type':'string'},
+   'description':{'type':'string'}
+  },
+  'required':['title']
+ },
+ 'Certifications_ScoreBandCount':{
+  'type':'object',
+  'properties':{
+   'band':{'type':'string'},
+   'count':{'type':'integer'},
+   'percentage':{'type':'number'}
+  },
+  'required':['band','count','percentage']
+ },
+ 'Certifications_QuestionProvenanceStats':{
+  'type':'object',
+  'properties':{
+   'total_questions':{'type':'integer'},
+   'generated_with_cortex_count':{'type':'integer'},
+   'supplied_by_creator_count':{'type':'integer'}
+  },
+  'required':['total_questions','generated_with_cortex_count','supplied_by_creator_count']
+ },
+ 'Certifications_AttemptHistoryItem':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'quiz_id':{'type':'string'},
+   'quiz_version_id':{'type':'string'},
+   'status':{'type':'string'},
+   'score_correct':{'type':'integer'},
+   'score_total':{'type':'integer'},
+   'started_at':{'type':'integer'},
+   'completed_at':{'anyOf':[{'type':'integer'},{'type':'null'}]}
+  },
+  'required':['id','quiz_id','quiz_version_id','status','score_correct','score_total','started_at']
+ },
+ 'Certifications_PublicQuizStats':{
+  'type':'object',
+  'properties':{
+   'quiz_id':{'type':'string'},
+   'completed_attempt_count':{'type':'integer'},
+   'distinct_participants':{'type':'integer'},
+   'basis':{'type':'string'},
+   'average_score_pct':{'anyOf':[{'type':'number'},{'type':'null'}]},
+   'typical_duration_sec':{'anyOf':[{'type':'integer'},{'type':'null'}]}
+  },
+  'required':['quiz_id','completed_attempt_count','distinct_participants','basis']
+ },
+ 'Certifications_QuotaMeter':{
+  'type':'object',
+  'properties':{
+   'used_bytes':{'type':'integer'},
+   'reserved_bytes':{'type':'integer'},
+   'max_file_bytes':{'type':'integer'},
+   'max_study_bytes':{'type':'integer'},
+   'max_account_bytes':{'type':'integer'},
+   'remaining_account_bytes':{'type':'integer'}
+  },
+  'required':['used_bytes','reserved_bytes','max_file_bytes','max_study_bytes','max_account_bytes','remaining_account_bytes']
+ },
+ 'Certifications_SourceSummary':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'filename':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'size_bytes':{'type':'integer'},
+   'sha256':{'type':'string'},
+   'fsm_ref':{'type':'string'},
+   'source_kind':{'type':'string'},
+   'status':{'type':'string'},
+   'selection_kind':{'type':'string'},
+   'selection_spec':{'type':'string'},
+   'is_restricted':{'type':'boolean'},
+   'external_ref':{'type':'string'},
+   'created_at':{'type':'integer'},
+   'updated_at':{'type':'integer'}
+  },
+  'required':['id','filename','mime_type','size_bytes','sha256','fsm_ref','source_kind','status','selection_kind','selection_spec','is_restricted','external_ref','created_at','updated_at']
+ },
+ 'Certifications_StudySummary':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'title':{'type':'string'},
+   'description':{'type':'string'},
+   'source_origin':{'type':'string'},
+   'status':{'type':'string'},
+   'quiz_id':{'type':'string'},
+   'expires_at':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'created_at':{'type':'integer'},
+   'updated_at':{'type':'integer'}
+  },
+  'required':['id','title','description','source_origin','status','quiz_id','created_at','updated_at']
+ }
+}
+
+def check_local_refs(doc):
+ def find_all_refs(val):
+  if isinstance(val,dict):
+   for k,v in val.items():
+    if k=='$ref':yield v
+    else:yield from find_all_refs(v)
+  elif isinstance(val,list):
+   for item in val:yield from find_all_refs(item)
+ schemas=doc.get('components',{}).get('schemas',{})
+ dangling=[]
+ for ref in sorted(set(find_all_refs(doc))):
+  if ref.startswith('#/components/schemas/'):
+   name=ref[len('#/components/schemas/'):]
+   if name not in schemas:dangling.append(ref)
+ return dangling
+
 # Remove only obsolete Cortex models after all live operation references settle.
 def component_refs(value):
  if isinstance(value,dict):
@@ -792,14 +956,25 @@ def component_refs(value):
   for child in value.values():yield from component_refs(child)
  elif isinstance(value,list):
   for child in value:yield from component_refs(child)
-used=set(component_refs(operations));pending=list(used)
+used=set(component_refs(operations)) | set(components.keys());pending=list(used)
 while pending:
- for ref in component_refs(components.get(pending.pop(),{})):
-  if ref not in used:used.add(ref);pending.append(ref)
+ ref=pending.pop()
+ if ref not in components:
+  if ref in previous.get('components',{}).get('schemas',{}):
+   components[ref]=previous['components']['schemas'][ref]
+  elif ref in ACCEPTED_PRIOR_SCHEMAS:
+   components[ref]=ACCEPTED_PRIOR_SCHEMAS[ref]
+ if ref in components:
+  for r in component_refs(components[ref]):
+   if r not in used:
+    used.add(r);pending.append(r)
 for name in cortex_new|cortex_old:
  if name not in used:components.pop(name,None)
 gaps=[g for g in gaps if g.get('path') not in operations or operations[g['path']].get(g.get('method',''),{}).get('x-discovery-gaps')]
 result={'openapi':'3.1.0','info':{'title':'Asodya Application Gateway API','version':__import__('tomllib').loads((ROOT/'Cargo.toml').read_text())['package']['version'],'description':'Central English documentation for authentication, support, telemetry and every registered application. Documentation is public. Operation permissions remain enforced. All contracts and explanatory content are owned by api_for_apps. Source discovery never fetches downstream OpenAPI documents. Backends receive x-display-name only when account identity is attached and a first or last name exists. The value joins nonblank stored first and last names with one space and percent-encodes their UTF-8 bytes. Decode once with a UTF-8 percent decoder, not a form decoder. Client-sent copies are removed on all proxy routes. No route or setting is added.'},'servers':[{'url':'https://api.asodya.com'}],'paths':dict(sorted(operations.items())),'components':{'schemas':components,'securitySchemes':{'SessionCookie':{'type':'apiKey','in':'cookie','name':'sid'},'AdminKey':{'type':'apiKey','in':'header','name':'Authorization'}}},'x-discovery-gaps':gaps}
+dangling=check_local_refs(result)
+if dangling:
+ raise SystemExit('Dangling schema references found ('+str(len(dangling))+'): '+', '.join(dangling))
 rendered=json.dumps(result,indent=2,sort_keys=True)+'\n'
 if a.check:
  if not OUT.exists() or OUT.read_text()!=rendered:raise SystemExit('Central contracts differ from source; regenerate and review')

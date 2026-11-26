@@ -49,6 +49,41 @@
         ],
         "type": "object"
       },
+      "AnnotationsEdit": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "text"
+        ],
+        "type": "object"
+      },
       "AnnotationsField": {
         "properties": {
           "field_type": {
@@ -64,6 +99,20 @@
         "required": [
           "path",
           "field_type"
+        ],
+        "type": "object"
+      },
+      "AnnotationsItemWrite": {
+        "properties": {
+          "expected_revision": {
+            "description": "Zero means a new item. Existing items use their own revision.",
+            "type": "integer"
+          },
+          "item": {}
+        },
+        "required": [
+          "expected_revision",
+          "item"
         ],
         "type": "object"
       },
@@ -363,6 +412,29 @@
         ],
         "type": "object"
       },
+      "Browser": {
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "session": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "socket": {}
+        },
+        "required": [
+          "socket",
+          "id"
+        ],
+        "type": "object"
+      },
       "BrowserHandoffCancel": {
         "additionalProperties": false,
         "properties": {
@@ -493,6 +565,22 @@
           "hits",
           "misses",
           "calculations"
+        ],
+        "type": "object"
+      },
+      "CachedResult": {
+        "properties": {
+          "lineage": {
+            "$ref": "#/components/schemas/Lineage"
+          },
+          "rows": {
+            "items": {},
+            "type": "array"
+          }
+        },
+        "required": [
+          "rows",
+          "lineage"
         ],
         "type": "object"
       },
@@ -1868,6 +1956,17 @@
         ],
         "type": "object"
       },
+      "Certifications_AnswerBody": {
+        "properties": {
+          "selected_option_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "selected_option_id"
+        ],
+        "type": "object"
+      },
       "Certifications_AttemptHistoryItem": {
         "properties": {
           "attempt_sequence": {
@@ -2421,6 +2520,28 @@
         ],
         "type": "object"
       },
+      "Certifications_CsvImportBody": {
+        "properties": {
+          "confirm": {
+            "type": "boolean"
+          },
+          "csv_text": {
+            "type": "string"
+          },
+          "origin": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "csv_text"
+        ],
+        "type": "object"
+      },
       "Certifications_CsvImportResult": {
         "properties": {
           "imported_count": {
@@ -2428,7 +2549,7 @@
           },
           "invalid_rows": {
             "items": {
-              "$ref": "#/components/schemas/CsvInvalidRow"
+              "$ref": "#/components/schemas/Certifications_CsvInvalidRow"
             },
             "type": "array"
           },
@@ -2443,7 +2564,7 @@
           },
           "valid_rows": {
             "items": {
-              "$ref": "#/components/schemas/CsvValidRow"
+              "$ref": "#/components/schemas/Certifications_CsvValidRow"
             },
             "type": "array"
           }
@@ -2454,6 +2575,44 @@
           "valid_rows",
           "invalid_rows",
           "questions"
+        ],
+        "type": "object"
+      },
+      "Certifications_CsvInvalidRow": {
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "row_number": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row_number",
+          "error"
+        ],
+        "type": "object"
+      },
+      "Certifications_CsvValidRow": {
+        "properties": {
+          "correct_id": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "row_number": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "row_number",
+          "language",
+          "prompt",
+          "correct_id"
         ],
         "type": "object"
       },
@@ -2487,6 +2646,20 @@
           "sample_count",
           "queue_ahead_count",
           "source"
+        ],
+        "type": "object"
+      },
+      "Certifications_EventsBody": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Certifications_ActivityEventInput"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "events"
         ],
         "type": "object"
       },
@@ -2595,6 +2768,42 @@
         },
         "required": [
           "confirmed"
+        ],
+        "type": "object"
+      },
+      "Certifications_HolderUpdateBody": {
+        "properties": {
+          "display_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "Certifications_IdentityBody": {
+        "properties": {
+          "display_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "display_name"
+        ],
+        "type": "object"
+      },
+      "Certifications_OriginOverrideBody": {
+        "properties": {
+          "apply_to_questions": {
+            "type": "boolean"
+          },
+          "origin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "origin"
         ],
         "type": "object"
       },
@@ -2728,6 +2937,46 @@
         ],
         "type": "object"
       },
+      "Certifications_ProvenanceGroupStats": {
+        "properties": {
+          "answered_question_count": {
+            "type": "integer"
+          },
+          "attempt_count": {
+            "description": "Number of distinct completed attempts represented by this group.",
+            "type": "integer"
+          },
+          "correct_percentage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Correct questions divided by question_count, expressed as a percentage."
+          },
+          "correct_question_count": {
+            "type": "integer"
+          },
+          "question_count": {
+            "description": "Immutable membership denominator used by the quiz scorer; unanswered items count here.",
+            "type": "integer"
+          },
+          "unanswered_question_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "attempt_count",
+          "question_count",
+          "correct_question_count",
+          "answered_question_count",
+          "unanswered_question_count"
+        ],
+        "type": "object"
+      },
       "Certifications_PublicCertificateVerification": {
         "properties": {
           "activity_summary": {
@@ -2838,7 +3087,7 @@
           },
           "study_material": {
             "items": {
-              "$ref": "#/components/schemas/PublicSourceMaterial"
+              "$ref": "#/components/schemas/Certifications_PublicSourceMaterial"
             },
             "type": "array"
           },
@@ -2894,14 +3143,14 @@
             "type": "integer"
           },
           "question_provenance": {
-            "$ref": "#/components/schemas/QuestionProvenanceStats"
+            "$ref": "#/components/schemas/Certifications_QuestionProvenanceStats"
           },
           "quiz_id": {
             "type": "string"
           },
           "score_distribution": {
             "items": {
-              "$ref": "#/components/schemas/ScoreBandCount"
+              "$ref": "#/components/schemas/Certifications_ScoreBandCount"
             },
             "type": "array"
           },
@@ -3021,6 +3270,72 @@
         ],
         "type": "object"
       },
+      "Certifications_PublicSourceMaterial": {
+        "properties": {
+          "citation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "reports_project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reports_report": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_kind",
+          "citation_refs"
+        ],
+        "type": "object"
+      },
+      "Certifications_PublishBody": {
+        "properties": {
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "Certifications_QuestionAlternative": {
         "properties": {
           "id": {
@@ -3033,6 +3348,35 @@
         "required": [
           "id",
           "text"
+        ],
+        "type": "object"
+      },
+      "Certifications_QuestionProvenanceStats": {
+        "properties": {
+          "combined": {
+            "$ref": "#/components/schemas/Certifications_ProvenanceGroupStats",
+            "description": "Every completed attempt-question membership once, including unclassified rows."
+          },
+          "generated_from_current_selected_sources": {
+            "$ref": "#/components/schemas/Certifications_ProvenanceGroupStats"
+          },
+          "reused_public_question_version": {
+            "$ref": "#/components/schemas/Certifications_ProvenanceGroupStats"
+          },
+          "unavailable_attempt_count": {
+            "description": "Completed attempts excluded because membership or answer records do not reconcile to grading.",
+            "type": "integer"
+          },
+          "unclassified": {
+            "$ref": "#/components/schemas/Certifications_ProvenanceGroupStats"
+          }
+        },
+        "required": [
+          "generated_from_current_selected_sources",
+          "reused_public_question_version",
+          "unclassified",
+          "combined",
+          "unavailable_attempt_count"
         ],
         "type": "object"
       },
@@ -3145,6 +3489,17 @@
         ],
         "type": "object"
       },
+      "Certifications_RevokeBody": {
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "type": "object"
+      },
       "Certifications_RuntimeSettingItem": {
         "properties": {
           "description": {
@@ -3188,6 +3543,81 @@
         ],
         "type": "object"
       },
+      "Certifications_SchemaDraftBody": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/Certifications_SchemaField"
+            },
+            "type": "array"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "fields"
+        ],
+        "type": "object"
+      },
+      "Certifications_SchemaField": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "field_path": {
+            "type": "string"
+          },
+          "field_type": {
+            "type": "string"
+          },
+          "is_required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "field_path",
+          "field_type",
+          "is_required"
+        ],
+        "type": "object"
+      },
+      "Certifications_SchemaStatusBody": {
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "Certifications_ScoreBandCount": {
+        "properties": {
+          "attempt_count": {
+            "type": "integer"
+          },
+          "score_band": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "score_band",
+          "attempt_count"
+        ],
+        "type": "object"
+      },
       "Certifications_SelectionInput": {
         "properties": {
           "kind": {
@@ -3199,6 +3629,20 @@
         },
         "required": [
           "kind"
+        ],
+        "type": "object"
+      },
+      "Certifications_SettingsPatchBody": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Certifications_UpdateSettingInput"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
         ],
         "type": "object"
       },
@@ -3640,6 +4084,15 @@
         },
         "type": "object"
       },
+      "Certifications_VisualRenderBody": {
+        "properties": {
+          "visual_spec": {}
+        },
+        "required": [
+          "visual_spec"
+        ],
+        "type": "object"
+      },
       "ChatCompletionChoice": {
         "properties": {
           "finish_reason": {
@@ -4079,8 +4532,47 @@
         ],
         "type": "object"
       },
+      "CollectionEntry": {
+        "properties": {
+          "generation": {
+            "type": "integer"
+          },
+          "periods": {
+            "additionalProperties": true,
+            "description": "First and last value per field, computed once per loaded copy.",
+            "type": "object"
+          },
+          "rows": {},
+          "watermark": {
+            "$ref": "#/components/schemas/Watermark"
+          }
+        },
+        "required": [
+          "generation",
+          "rows",
+          "watermark",
+          "periods"
+        ],
+        "type": "object"
+      },
       "CompiledExpr": {
-        "properties": {},
+        "properties": {
+          "idents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "node": {},
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "node",
+          "idents"
+        ],
         "type": "object"
       },
       "Condition": {
@@ -4341,12 +4833,214 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_models_chat_history_ChatPage": {
+        "properties": {
+          "chat": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_ChatWithMemory"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_storage_ChatInput"
+            },
+            "type": "array"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_OutputDetails"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "chat",
+          "inputs",
+          "outputs"
+        ],
+        "type": "object"
+      },
       "Cortex_src_domain_models_chat_history_ChatPatch": {},
+      "Cortex_src_domain_models_chat_history_ChatWithMemory": {
+        "properties": {
+          "memory_node_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "x-discovery-gaps": [
+          "Flattened fields need central review."
+        ]
+      },
+      "Cortex_src_domain_models_chat_history_ListQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_ListStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "Cortex_src_domain_models_chat_history_ListStatus": {
         "enum": [
           "running"
         ],
         "type": "string"
+      },
+      "Cortex_src_domain_models_chat_history_OutputDetails": {
+        "properties": {
+          "continued_from": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_inspection_ContinuedFrom"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "memories": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_events_Memory"
+            },
+            "type": "array"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_OutputRunMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_events_Source"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "sources",
+          "memories"
+        ],
+        "type": "object",
+        "x-discovery-gaps": [
+          "Flattened fields need central review."
+        ]
+      },
+      "Cortex_src_domain_models_chat_history_OutputRunMetadata": {
+        "properties": {
+          "error_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_chat_history_OutputTokenCounts"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_ms"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_chat_history_OutputTokenCounts": {
+        "properties": {
+          "input": {
+            "type": "integer"
+          },
+          "output": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input",
+          "output",
+          "total"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_chat_history_PageQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_domain_models_chat_session_InputIds": {
+        "properties": {
+          "input_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "input_id",
+          "output_id"
+        ],
+        "type": "object"
       },
       "Cortex_src_domain_models_chat_session_NewChat": {
         "additionalProperties": false,
@@ -4485,6 +5179,320 @@
         },
         "type": "object"
       },
+      "Cortex_src_domain_models_context_ContextText": {
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "text"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_events_Memory": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_events_Source": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "url"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_events_StageProgress": {
+        "properties": {
+          "error_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_ms": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notice_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_pipeline_StageName"
+          },
+          "status": {
+            "type": "string"
+          },
+          "time_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stage",
+          "status",
+          "time_ms"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_events_StepName": {
+        "enum": [
+          "WebQueries",
+          "QueueWait",
+          "ModelLoad",
+          "ModelReady",
+          "SecurityOk",
+          "FileReadPage",
+          "OcrPage",
+          "Transcribe",
+          "MemorySearch",
+          "MemoriesFound",
+          "WebSearch",
+          "WebPageRead",
+          "ChunksSelected",
+          "ThinkingStep",
+          "ThinkingStopped"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_events_StepProgress": {
+        "properties": {
+          "elapsed_ms": {
+            "type": "integer"
+          },
+          "params": {},
+          "progress": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_pipeline_StageName"
+          },
+          "step": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_events_StepName"
+          }
+        },
+        "required": [
+          "stage",
+          "step",
+          "params",
+          "elapsed_ms"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_events_ThinkingRole": {
+        "enum": [
+          "plan",
+          "work",
+          "check"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_history_CachedHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "completed_count": {
+            "type": "integer"
+          },
+          "exchanges": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_history_HistoryExchange"
+            },
+            "type": "array"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "app_id",
+          "user_id",
+          "completed_count",
+          "exchanges"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_history_HistoryExchange": {
+        "additionalProperties": false,
+        "properties": {
+          "input": {
+            "type": "string"
+          },
+          "input_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "output": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_id",
+          "input",
+          "output"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_identity_MemoryScope": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "app_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_inspection_Alternative": {
+        "properties": {
+          "bytes": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "logprob": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bytes",
+          "logprob"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_inspection_AnswerInspection": {
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_inspection_InspectionToken"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "model",
+          "tokens"
+        ],
+        "type": "object"
+      },
       "Cortex_src_domain_models_inspection_ContinueFrom": {
         "additionalProperties": false,
         "properties": {
@@ -4500,6 +5508,186 @@
           "output_id",
           "token_position",
           "alternative_rank"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_inspection_ContinuedFrom": {
+        "properties": {
+          "alternative_rank": {
+            "type": "integer"
+          },
+          "output_id": {},
+          "source_byte": {
+            "type": "integer"
+          },
+          "token_position": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "output_id",
+          "token_position",
+          "alternative_rank",
+          "source_byte"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_inspection_InspectionToken": {
+        "properties": {
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_inspection_Alternative"
+            },
+            "type": "array"
+          },
+          "bytes": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "end_byte": {
+            "type": "integer"
+          },
+          "logprob": {
+            "type": "number"
+          },
+          "start_byte": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "start_byte",
+          "end_byte",
+          "bytes",
+          "logprob",
+          "alternatives"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_loyalty_LoyaltySnapshot": {
+        "properties": {
+          "account_days": {
+            "type": "integer"
+          },
+          "age": {
+            "type": "number"
+          },
+          "frequency": {
+            "type": "number"
+          },
+          "sign_in_days_90": {
+            "type": "integer"
+          },
+          "weight": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "weight",
+          "age",
+          "frequency",
+          "account_days",
+          "sign_in_days_90"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_memory_graph_GraphQuery": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "depth": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_memory_overview_ItemsQuery": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "period": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_memory_overview_Period"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_memory_overview_SourceFilter"
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_memory_overview_OverviewQuery": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id"
         ],
         "type": "object"
       },
@@ -4520,6 +5708,14 @@
           "Note",
           "Person",
           "Topic"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_memory_overview_SourceKind": {
+        "enum": [
+          "Chat",
+          "File",
+          "Note"
         ],
         "type": "string"
       },
@@ -4587,6 +5783,33 @@
           "Bonsai25Official"
         ],
         "type": "string"
+      },
+      "Cortex_src_domain_models_personas_AppQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_personas_FieldError": {
+        "properties": {
+          "field_path": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field_path",
+          "message"
+        ],
+        "type": "object"
       },
       "Cortex_src_domain_models_personas_NewPersona": {
         "additionalProperties": false,
@@ -4695,12 +5918,242 @@
         },
         "type": "object"
       },
+      "Cortex_src_domain_models_personas_PersonaQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_personas_PersonaType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
       "Cortex_src_domain_models_personas_PersonaType": {
         "enum": [
           "person",
           "bot"
         ],
         "type": "string"
+      },
+      "Cortex_src_domain_models_pipeline_StageName": {
+        "enum": [
+          "accept",
+          "gather",
+          "assemble",
+          "think",
+          "answer",
+          "save"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_models_pipeline_StageOutput": {
+        "properties": {
+          "calls": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_ModelCall"
+            },
+            "type": "array"
+          },
+          "data": {},
+          "notices": {
+            "items": {},
+            "type": "array"
+          },
+          "texts": {
+            "items": {},
+            "type": "array"
+          }
+        },
+        "required": [
+          "data",
+          "texts",
+          "calls",
+          "notices"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_recall_RecalledMemory": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "memory_type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "workspace_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "app_id",
+          "memory_type",
+          "title"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_replay_StoredEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "body": {},
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "body"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_run_record_ModelCall": {
+        "additionalProperties": false,
+        "properties": {
+          "audio": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "finished_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "images": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_tokens": {
+            "type": "integer"
+          },
+          "model": {
+            "type": "string"
+          },
+          "output_tokens": {
+            "type": "integer"
+          },
+          "role": {
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "time_to_first_token_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "role",
+          "model",
+          "input_tokens",
+          "output_tokens",
+          "total_ms",
+          "started_at",
+          "finished_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_run_record_RunCounts": {
+        "additionalProperties": false,
+        "properties": {
+          "audio_seconds": {
+            "type": "number"
+          },
+          "chunks_used": {
+            "type": "integer"
+          },
+          "file_pages": {
+            "type": "integer"
+          },
+          "files": {
+            "type": "integer"
+          },
+          "pages_read": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pages_read",
+          "chunks_used",
+          "files",
+          "file_pages",
+          "audio_seconds"
+        ],
+        "type": "object"
       },
       "Cortex_src_domain_models_run_record_RunMode": {
         "additionalProperties": false,
@@ -4718,6 +6171,102 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_models_run_record_RunRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "calls": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_ModelCall"
+            },
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_RunCounts"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_RunMode"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_StageRecord"
+            },
+            "type": "array"
+          },
+          "total_ms": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "output_id",
+          "app_id",
+          "user_id",
+          "created_at",
+          "mode",
+          "total_ms",
+          "stages",
+          "counts"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_run_record_StageRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "error_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notice_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "time_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "status",
+          "time_ms"
+        ],
+        "type": "object"
+      },
       "Cortex_src_domain_models_run_record_WebMode": {
         "enum": [
           "fast",
@@ -4725,6 +6274,251 @@
           "deep"
         ],
         "type": "string"
+      },
+      "Cortex_src_domain_models_storage_Chat": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "is_pinned": {
+            "type": "boolean"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "persona_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "app_id",
+          "user_id",
+          "title",
+          "model_id",
+          "is_pinned",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_storage_ChatInput": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "input_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "memory_topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "needs_web": {
+            "type": "boolean"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "use_memory": {
+            "type": "boolean"
+          },
+          "web_mode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_id",
+          "session_id",
+          "text",
+          "needs_web",
+          "web_mode",
+          "use_memory",
+          "thinking",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_storage_ChatOutput": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "memory_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "thinking_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "output_id",
+          "input_id",
+          "session_id",
+          "status",
+          "text",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_storage_InputFile": {
+        "properties": {
+          "file_id": {
+            "type": "string"
+          },
+          "input_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "memory_id": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_id",
+          "file_id",
+          "memory_id",
+          "position"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_storage_OutputMemory": {
+        "properties": {
+          "memory_id": {
+            "type": "string"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "output_id",
+          "position",
+          "memory_id",
+          "title"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_storage_OutputSource": {
+        "properties": {
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "output_id",
+          "position",
+          "title",
+          "url"
+        ],
+        "type": "object"
       },
       "Cortex_src_domain_models_telemetry_Items": {
         "properties": {
@@ -4838,6 +6632,88 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_models_telemetry_reads_CallEvent": {
+        "properties": {
+          "finished_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "input_tokens": {
+            "type": "integer"
+          },
+          "model": {
+            "type": "string"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "output_tokens": {
+            "type": "integer"
+          },
+          "request_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "total_tokens": {
+            "type": "integer"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "request_id",
+          "output_id",
+          "model",
+          "role",
+          "input_tokens",
+          "output_tokens",
+          "total_tokens",
+          "started_at",
+          "finished_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_telemetry_reads_EventPage": {
+        "additionalProperties": false,
+        "properties": {
+          "before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
       "Cortex_src_domain_models_telemetry_reads_GroupStats": {
         "properties": {
           "avg_input_tokens": {
@@ -4898,6 +6774,243 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_models_temporary_TemporaryChat": {
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_temporary_TemporaryFile"
+            },
+            "type": "array"
+          },
+          "inputs": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_storage_ChatInput"
+            },
+            "type": "array"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "outputs": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_temporary_TemporaryOutput"
+            },
+            "type": "array"
+          },
+          "persona_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "title",
+          "inputs",
+          "outputs",
+          "files"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_temporary_TemporaryData": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          },
+          "chat": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_temporary_TemporaryChat"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "file": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Cortex_src_domain_models_temporary_TemporaryFile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id",
+          "user_id"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_temporary_TemporaryFile": {
+        "properties": {
+          "file_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "image": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_context_ContextText"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "file_id",
+          "name",
+          "pages"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_temporary_TemporaryOutput": {
+        "properties": {
+          "memories": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_events_Memory"
+            },
+            "type": "array"
+          },
+          "output": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_storage_ChatOutput"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_events_Source"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "output",
+          "sources",
+          "memories"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_tools_CommandArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "argv": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "cwd": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cwd",
+          "argv"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_tools_GrepArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "max_results": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "paths"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_tools_ReplaceArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "find": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "replace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "find",
+          "replace"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_tools_SubagentArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "task"
+        ],
+        "type": "object"
+      },
       "Cortex_src_domain_models_tools_ToolName": {
         "enum": [
           "invoke_subagent",
@@ -4907,6 +7020,159 @@
           "run_command"
         ],
         "type": "string"
+      },
+      "Cortex_src_domain_models_tools_ToolRequest": {
+        "properties": {
+          "arguments": {},
+          "call_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_tools_ToolName"
+          }
+        },
+        "required": [
+          "call_id",
+          "name",
+          "arguments"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_tools_ViewFileArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "end_line": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "start_line": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_usage_Usage": {
+        "properties": {
+          "audio": {
+            "type": "integer"
+          },
+          "images": {
+            "type": "integer"
+          },
+          "input": {
+            "type": "integer"
+          },
+          "output": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input",
+          "output",
+          "images",
+          "audio"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_usage_WaitingCall": {
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "ticket": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ticket",
+          "actor"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_web_page_PageConditionalMeta": {
+        "properties": {
+          "etag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_modified": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_domain_models_web_page_WebLink": {
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "text"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_models_web_page_WebPage": {
+        "properties": {
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_context_ContextText"
+            },
+            "type": "array"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_models_web_page_WebLink"
+            },
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_events_Source"
+          }
+        },
+        "required": [
+          "source",
+          "chunks",
+          "links"
+        ],
+        "type": "object"
       },
       "Cortex_src_presentation_agent_runs_ActionKind": {
         "enum": [
@@ -4999,6 +7265,55 @@
         ],
         "type": "string"
       },
+      "Cortex_src_presentation_agent_runs_BoundChildView": {
+        "properties": {
+          "budget_tokens": {
+            "type": "integer"
+          },
+          "child_chat_session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "child_output_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "depth": {
+            "type": "integer"
+          },
+          "parent_call_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {}
+        },
+        "required": [
+          "child_id",
+          "parent_call_id",
+          "status",
+          "depth",
+          "budget_tokens"
+        ],
+        "type": "object"
+      },
       "Cortex_src_presentation_agent_runs_ClaimOutputAction": {
         "additionalProperties": false,
         "properties": {
@@ -5082,6 +7397,90 @@
         ],
         "type": "object"
       },
+      "Cortex_src_presentation_agent_runs_EventQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_presentation_agent_runs_OutputActionView": {
+        "properties": {
+          "action_digest": {
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "action_kind": {
+            "type": "string"
+          },
+          "call_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "call_id",
+          "name",
+          "action_kind",
+          "action_digest",
+          "display",
+          "expires_at",
+          "status"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_agent_runs_PendingSubagentArgs": {
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "role": {
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "task"
+        ],
+        "type": "object"
+      },
       "Cortex_src_presentation_agent_runs_RegisterChildCall": {
         "additionalProperties": false,
         "properties": {
@@ -5093,6 +7492,22 @@
         "required": [
           "call_id"
         ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_chat_inputs_EventsQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
         "type": "object"
       },
       "Cortex_src_presentation_chat_inputs_OutputPatch": {
@@ -5154,6 +7569,28 @@
         ],
         "type": "object"
       },
+      "Cortex_src_presentation_file_worker_Name": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_files_AppQuery": {
+        "properties": {
+          "app_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "app_id"
+        ],
+        "type": "object"
+      },
       "Cortex_src_presentation_remote_cli_ApprovalReq": {
         "properties": {
           "approved": {
@@ -5171,6 +7608,31 @@
             "anyOf": [
               {
                 "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_presentation_remote_cli_CursorQuery": {
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "integer"
               },
               {
                 "type": "null"
@@ -5233,8 +7695,79 @@
         ],
         "type": "object"
       },
+      "Cortex_src_presentation_response_Envelope": {
+        "properties": {
+          "data": {},
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "data"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_response_ErrorData": {
+        "properties": {
+          "error_number": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "error_number"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_presentation_response_NoticeData": {
+        "properties": {
+          "notice_number": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "notice_number"
+        ],
+        "type": "object",
+        "x-discovery-gaps": [
+          "Flattened fields need central review."
+        ]
+      },
       "CouchDocuments": {
-        "properties": {},
+        "properties": {
+          "base_url": {
+            "type": "string"
+          },
+          "client": {},
+          "database": {
+            "type": "string"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "client",
+          "base_url",
+          "database"
+        ],
         "type": "object"
       },
       "CreateCompletedQuizPayload": {
@@ -5925,7 +8458,51 @@
         "type": "object"
       },
       "DatasetService": {
-        "properties": {},
+        "properties": {
+          "collections": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "counters": {},
+          "domain_ttl": {
+            "type": "integer"
+          },
+          "flights": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "gate_ttl": {
+            "type": "integer"
+          },
+          "generations": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "max_cached_rows": {
+            "type": "integer"
+          },
+          "max_scan_rows": {
+            "type": "integer"
+          },
+          "result_ttl": {
+            "type": "integer"
+          },
+          "stores": {
+            "$ref": "#/components/schemas/Stores"
+          }
+        },
+        "required": [
+          "stores",
+          "result_ttl",
+          "gate_ttl",
+          "max_scan_rows",
+          "max_cached_rows",
+          "domain_ttl",
+          "collections",
+          "generations",
+          "flights",
+          "counters"
+        ],
         "type": "object"
       },
       "DatasetSpec": {
@@ -6191,6 +8768,21 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "DetailSnapshot": {
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/DomainProjectDetail"
+          },
+          "fetched_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fetched_at",
+          "detail"
         ],
         "type": "object"
       },
@@ -6495,6 +9087,16 @@
       },
       "DomainIndex": {
         "properties": {
+          "snapshot": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Snapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "stale": {
             "type": "boolean"
           }
@@ -7551,6 +10153,34 @@
         ],
         "type": "object"
       },
+      "Fields": {
+        "properties": {
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "module": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "fields"
+        ],
+        "type": "object"
+      },
       "FilterInfo": {
         "properties": {
           "field": {
@@ -8058,7 +10688,24 @@
         "type": "object"
       },
       "HttpDomain": {
-        "properties": {},
+        "properties": {
+          "base_url": {
+            "type": "string"
+          },
+          "client": {},
+          "detail_client": {
+            "description": "The detail route is slow (GitHub data), so it gets a longer timeout."
+          },
+          "public_base": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "client",
+          "detail_client",
+          "base_url",
+          "public_base"
+        ],
         "type": "object"
       },
       "IngestRecord": {
@@ -8294,7 +10941,17 @@
         "type": "object"
       },
       "LineWriter": {
-        "properties": {},
+        "properties": {
+          "buffer": {
+            "items": {},
+            "type": "array"
+          },
+          "sender": {}
+        },
+        "required": [
+          "sender",
+          "buffer"
+        ],
         "type": "object"
       },
       "Lineage": {
@@ -8510,10 +11167,25 @@
       "MemoryCache": {
         "properties": {
           "hits": {},
+          "locks": {
+            "additionalProperties": true,
+            "type": "object"
+          },
           "misses": {},
-          "offline": {}
+          "offline": {},
+          "tags": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "values": {
+            "additionalProperties": true,
+            "type": "object"
+          }
         },
         "required": [
+          "values",
+          "tags",
+          "locks",
           "offline",
           "hits",
           "misses"
@@ -8522,11 +11194,18 @@
       },
       "MemoryDocuments": {
         "properties": {
+          "docs": {
+            "additionalProperties": true,
+            "type": "object"
+          },
           "offline": {
             "description": "When true, every call fails like an unreachable CouchDB."
-          }
+          },
+          "snapshots": {}
         },
         "required": [
+          "docs",
+          "snapshots",
           "offline"
         ],
         "type": "object"
@@ -10393,11 +13072,29 @@
         "type": "object"
       },
       "Redactor": {
-        "properties": {},
+        "properties": {
+          "secrets": {}
+        },
+        "required": [
+          "secrets"
+        ],
         "type": "object"
       },
       "RedisCache": {
-        "properties": {},
+        "properties": {
+          "client": {},
+          "connection": {},
+          "last_failure": {},
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "client",
+          "namespace",
+          "connection",
+          "last_failure"
+        ],
         "type": "object"
       },
       "RefSpec": {
@@ -11048,7 +13745,15 @@
         "type": "object"
       },
       "ServiceKeyRing": {
-        "properties": {},
+        "properties": {
+          "entries": {
+            "items": {},
+            "type": "array"
+          }
+        },
+        "required": [
+          "entries"
+        ],
         "type": "object"
       },
       "Settings": {
@@ -11432,6 +14137,24 @@
         },
         "type": "object"
       },
+      "Snapshot": {
+        "properties": {
+          "fetched_at": {
+            "type": "string"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/DomainProject"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "fetched_at",
+          "projects"
+        ],
+        "type": "object"
+      },
       "SnapshotQuery": {
         "properties": {
           "lang": {
@@ -11648,6 +14371,42 @@
           "output_tokens",
           "latency_ms",
           "cost_usd"
+        ],
+        "type": "object"
+      },
+      "Stored": {
+        "properties": {
+          "fields": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "key": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "node_parent": {
+            "type": "string"
+          },
+          "parent": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "parent",
+          "position",
+          "name",
+          "fields",
+          "kind",
+          "node_parent"
         ],
         "type": "object"
       },
@@ -21531,7 +24290,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/certificates/{certificate_code}/revocation' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/certificates/{certificate_code}/revocation' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"reason\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:85",
@@ -21735,7 +24494,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/holders/{holder_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/holders/{holder_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:84",
@@ -21877,7 +24636,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}/origin' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}/origin' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"origin\": \"example\", \"apply_to_questions\": true}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:80",
@@ -22008,7 +24767,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:63",
@@ -22227,7 +24986,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:67",
@@ -22311,7 +25070,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}/status' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}/status' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:73",
@@ -22439,7 +25198,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/settings' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/settings' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"items\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:62",
@@ -22770,7 +25529,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/answers/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/answers/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"selected_option_id\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:46",
@@ -22909,7 +25668,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"events\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:50",
@@ -23722,7 +26481,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/me/identity' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/me/identity' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/certificates.rs:23",
@@ -24953,7 +27712,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"tags\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/catalog.rs:36",
@@ -25156,7 +27915,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/import' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/import' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"csv_text\": \"example\", \"confirm\": true, \"origin\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:38",
@@ -25440,7 +28199,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"visual_spec\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:46",

@@ -1,6 +1,7 @@
 """Read-only source fixtures prove additions, changes, removals and absent-service reporting."""
-import unittest,tempfile,pathlib,subprocess,json,shutil
+import unittest,tempfile,pathlib,subprocess,json,shutil,sys
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 class DiscoveryTests(unittest.TestCase):
  def test_fixture_route_lifecycle(self):
   # Run a copy of the generator so tests never modify central production contracts.
@@ -197,5 +198,41 @@ pub struct AttemptHistoryPage {
    res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root/'nonexistent-path')],capture_output=True,text=True)
    self.assertNotEqual(res.returncode,0)
    self.assertIn('Workspace directory not found',res.stderr+res.stdout)
+
+def check_local_refs(doc):
+ def find_all_refs(val):
+  if isinstance(val,dict):
+   for k,v in val.items():
+    if k=='$ref':yield v
+    else:yield from find_all_refs(v)
+  elif isinstance(val,list):
+   for item in val:yield from find_all_refs(item)
+ schemas=doc.get('components',{}).get('schemas',{})
+ dangling=[]
+ for ref in sorted(set(find_all_refs(doc))):
+  if ref.startswith('#/components/schemas/'):
+   name=ref[len('#/components/schemas/'):]
+   if name not in schemas:dangling.append(ref)
+ return dangling
+
+class IntegrityTests(unittest.TestCase):
+ def test_whole_document_local_ref_integrity_on_real_artifact(self):
+  doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
+  dangling=check_local_refs(doc)
+  self.assertEqual(dangling,[],f"Found dangling local schema references in real artifact: {dangling}")
+
+ def test_fixture_local_ref_integrity(self):
+  with tempfile.TemporaryDirectory(prefix='integrity-doc-test-') as tmp:
+   root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True)
+   shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
+   for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
+   shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   cert=root/'certifications_api/lib/presentation';cert.mkdir(parents=True)
+   (cert/'mod.rs').write_text('pub fn router() { Router::new().route("/ready", get(ready)) }')
+   res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],capture_output=True,text=True)
+   self.assertEqual(res.returncode,0,res.stderr+res.stdout)
+   doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
+   dangling=check_local_refs(doc)
+   self.assertEqual(dangling,[],f"Found dangling local schema references in fixture: {dangling}")
 
 if __name__=='__main__':unittest.main()

@@ -232,6 +232,8 @@ class IntegrityTests(unittest.TestCase):
    shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
    for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
    shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   cert=root/'certifications_api/lib/presentation';cert.mkdir(parents=True)
+   (cert/'mod.rs').write_text('pub fn router() { Router::new().route("/ready", get(ready)) }')
    repo=root/'annotations_api';(repo/'lib/presentation').mkdir(parents=True);(repo/'lib/domain').mkdir(parents=True)
    (repo/'lib/presentation/mod.rs').write_text('pub fn routes() { Router::new().route("/instant/{code}/items", post(add_item)) }')
    (repo/'lib/domain/rooms.rs').write_text('pub struct ItemWrite {\n pub expected_revision: i64,\n pub item: Value,\n}\n')
@@ -262,5 +264,46 @@ class IntegrityTests(unittest.TestCase):
    doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
    dangling=check_local_refs(doc)
    self.assertEqual(dangling,[],f"Found dangling local schema references in fixture: {dangling}")
+
+ def test_fixture_annotations_prepared_certifications_contract(self):
+  with tempfile.TemporaryDirectory(prefix='annotations-prep-test-') as tmp:
+   root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True)
+   shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
+   for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
+   shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   cert=root/'certifications_api/lib/presentation';cert.mkdir(parents=True)
+   (cert/'mod.rs').write_text('pub fn router() { Router::new().route("/ready", get(ready)) }')
+   repo=root/'annotations_api';(repo/'lib/presentation').mkdir(parents=True);(repo/'lib/domain').mkdir(parents=True)
+   (repo/'lib/presentation/mod.rs').write_text('pub fn routes() { Router::new().route("/me/notes/{note_id}/certifications/prepared", post(create_prepared_certification)) }')
+   (repo/'lib/domain/notes.rs').write_text('''pub struct PreparedCertificationSourceInput {
+    pub kind: Option<String>,
+    pub file_id: Option<String>,
+    pub revision_id: Option<String>,
+    pub selection_kind: Option<String>,
+    pub selection_spec: Option<String>,
+}
+pub struct PreparedCertificationConfigInput {
+    pub language: Option<String>,
+    pub count: Option<i64>,
+}
+pub struct PreparedCertificationInput {
+    pub title: String,
+    pub description: Option<String>,
+    pub expected_revision: Option<i64>,
+    pub sources: Vec<PreparedCertificationSourceInput>,
+    pub config: Option<PreparedCertificationConfigInput>,
+}
+''')
+   res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],capture_output=True,text=True)
+   self.assertEqual(res.returncode,0,res.stderr+res.stdout)
+   doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
+   schemas=doc['components']['schemas']
+   self.assertIn('AnnotationsPreparedCertificationInput',schemas)
+   self.assertIn('AnnotationsPreparedCertificationSourceInput',schemas)
+   self.assertIn('AnnotationsPreparedCertificationConfigInput',schemas)
+   self.assertEqual(schemas['AnnotationsPreparedCertificationInput']['required'],['title','sources'])
+   prep_op=doc['paths']['/apps/annotations/v1/me/notes/{note_id}/certifications/prepared']['post']
+   self.assertEqual(prep_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsPreparedCertificationInput')
+   self.assertEqual(prep_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_StudyDetail')
 
 if __name__=='__main__':unittest.main()

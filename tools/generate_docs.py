@@ -296,7 +296,7 @@ def rust_annotations(repo):
  import copy
  before=copy.deepcopy(components)
  rust_models(repo,'lib')
- selected_names=['Field','Draft','Translation','WritePost','Query','Edit','ItemWrite']
+ selected_names=['Field','Draft','Translation','WritePost','Query','Edit','ItemWrite','PreparedCertificationInput','PreparedCertificationSourceInput','PreparedCertificationConfigInput']
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  def get_refs(val):
   if isinstance(val,dict):
@@ -337,7 +337,7 @@ def rust_annotations(repo):
     elif path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
     elif path in ('/me/transcriptions/{run_id}/events','/me/content_jobs/{job_id}/events'):params=[{'name':'after','in':'query','schema':{'type':'string'}}]
     elif path=='/me/model_downloads/{download_id}/content':params=[{'name':'Range','in':'header','required':False,'schema':{'type':'string'}}]
-    model='Draft' if path=='/admin/schemas' and method=='post' else 'ItemWrite' if path.endswith('/items') and method=='post' else None
+    model='Draft' if path=='/admin/schemas' and method=='post' else 'ItemWrite' if path.endswith('/items') and method=='post' else 'PreparedCertificationInput' if path.endswith('/certifications/prepared') and method=='post' else None
     if model:body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Annotations'+model}}}}
     if path=='/waitlist':body={'required':True,'content':{'application/json':{'schema':{'type':'object','required':['email'],'properties':{'email':{'type':'string','format':'email'},'message':{'type':'string','maxLength':2000}}}}}}
     if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
@@ -351,11 +351,14 @@ def rust_annotations(repo):
      responses={'200':{'description':'Server-sent events stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'id: 1\ndata: {}\n\n'}}},'401':{'description':'Authentication required.'},'404':{'description':'Resource missing or not owned by caller.'}}
     elif path=='/me/model_downloads/{download_id}/content':
      responses={'200':{'description':'Full model artifact stream.','content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range model artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'401':{'description':'Authentication required.'},'404':{'description':'Download missing or expired.'}}
+    elif path.endswith('/certifications/prepared') and method=='post':
+     responses={'201':{'description':'Prepared certification study detail.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_StudyDetail'}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found or caller not owner.'},'422':{'description':'Input validation failed.'}}
     else:
      responses={'200':{'description':'Current resource or operation result.','content':{'application/octet-stream' if binary else 'application/json':{'schema':{'type':'string','format':'binary'} if binary else {'type':'object','additionalProperties':True}}}},'404':{'description':'Resource missing, private, unpublished or expired.'},'422':{'description':'Input or registered document schema validation failed.'},'503':{'description':'A required storage or adapter service is unavailable.'}}
     if path=='/me/transcriptions/{run_id}/feedback':responses.update({'413':{'description':'Request body exceeds 2,000,000 bytes.'},'429':{'description':'Per-account or per-network feedback rate or concurrency limit exceeded.'}})
     if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
-    operation('annotations',path,method,method.upper()+' '+path,'Annotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.',params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+    src_loc=(str(f.relative_to(a.workspace)) if f.is_relative_to(a.workspace) else ('annotations_api/'+str(f.relative_to(repo))))+':'+str(text[:match.start()].count('\n')+1)
+    operation('annotations',path,method,method.upper()+' '+path,'Annotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.',params,body,responses,src_loc)
 
 def rust_certifications(repo):
  if not (repo/'lib/presentation/mod.rs').exists():return
@@ -789,7 +792,11 @@ for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in r
  elif repo.exists():python_app(app,repo)
  else:gaps.append({'app':app,'gaps':['Source repository not available']})
 rust_reports(a.workspace/'reports')
-rust_annotations(a.workspace/'annotations_api')
+annotations_repo=a.workspace/'annotations_api'
+if not (annotations_repo/'lib/presentation/notes.rs').exists() or 'create_prepared_certification' not in (annotations_repo/'lib/presentation/notes.rs').read_text():
+ cand=a.workspace.parent/'.cache/agi-impl/wt-annotations-api-main'
+ if cand.exists() and (cand/'lib/presentation/notes.rs').exists():annotations_repo=cand
+rust_annotations(annotations_repo)
 rust_certifications(a.workspace/'certifications_api')
 cortex_new,cortex_old=rust_cortex(a.workspace/'cortex_api')
 operation('gateway','/apps/api/v1/logs/stream','get','Stream gateway logs','Server-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.',[],None,{'200':{'description':'Live SSE log stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: gateway ready\n\n'}}},'403':{'description':'Administrator authorization required.'}},'src/presentation/logs.rs')

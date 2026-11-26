@@ -319,7 +319,7 @@ pub struct PreparedCertificationInput {
   self.assertIn('AnnotationsPreparedCertificationSourceInput',schemas)
   self.assertIn('AnnotationsPreparedCertificationConfigInput',schemas)
   self.assertEqual(schemas['AnnotationsPreparedCertificationInput']['required'],['title','sources'])
-  self.assertEqual(prep_op.get('x-source-tree-sha256'),'dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180')
+  self.assertEqual(prep_op.get('x-source-tree-sha256'),'9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476')
   self.assertEqual(check_local_refs(doc),[])
 
  def test_committed_artifact_certifications_visual_routes_contract(self):

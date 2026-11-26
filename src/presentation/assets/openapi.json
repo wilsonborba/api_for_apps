@@ -16470,7 +16470,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/files": {
@@ -16542,7 +16542,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:88",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/files/{file_id}": {
@@ -16611,7 +16611,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:89",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /admin/files/{file_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -16669,7 +16669,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:89",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/files/{file_id}/content": {
@@ -16729,7 +16729,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:93",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /admin/files/{file_id}/content. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -16807,7 +16807,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:93",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/notes": {
@@ -16858,7 +16858,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:61",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /admin/notes. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -16928,7 +16928,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:61",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/notes/{note_id}": {
@@ -16997,7 +16997,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17055,7 +17055,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17133,7 +17133,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /admin/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17211,7 +17211,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/notes/{note_id}/publication": {
@@ -17280,7 +17280,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /admin/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17338,7 +17338,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /admin/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17416,7 +17416,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/projects": {
@@ -17482,7 +17482,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:77",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /admin/projects. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17566,7 +17566,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:77",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/projects/{project_id}": {
@@ -17635,7 +17635,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /admin/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17693,7 +17693,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /admin/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17771,7 +17771,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/schemas": {
@@ -17822,7 +17822,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:32",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /admin/schemas. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Administrative access is required before execution. Use the administrative credential or an authorized administrator session. Mutable session requests require CSRF validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -17891,7 +17891,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:32",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish": {
@@ -17968,7 +17968,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:33",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/authors/{author_id}": {
@@ -18021,7 +18021,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:20",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/authors/{author_id}/projects": {
@@ -18088,7 +18088,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:21",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/catalog": {
@@ -18132,7 +18132,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:13",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/health": {
@@ -18176,7 +18176,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:27",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}": {
@@ -18238,7 +18238,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -18309,7 +18309,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /instant/{code}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -18380,7 +18380,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:13",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}/files": {
@@ -18453,7 +18453,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:22",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}": {
@@ -18523,7 +18523,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:27",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}/files/{id}/content": {
@@ -18604,7 +18604,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:23",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}/items": {
@@ -18676,7 +18676,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/instant/{code}/items/{id}": {
@@ -18746,7 +18746,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /instant/{code}/items/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -18825,7 +18825,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /instant/{code}/items/{id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -18904,7 +18904,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:15",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/links/preview": {
@@ -18958,7 +18958,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:15",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/logs/stream": {
@@ -19066,7 +19066,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:24",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}": {
@@ -19123,7 +19123,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:25",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}/events": {
@@ -19184,7 +19184,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:26",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/content_jobs/{job_id}/execution": {
@@ -19250,7 +19250,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:27",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/files": {
@@ -19319,7 +19319,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:32",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/files/{file_id}": {
@@ -19385,7 +19385,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:33",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /me/files/{file_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -19440,7 +19440,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:33",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/files/{file_id}/content": {
@@ -19497,7 +19497,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:34",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /me/files/{file_id}/content. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -19572,7 +19572,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:34",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/model_downloads": {
@@ -19641,7 +19641,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:24",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/model_downloads/{download_id}": {
@@ -19698,7 +19698,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:25",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/model_downloads/{download_id}/content": {
@@ -19766,7 +19766,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:26",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes": {
@@ -19814,7 +19814,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:29",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /me/notes. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -19881,7 +19881,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:29",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}": {
@@ -19947,7 +19947,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20002,7 +20002,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20077,7 +20077,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /me/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20152,7 +20152,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/certifications/prepared": {
@@ -20227,7 +20227,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:47",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/publication": {
@@ -20293,7 +20293,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:43",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /me/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20348,7 +20348,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:43",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /me/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20423,7 +20423,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:43",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/reports": {
@@ -20500,7 +20500,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:34",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/reports/delete-preview": {
@@ -20557,7 +20557,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:35",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup": {
@@ -20634,7 +20634,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:39",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/projects": {
@@ -20697,7 +20697,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:17",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /me/projects. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20778,7 +20778,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:17",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/projects/{project_id}": {
@@ -20844,7 +20844,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /me/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20899,7 +20899,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /me/projects/{project_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -20974,7 +20974,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}": {
@@ -21048,7 +21048,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "put": {
         "description": "PUT /me/projects/{project_id}/notes/{note_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -21131,7 +21131,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/tasks": {
@@ -21194,7 +21194,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "post": {
         "description": "POST /me/tasks. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -21275,7 +21275,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/tasks/{task_id}": {
@@ -21341,7 +21341,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "get": {
         "description": "GET /me/tasks/{task_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -21396,7 +21396,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       },
       "patch": {
         "description": "PATCH /me/tasks/{task_id}. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
@@ -21471,7 +21471,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions": {
@@ -21540,7 +21540,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:30",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}": {
@@ -21597,7 +21597,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:31",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/events": {
@@ -21658,7 +21658,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:32",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/execution": {
@@ -21724,7 +21724,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:34",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/feedback": {
@@ -21807,7 +21807,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:35",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/me/transcriptions/{run_id}/result": {
@@ -21884,7 +21884,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:33",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/media/{key}": {
@@ -21937,7 +21937,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/media.rs:26",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/models": {
@@ -22000,7 +22000,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:22",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/models/{model_version}": {
@@ -22057,7 +22057,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:23",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/notes": {
@@ -22166,7 +22166,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:18",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/notes/{note_id}": {
@@ -22233,7 +22233,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:19",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/projects/{project_id}": {
@@ -22286,7 +22286,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/discovery.rs:22",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/ready": {
@@ -22330,7 +22330,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:31",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/annotations/v1/waitlist": {
@@ -22397,7 +22397,7 @@
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:14",
-        "x-source-tree-sha256": "dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180"
+        "x-source-tree-sha256": "9db4bdb797c65039014035bab6f0a13b1294f2b5b1612c50fe9584ea9ad39476"
       }
     },
     "/apps/api/v1/admin/features": {

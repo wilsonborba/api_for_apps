@@ -91,6 +91,8 @@ async fn create(Json(body): Json<NewChat>) -> Response { response() }
   .route("/studies/{study_id}/sources", post(add_source))
   .route("/quizzes/{quiz_id}/statistics", get(get_quiz_statistics))
   .route("/me/quizzes/{quiz_id}/statistics", get(get_my_quiz_statistics))
+  .route("/me/quizzes/{quiz_id}/summary", get(get_my_quiz_summary))
+  .route("/attempts", get(list_my_attempts))
 }''')
    (repo/'lib/domain/studies.rs').write_text('''pub struct PreparedStudyConfig {
     pub language: String,
@@ -122,6 +124,23 @@ pub struct PublicQuizStats {
     pub quiz_id: String,
     pub completed_attempt_count: i64,
 }
+pub struct OwnerQuizSummary {
+    pub quiz_id: String,
+    pub active_version_id: Option<String>,
+    pub title: Option<String>,
+    pub question_count: Option<i64>,
+    pub subject: Option<String>,
+}
+pub struct AttemptHistoryItem {
+    pub id: String,
+    pub status: String,
+}
+pub struct AttemptHistoryPage {
+    pub items: Vec<AttemptHistoryItem>,
+    pub total: i64,
+    pub limit: i64,
+    pub offset: i64,
+}
 ''')
    subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],check=True,capture_output=True)
    doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
@@ -140,6 +159,26 @@ pub struct PublicQuizStats {
    # StudyHistoryPage and AvailableStudyTag
    self.assertIn('Certifications_StudyHistoryPage',schemas)
    self.assertIn('Certifications_AvailableStudyTag',schemas)
+   # OwnerQuizSummary and AttemptHistoryPage
+   self.assertIn('Certifications_OwnerQuizSummary',schemas)
+   self.assertIn('quiz_id',schemas['Certifications_OwnerQuizSummary']['properties'])
+   self.assertIn('active_version_id',schemas['Certifications_OwnerQuizSummary']['properties'])
+   self.assertIn('question_count',schemas['Certifications_OwnerQuizSummary']['properties'])
+   self.assertIn('Certifications_AttemptHistoryPage',schemas)
+   self.assertIn('items',schemas['Certifications_AttemptHistoryPage']['properties'])
+   self.assertIn('total',schemas['Certifications_AttemptHistoryPage']['properties'])
+   # /me/quizzes/{quiz_id}/summary is session-protected
+   summary_op=doc['paths']['/apps/certifications/v1/me/quizzes/{quiz_id}/summary']['get']
+   self.assertEqual(summary_op['x-access-level'],'session')
+   self.assertEqual(summary_op['security'],[{'SessionCookie':[]}])
+   self.assertEqual(summary_op['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_OwnerQuizSummary')
+   # /attempts GET pagination and filter query parameters
+   attempts_op=doc['paths']['/apps/certifications/v1/attempts']['get']
+   attempts_params=[p['name'] for p in attempts_op['parameters']]
+   for expected_param in ('limit','offset','q','started_from','started_to','quiz_id','tag','status'):
+    self.assertIn(expected_param,attempts_params)
+   self.assertEqual(attempts_op['x-access-level'],'session')
+   self.assertEqual(attempts_op['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_AttemptHistoryPage')
    # /studies GET pagination query parameters
    studies_op=doc['paths']['/apps/certifications/v1/studies']['get']
    param_names=[p['name'] for p in studies_op['parameters']]

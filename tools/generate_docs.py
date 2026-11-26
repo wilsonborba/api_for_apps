@@ -361,7 +361,7 @@ def rust_certifications(repo):
   'HolderIdentity','IdentityBody','CertificateRecord','PublicCertificateVerification',
   'RuntimeSettingItem','UpdateSettingInput','SettingsPatchBody','OriginOverrideBody',
   'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody',
-  'AvailableStudyTag','StudyHistoryPage'
+  'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  components.clear();components.update(before)
@@ -410,6 +410,27 @@ def rust_certifications(repo):
    'available_tags':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AvailableStudyTag'}}
   },
   'required':['items','total','limit','offset','available_tags']
+ }
+ components['Certifications_OwnerQuizSummary']={
+  'type':'object',
+  'properties':{
+   'quiz_id':{'type':'string'},
+   'active_version_id':{'anyOf':[{'type':'string'},{'type':'null'}]},
+   'title':{'anyOf':[{'type':'string'},{'type':'null'}]},
+   'question_count':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'subject':{'anyOf':[{'type':'string'},{'type':'null'}]}
+  },
+  'required':['quiz_id']
+ }
+ components['Certifications_AttemptHistoryPage']={
+  'type':'object',
+  'properties':{
+   'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AttemptHistoryItem'}},
+   'total':{'type':'integer'},
+   'limit':{'type':'integer'},
+   'offset':{'type':'integer'}
+  },
+  'required':['items','total','limit','offset']
  }
  if 'Certifications_PublicQuizStats' in components:
   components['Certifications_PublicQuizStats']['properties']['score_distribution_report_view']={
@@ -475,7 +496,16 @@ def rust_certifications(repo):
     elif path=='/catalog/questions':
      params.extend([{'name':'q','in':'query','schema':{'type':'string'}},{'name':'language','in':'query','schema':{'type':'string'}},{'name':'origin','in':'query','schema':{'type':'string'}},{'name':'limit','in':'query','schema':{'type':'integer'}}])
     elif path=='/attempts' and method=='get':
-     params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
+     params.extend([
+      {'name':'limit','in':'query','schema':{'type':'integer'}},
+      {'name':'offset','in':'query','schema':{'type':'integer'}},
+      {'name':'q','in':'query','schema':{'type':'string'}},
+      {'name':'started_from','in':'query','schema':{'type':'integer'}},
+      {'name':'started_to','in':'query','schema':{'type':'integer'}},
+      {'name':'quiz_id','in':'query','schema':{'type':'string'}},
+      {'name':'tag','in':'query','schema':{'type':'string'}},
+      {'name':'status','in':'query','schema':{'type':'string'}}
+     ])
     elif path=='/admin/cleanup' and method=='get':
      params.extend([{'name':k,'in':'query','schema':{'type':'integer'}} for k in ('limit','offset')])
     elif path=='/studies/{study_id}/sources/{source_id}/content':
@@ -556,12 +586,13 @@ def rust_certifications(repo):
       ('/quizzes/{quiz_id}','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizDetail'},
       ('/quizzes/{quiz_id}/statistics','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizStats'},
       ('/me/quizzes/{quiz_id}/statistics','get'):{'$ref':'#/components/schemas/Certifications_PublicQuizStats'},
+      ('/me/quizzes/{quiz_id}/summary','get'):{'$ref':'#/components/schemas/Certifications_OwnerQuizSummary'},
       ('/studies/{study_id}/tags/suggestions','get'):{'type':'object','properties':{'suggestions':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_TagInfo'}}}},
       ('/studies/{study_id}/publication','post'):{'$ref':'#/components/schemas/Certifications_CatalogQuizSummary'},
       ('/me/identity','get'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
       ('/me/identity','put'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
       ('/quizzes/{quiz_id}/attempts','post'):{'$ref':'#/components/schemas/Certifications_AttemptView'},
-      ('/attempts','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AttemptHistoryItem'}}}},
+      ('/attempts','get'):{'$ref':'#/components/schemas/Certifications_AttemptHistoryPage'},
       ('/attempts/{attempt_id}','get'):{'$ref':'#/components/schemas/Certifications_AttemptView'},
       ('/attempts/{attempt_id}/answers/{question_id}','put'):{'type':'object','properties':{'saved':{'type':'boolean'}}},
       ('/attempts/{attempt_id}/events','post'):{'type':'object','properties':{'recorded':{'type':'integer'}}},

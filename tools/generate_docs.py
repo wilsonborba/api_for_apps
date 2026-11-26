@@ -74,7 +74,7 @@ def register_models(tree,namespace):
    else:sc['default']=literal(n.value)
    props[name]=sc
   components[node.name]={'type':'object','properties':props,**({'required':required} if required else {})}
-def operation(app,path,method,summary,description,params,body,responses,source,ws=False,unknown=None):
+def operation(app,path,method,summary,description,params,body,responses,source,ws=False,unknown=None,deprecated=False):
  if path in ('/docs','/scalar','/openapi.json') and app!='gateway':return
  path=re.sub(r'\{(\w+):path\}',r'{\1}',path)
  full=path if app=='gateway' else '/apps/'+app+'/v1'+('/' if not path.startswith('/') else '')+path
@@ -94,6 +94,7 @@ def operation(app,path,method,summary,description,params,body,responses,source,w
  if description:narrative+='\n\n'+description
  if ws:narrative+='\n\nThis endpoint upgrades to WebSocket. Use wss://api.asodya.com with the same path. Authorize before connecting. It streams live log entries and does not create a log archive.'
  op={'operationId':re.sub('[^a-zA-Z0-9_]','_',app+'_'+method+'_'+path),'tags':[app],'summary':summary,'description':narrative,'parameters':params,'responses':responses or {'default':{'description':'Response contract not declared in source; inspect the implementation.','content':{'application/json':{'schema':{}}}}},'security':security,'x-source':source,'x-access-level':level}
+ if deprecated:op['deprecated']=True
  for param in re.findall(r'\{(\w+)\}',full):
   if not any(p['name']==param and p['in']=='path' for p in op['parameters']):op['parameters'].append({'name':param,'in':'path','required':True,'schema':{'type':'string'}})
  if level!='public' and method.lower() in ('post','put','patch','delete'):op['parameters'].append({'name':'X-CSRF-Token','in':'header','required':False,'schema':{'type':'string'},'description':'Required for cookie-authenticated mutation requests. Must equal the csrf cookie and session token. Administrative API-key calls bypass CSRF.'})
@@ -379,7 +380,8 @@ def rust_certifications(repo):
   'RuntimeSettingItem','UpdateSettingInput','SettingsPatchBody','OriginOverrideBody',
   'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody',
   'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage',
-  'CsvValidRow','CsvInvalidRow','PublicSourceMaterial','QuestionProvenanceStats','ScoreBandCount'
+  'CsvValidRow','CsvInvalidRow','PublicSourceMaterial','QuestionProvenanceStats','ScoreBandCount',
+  'PrepareVisualJobInput','PreparedVisualJobResult','RenderJobDescriptor','UploadVisualInput'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  def get_refs(val):
@@ -462,6 +464,68 @@ def rust_certifications(repo):
    'offset':{'type':'integer'}
   },
   'required':['items','total','limit','offset']
+ }
+ components['Certifications_PrepareVisualJobInput']={
+  'type':'object',
+  'properties':{
+   'template_id':{'type':'string'},
+   'template_version':{'type':'integer'},
+   'mapping':{'type':'object','additionalProperties':{'type':'array','items':{'type':'string'}}},
+   'config':{'type':'object','additionalProperties':True},
+   'rows':{'type':'array','items':{'type':'object','additionalProperties':True}},
+   'width':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'height':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'scale':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'ttl_seconds':{'anyOf':[{'type':'integer'},{'type':'null'}]}
+  },
+  'required':['template_id','template_version','mapping','config','rows']
+ }
+ components['Certifications_RenderJobDescriptor']={
+  'type':'object',
+  'properties':{
+   'job_id':{'type':'string'},
+   'template_id':{'type':'string'},
+   'template_version':{'type':'integer'},
+   'mapping':{'type':'object','additionalProperties':{'type':'array','items':{'type':'string'}}},
+   'config':{'type':'object','additionalProperties':True},
+   'rows':{'type':'array','items':{'type':'object','additionalProperties':True}},
+   'width':{'type':'integer'},
+   'height':{'type':'integer'},
+   'scale':{'type':'integer'},
+   'expires_at':{'type':'integer'}
+  },
+  'required':['job_id','template_id','template_version','mapping','config','rows','width','height','scale','expires_at']
+ }
+ components['Certifications_PreparedVisualJobResult']={
+  'type':'object',
+  'properties':{
+   'question_id':{'type':'string'},
+   'question_version_id':{'type':'string'},
+   'render_job':{'$ref':'#/components/schemas/Certifications_RenderJobDescriptor'}
+  },
+  'required':['question_id','question_version_id','render_job']
+ }
+ components['Certifications_UploadVisualInput']={
+  'type':'object',
+  'properties':{
+   'question_version_id':{'type':'string'},
+   'render_job_id':{'type':'string'},
+   'expected_width':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'expected_height':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'expected_scale':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'png_base64':{'type':'string'}
+  },
+  'required':['question_version_id','render_job_id','png_base64']
+ }
+ components['Certifications_QuestionVisual']={
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'fsm_ref':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'}
+  },
+  'required':['id','fsm_ref','mime_type','created_at']
  }
  if 'Certifications_PublicQuizStats' in components:
   components['Certifications_PublicQuizStats']['properties']['score_distribution_report_view']={
@@ -559,6 +623,10 @@ def rust_certifications(repo):
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_CsvImportBody'}}}}
     elif path=='/studies/{study_id}/questions/{question_id}' and method=='patch':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UpdateQuestionInput'}}}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visual_jobs' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PrepareVisualJobInput'}}}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visuals' and method=='post':
+     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UploadVisualInput'}}}}
     elif path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_VisualRenderBody'}}}}
     elif path=='/studies/{study_id}/publication' and method=='post':
@@ -590,6 +658,10 @@ def rust_certifications(repo):
      responses={'200':{'description':'Rendered certificate file (PDF or SVG).','content':{'application/pdf':{'schema':{'type':'string','format':'binary'}},'image/svg+xml':{'schema':{'type':'string'}}}},'404':{'description':'Certificate not found or format unsupported.'}}
     elif path=='/studies/{study_id}/sources/{source_id}/content':
      responses={'200':{'description':'Full source artifact stream.', 'content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range source artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'404':{'description':'Source not found.'}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visuals/{visual_id}' and method=='get':
+     responses={'200':{'description':'Rendered question visual PNG bytes. Response is private to the study owner with a 300-second cache lifetime.','headers':{'Cache-Control':{'schema':{'type':'string','example':'private, max-age=300'}}},'content':{'image/png':{'schema':{'type':'string','format':'binary'}}}},'403':{'description':'Caller does not own this study question or visual.'},'404':{'description':'Visual not found.'},'503':{'description':'FSM visual store unavailable.'}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post':
+     responses={'422':{'description':'deprecated_visual_endpoint: direct visual_spec rendering is obsolete; use 2-stage prepare (/visual_jobs) and upload (/visuals).'},'403':{'description':'Caller does not own this study question or visual.'},'404':{'description':'Question not found.'}}
     else:
      schema_map={
       ('/studies','get'):{'$ref':'#/components/schemas/Certifications_StudyHistoryPage'},
@@ -611,6 +683,8 @@ def rust_certifications(repo):
       ('/studies/{study_id}/questions','post'):{'$ref':'#/components/schemas/Certifications_AuthorQuestion'},
       ('/studies/{study_id}/questions/import','post'):{'$ref':'#/components/schemas/Certifications_CsvImportResult'},
       ('/studies/{study_id}/questions/{question_id}','patch'):{'$ref':'#/components/schemas/Certifications_AuthorQuestion'},
+      ('/studies/{study_id}/questions/{question_id}/visual_jobs','post'):{'$ref':'#/components/schemas/Certifications_PreparedVisualJobResult'},
+      ('/studies/{study_id}/questions/{question_id}/visuals','post'):{'$ref':'#/components/schemas/Certifications_QuestionVisual'},
       ('/studies/{study_id}/questions/{question_id}/visual','post'):{'$ref':'#/components/schemas/Certifications_QuestionVisual'},
       ('/catalog','get'):{'$ref':'#/components/schemas/Certifications_CatalogPage'},
       ('/catalog/questions','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_PublicQuestionPreview'}}}},
@@ -637,14 +711,15 @@ def rust_certifications(repo):
       ('/admin/holders/{holder_id}','patch'):{'$ref':'#/components/schemas/Certifications_HolderIdentity'},
      }
      sc=schema_map.get((path,method),{'type':'object','additionalProperties':True})
-     status_code='201' if method=='post' and (path.endswith('/attempts') or path.endswith('/prepared') or path.endswith('/sources') or path.endswith('/generations') or path.endswith('/certificate') or path.endswith('/visual') or path=='/studies') else '204' if method=='delete' and path.endswith('/{question_id}') else '200'
+     status_code='201' if method=='post' and (path.endswith('/attempts') or path.endswith('/prepared') or path.endswith('/sources') or path.endswith('/generations') or path.endswith('/certificate') or path.endswith('/visual_jobs') or path.endswith('/visuals') or path=='/studies' or path.endswith('/questions')) else '204' if method=='delete' and path.endswith('/{question_id}') else '200'
      if status_code=='204':
       responses={'204':{'description':'Operation completed. The response has no body.'}}
      else:
       responses={status_code:{'description':'Operation result.','content':{'application/json':{'schema':sc}}}}
      responses['404']={'description':'Resource not found.'}
      responses['422']={'description':'Input validation failed.'}
-    operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1))
+    deprecated=path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post'
+    operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1),deprecated=deprecated)
  if ('/apps/certifications/v1/me/quizzes/{quiz_id}/statistics','get') not in seen:
   operation('certifications','/me/quizzes/{quiz_id}/statistics','get','GET /me/quizzes/{quiz_id}/statistics',desc,[{'name':'quiz_id','in':'path','required':True,'schema':{'type':'string'}}],None,{'200':{'description':'Operation result.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublicQuizStats'}}}},'404':{'description':'Resource not found.'},'422':{'description':'Input validation failed.'}},'lib/presentation/catalog.rs:1')
 
@@ -817,6 +892,68 @@ for app,entry in registry.items():
   for method,op in ms.items():
    if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
 ACCEPTED_PRIOR_SCHEMAS={
+ 'Certifications_PrepareVisualJobInput':{
+  'type':'object',
+  'properties':{
+   'template_id':{'type':'string'},
+   'template_version':{'type':'integer'},
+   'mapping':{'type':'object','additionalProperties':{'type':'array','items':{'type':'string'}}},
+   'config':{'type':'object','additionalProperties':True},
+   'rows':{'type':'array','items':{'type':'object','additionalProperties':True}},
+   'width':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'height':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'scale':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'ttl_seconds':{'anyOf':[{'type':'integer'},{'type':'null'}]}
+  },
+  'required':['template_id','template_version','mapping','config','rows']
+ },
+ 'Certifications_RenderJobDescriptor':{
+  'type':'object',
+  'properties':{
+   'job_id':{'type':'string'},
+   'template_id':{'type':'string'},
+   'template_version':{'type':'integer'},
+   'mapping':{'type':'object','additionalProperties':{'type':'array','items':{'type':'string'}}},
+   'config':{'type':'object','additionalProperties':True},
+   'rows':{'type':'array','items':{'type':'object','additionalProperties':True}},
+   'width':{'type':'integer'},
+   'height':{'type':'integer'},
+   'scale':{'type':'integer'},
+   'expires_at':{'type':'integer'}
+  },
+  'required':['job_id','template_id','template_version','mapping','config','rows','width','height','scale','expires_at']
+ },
+ 'Certifications_PreparedVisualJobResult':{
+  'type':'object',
+  'properties':{
+   'question_id':{'type':'string'},
+   'question_version_id':{'type':'string'},
+   'render_job':{'$ref':'#/components/schemas/Certifications_RenderJobDescriptor'}
+  },
+  'required':['question_id','question_version_id','render_job']
+ },
+ 'Certifications_UploadVisualInput':{
+  'type':'object',
+  'properties':{
+   'question_version_id':{'type':'string'},
+   'render_job_id':{'type':'string'},
+   'expected_width':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'expected_height':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'expected_scale':{'anyOf':[{'type':'integer'},{'type':'null'}]},
+   'png_base64':{'type':'string'}
+  },
+  'required':['question_version_id','render_job_id','png_base64']
+ },
+ 'Certifications_QuestionVisual':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'fsm_ref':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'}
+  },
+  'required':['id','fsm_ref','mime_type','created_at']
+ },
  'Certifications_VisualRenderBody':{
   'type':'object',
   'properties':{

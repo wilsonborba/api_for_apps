@@ -322,4 +322,48 @@ pub struct PreparedCertificationInput {
   self.assertEqual(prep_op.get('x-source-tree-sha256'),'dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180')
   self.assertEqual(check_local_refs(doc),[])
 
+ def test_committed_artifact_certifications_visual_routes_contract(self):
+  doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
+  paths=doc.get('paths',{})
+
+  # 1. visual_jobs
+  vj_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual_jobs'
+  self.assertIn(vj_path,paths)
+  vj_op=paths[vj_path]['post']
+  self.assertEqual(vj_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_PrepareVisualJobInput')
+  self.assertEqual(vj_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_PreparedVisualJobResult')
+
+  # 2. visuals
+  vs_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals'
+  self.assertIn(vs_path,paths)
+  vs_op=paths[vs_path]['post']
+  self.assertEqual(vs_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_UploadVisualInput')
+  self.assertEqual(vs_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_QuestionVisual')
+
+  # 3. visuals/{visual_id}
+  vg_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals/{visual_id}'
+  self.assertIn(vg_path,paths)
+  vg_op=paths[vg_path]['get']
+  self.assertIn('image/png',vg_op['responses']['200']['content'])
+  self.assertEqual(vg_op['responses']['200']['headers']['Cache-Control']['schema']['example'],'private, max-age=300')
+
+  # 4. legacy visual
+  vl_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual'
+  self.assertIn(vl_path,paths)
+  vl_op=paths[vl_path]['post']
+  self.assertTrue(vl_op.get('deprecated'))
+  self.assertIn('422',vl_op['responses'])
+  self.assertIn('deprecated_visual_endpoint',vl_op['responses']['422']['description'])
+
+  # 5. DTO schemas and properties
+  schemas=doc.get('components',{}).get('schemas',{})
+  for s in ['Certifications_PrepareVisualJobInput','Certifications_PreparedVisualJobResult','Certifications_RenderJobDescriptor','Certifications_UploadVisualInput','Certifications_QuestionVisual']:
+   self.assertIn(s,schemas)
+
+  self.assertEqual(schemas['Certifications_PrepareVisualJobInput']['required'],['template_id','template_version','mapping','config','rows'])
+  self.assertEqual(schemas['Certifications_UploadVisualInput']['required'],['question_version_id','render_job_id','png_base64'])
+  self.assertEqual(schemas['Certifications_RenderJobDescriptor']['required'],['job_id','template_id','template_version','mapping','config','rows','width','height','scale','expires_at'])
+  self.assertEqual(schemas['Certifications_QuestionVisual']['required'],['id','fsm_ref','mime_type','created_at'])
+  self.assertEqual(check_local_refs(doc),[])
+
 if __name__=='__main__':unittest.main()

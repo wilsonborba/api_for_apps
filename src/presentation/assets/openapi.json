@@ -2951,6 +2951,84 @@
         ],
         "type": "object"
       },
+      "Certifications_PrepareVisualJobInput": {
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mapping": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "scale": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "template_id": {
+            "type": "string"
+          },
+          "template_version": {
+            "type": "integer"
+          },
+          "ttl_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "template_id",
+          "template_version",
+          "mapping",
+          "config",
+          "rows"
+        ],
+        "type": "object"
+      },
       "Certifications_PreparedSourceRef": {
         "properties": {
           "external_ref": {
@@ -3030,6 +3108,25 @@
         "required": [
           "title",
           "sources"
+        ],
+        "type": "object"
+      },
+      "Certifications_PreparedVisualJobResult": {
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "question_version_id": {
+            "type": "string"
+          },
+          "render_job": {
+            "$ref": "#/components/schemas/Certifications_RenderJobDescriptor"
+          }
+        },
+        "required": [
+          "question_id",
+          "question_version_id",
+          "render_job"
         ],
         "type": "object"
       },
@@ -3527,6 +3624,64 @@
           "max_study_bytes",
           "max_account_bytes",
           "remaining_account_bytes"
+        ],
+        "type": "object"
+      },
+      "Certifications_RenderJobDescriptor": {
+        "properties": {
+          "config": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "expires_at": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "mapping": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "scale": {
+            "type": "integer"
+          },
+          "template_id": {
+            "type": "string"
+          },
+          "template_version": {
+            "type": "integer"
+          },
+          "width": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "job_id",
+          "template_id",
+          "template_version",
+          "mapping",
+          "config",
+          "rows",
+          "width",
+          "height",
+          "scale",
+          "expires_at"
         ],
         "type": "object"
       },
@@ -4178,6 +4333,55 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "Certifications_UploadVisualInput": {
+        "properties": {
+          "expected_height": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_scale": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_width": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "png_base64": {
+            "type": "string"
+          },
+          "question_version_id": {
+            "type": "string"
+          },
+          "render_job_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_version_id",
+          "render_job_id",
+          "png_base64"
+        ],
         "type": "object"
       },
       "Certifications_VisualRenderBody": {
@@ -27983,7 +28187,7 @@
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -28299,6 +28503,7 @@
     },
     "/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual": {
       "post": {
+        "deprecated": true,
         "description": "POST /studies/{study_id}/questions/{question_id}/visual. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nCertifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.",
         "operationId": "certifications_post__studies__study_id__questions__question_id__visual",
         "parameters": [
@@ -28339,21 +28544,14 @@
           "required": true
         },
         "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Certifications_QuestionVisual"
-                }
-              }
-            },
-            "description": "Operation result."
+          "403": {
+            "description": "Caller does not own this study question or visual."
           },
           "404": {
-            "description": "Resource not found."
+            "description": "Question not found."
           },
           "422": {
-            "description": "Input validation failed."
+            "description": "deprecated_visual_endpoint: direct visual_spec rendering is obsolete; use 2-stage prepare (/visual_jobs) and upload (/visuals)."
           }
         },
         "security": [
@@ -28408,13 +28606,22 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Certifications_PrepareVisualJobInput"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/Certifications_PreparedVisualJobResult"
                 }
               }
             },
@@ -28441,7 +28648,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": {}, \"rows\": [], \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:41",
@@ -28479,13 +28686,22 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Certifications_UploadVisualInput"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/Certifications_QuestionVisual"
                 }
               }
             },
@@ -28512,7 +28728,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"question_version_id\": \"example\", \"render_job_id\": \"example\", \"expected_width\": 1, \"expected_height\": 1, \"expected_scale\": 1, \"png_base64\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:45",
@@ -28552,20 +28768,31 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
+              "image/png": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "format": "binary",
+                  "type": "string"
                 }
               }
             },
-            "description": "Operation result."
+            "description": "Rendered question visual PNG bytes. Response is private to the study owner with a 300-second cache lifetime.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "example": "private, max-age=300",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Caller does not own this study question or visual."
           },
           "404": {
-            "description": "Resource not found."
+            "description": "Visual not found."
           },
-          "422": {
-            "description": "Input validation failed."
+          "503": {
+            "description": "FSM visual store unavailable."
           }
         },
         "security": [

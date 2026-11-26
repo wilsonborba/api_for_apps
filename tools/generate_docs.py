@@ -627,8 +627,6 @@ def rust_certifications(repo):
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PrepareVisualJobInput'}}}}
     elif path=='/studies/{study_id}/questions/{question_id}/visuals' and method=='post':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UploadVisualInput'}}}}
-    elif path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post':
-     body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_VisualRenderBody'}}}}
     elif path=='/studies/{study_id}/publication' and method=='post':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublishBody'}}}}
     elif path=='/me/identity' and method=='put':
@@ -658,10 +656,14 @@ def rust_certifications(repo):
      responses={'200':{'description':'Rendered certificate file (PDF or SVG).','content':{'application/pdf':{'schema':{'type':'string','format':'binary'}},'image/svg+xml':{'schema':{'type':'string'}}}},'404':{'description':'Certificate not found or format unsupported.'}}
     elif path=='/studies/{study_id}/sources/{source_id}/content':
      responses={'200':{'description':'Full source artifact stream.', 'content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range source artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'404':{'description':'Source not found.'}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visual_jobs' and method=='post':
+     responses={'201':{'description':'Prepared visual render job descriptor.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PreparedVisualJobResult'}}}},'401':{'description':'Authentication required.'},'403':{'description':'require_owner: caller does not own this study or question.'},'404':{'description':'Study or question not found.'},'409':{'description':'quiz_already_published or reused_question_immutable.'},'410':{'description':'study_expired: elapsed draft or expired study.'},'422':{'description':'invalid_dimensions, scale, or ttl.'},'503':{'description':'Reports service unavailable or render job preparation failed.'}}
+    elif path=='/studies/{study_id}/questions/{question_id}/visuals' and method=='post':
+     responses={'201':{'description':'Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_QuestionVisual'}}}},'400':{'description':'visual_insert_failed: newly uploaded visual blob compensation failed with no winning identical visual.'},'401':{'description':'Authentication required.'},'403':{'description':'Caller does not own this study or prepared render job owner mismatch.'},'404':{'description':'Study, question or prepared job not found.'},'409':{'description':'Study/question version mismatch, reused question conflict, or concurrent publication/hash conflict.'},'410':{'description':'study_expired: elapsed draft or expired study.'},'422':{'description':'render_job_expired or payload validation failed.'},'503':{'description':'Database, storage or Reports service unavailable.'}}
     elif path=='/studies/{study_id}/questions/{question_id}/visuals/{visual_id}' and method=='get':
      responses={'200':{'description':'Rendered question visual PNG bytes. Response is private to the study owner with a 300-second cache lifetime.','headers':{'Cache-Control':{'schema':{'type':'string','example':'private, max-age=300'}}},'content':{'image/png':{'schema':{'type':'string','format':'binary'}}}},'403':{'description':'Caller does not own this study question or visual.'},'404':{'description':'Visual not found.'},'503':{'description':'FSM visual store unavailable.'}}
     elif path=='/studies/{study_id}/questions/{question_id}/visual' and method=='post':
-     responses={'422':{'description':'deprecated_visual_endpoint: direct visual_spec rendering is obsolete; use 2-stage prepare (/visual_jobs) and upload (/visuals).'},'403':{'description':'Caller does not own this study question or visual.'},'404':{'description':'Question not found.'}}
+     responses={'403':{'description':'Caller does not own this study question.'},'404':{'description':'Question not found.'},'409':{'description':'reused_question_immutable: reused questions cannot be mutated or have visuals altered.'},'422':{'description':'deprecated_visual_endpoint: direct visual_spec rendering is obsolete; use 2-stage prepare (/visual_jobs) and upload (/visuals).'}}
     else:
      schema_map={
       ('/studies','get'):{'$ref':'#/components/schemas/Certifications_StudyHistoryPage'},

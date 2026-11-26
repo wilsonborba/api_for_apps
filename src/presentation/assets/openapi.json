@@ -4384,15 +4384,6 @@
         ],
         "type": "object"
       },
-      "Certifications_VisualRenderBody": {
-        "properties": {
-          "visual_spec": {}
-        },
-        "required": [
-          "visual_spec"
-        ],
-        "type": "object"
-      },
       "ChatCompletionChoice": {
         "properties": {
           "finish_reason": {
@@ -28533,22 +28524,15 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Certifications_VisualRenderBody"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "403": {
-            "description": "Caller does not own this study question or visual."
+            "description": "Caller does not own this study question."
           },
           "404": {
             "description": "Question not found."
+          },
+          "409": {
+            "description": "reused_question_immutable: reused questions cannot be mutated or have visuals altered."
           },
           "422": {
             "description": "deprecated_visual_endpoint: direct visual_spec rendering is obsolete; use 2-stage prepare (/visual_jobs) and upload (/visuals)."
@@ -28568,7 +28552,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:53",
@@ -28625,13 +28609,28 @@
                 }
               }
             },
-            "description": "Operation result."
+            "description": "Prepared visual render job descriptor."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "require_owner: caller does not own this study or question."
           },
           "404": {
-            "description": "Resource not found."
+            "description": "Study or question not found."
+          },
+          "409": {
+            "description": "quiz_already_published or reused_question_immutable."
+          },
+          "410": {
+            "description": "study_expired: elapsed draft or expired study."
           },
           "422": {
-            "description": "Input validation failed."
+            "description": "invalid_dimensions, scale, or ttl."
+          },
+          "503": {
+            "description": "Reports service unavailable or render job preparation failed."
           }
         },
         "security": [
@@ -28705,13 +28704,31 @@
                 }
               }
             },
-            "description": "Operation result."
+            "description": "Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup."
+          },
+          "400": {
+            "description": "visual_insert_failed: newly uploaded visual blob compensation failed with no winning identical visual."
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Caller does not own this study or prepared render job owner mismatch."
           },
           "404": {
-            "description": "Resource not found."
+            "description": "Study, question or prepared job not found."
+          },
+          "409": {
+            "description": "Study/question version mismatch, reused question conflict, or concurrent publication/hash conflict."
+          },
+          "410": {
+            "description": "study_expired: elapsed draft or expired study."
           },
           "422": {
-            "description": "Input validation failed."
+            "description": "render_job_expired or payload validation failed."
+          },
+          "503": {
+            "description": "Database, storage or Reports service unavailable."
           }
         },
         "security": [

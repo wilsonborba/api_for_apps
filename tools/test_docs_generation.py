@@ -332,6 +332,8 @@ pub struct PreparedCertificationInput {
   vj_op=paths[vj_path]['post']
   self.assertEqual(vj_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_PrepareVisualJobInput')
   self.assertEqual(vj_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_PreparedVisualJobResult')
+  for code in ['201','401','403','404','409','410','422','503']:
+   self.assertIn(code,vj_op['responses'])
 
   # 2. visuals
   vs_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals'
@@ -339,6 +341,8 @@ pub struct PreparedCertificationInput {
   vs_op=paths[vs_path]['post']
   self.assertEqual(vs_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_UploadVisualInput')
   self.assertEqual(vs_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_QuestionVisual')
+  for code in ['201','400','401','403','404','409','410','422','503']:
+   self.assertIn(code,vs_op['responses'])
 
   # 3. visuals/{visual_id}
   vg_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals/{visual_id}'
@@ -346,13 +350,17 @@ pub struct PreparedCertificationInput {
   vg_op=paths[vg_path]['get']
   self.assertIn('image/png',vg_op['responses']['200']['content'])
   self.assertEqual(vg_op['responses']['200']['headers']['Cache-Control']['schema']['example'],'private, max-age=300')
+  for code in ['200','403','404','503']:
+   self.assertIn(code,vg_op['responses'])
 
   # 4. legacy visual
   vl_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual'
   self.assertIn(vl_path,paths)
   vl_op=paths[vl_path]['post']
   self.assertTrue(vl_op.get('deprecated'))
-  self.assertIn('422',vl_op['responses'])
+  self.assertNotIn('requestBody',vl_op)
+  for code in ['403','404','409','422']:
+   self.assertIn(code,vl_op['responses'])
   self.assertIn('deprecated_visual_endpoint',vl_op['responses']['422']['description'])
 
   # 5. DTO schemas and properties

@@ -49,41 +49,6 @@
         ],
         "type": "object"
       },
-      "AnnotationsEdit": {
-        "properties": {
-          "id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "kind": {
-            "type": "string"
-          },
-          "revision": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "text": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "kind",
-          "text"
-        ],
-        "type": "object"
-      },
       "AnnotationsField": {
         "properties": {
           "field_type": {
@@ -18325,7 +18290,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AnnotationsEdit"
+                "$ref": "#/components/schemas/AnnotationsItemWrite"
               }
             }
           },
@@ -18372,7 +18337,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/instant/{code}/items' \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/instant/{code}/items' \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"expected_revision\": 1, \"item\": \"example\"}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/rooms.rs:14",

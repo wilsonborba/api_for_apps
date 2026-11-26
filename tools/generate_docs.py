@@ -337,7 +337,7 @@ def rust_annotations(repo):
     elif path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
     elif path in ('/me/transcriptions/{run_id}/events','/me/content_jobs/{job_id}/events'):params=[{'name':'after','in':'query','schema':{'type':'string'}}]
     elif path=='/me/model_downloads/{download_id}/content':params=[{'name':'Range','in':'header','required':False,'schema':{'type':'string'}}]
-    model='Draft' if path=='/admin/schemas' and method=='post' else 'Edit' if path.endswith('/items') and method=='post' else None
+    model='Draft' if path=='/admin/schemas' and method=='post' else 'ItemWrite' if path.endswith('/items') and method=='post' else None
     if model:body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Annotations'+model}}}}
     if path=='/waitlist':body={'required':True,'content':{'application/json':{'schema':{'type':'object','required':['email'],'properties':{'email':{'type':'string','format':'email'},'message':{'type':'string','maxLength':2000}}}}}}
     if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
@@ -814,16 +814,6 @@ for app,entry in registry.items():
   for method,op in ms.items():
    if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
 ACCEPTED_PRIOR_SCHEMAS={
- 'AnnotationsEdit':{
-  'type':'object',
-  'properties':{
-   'id':{'anyOf':[{'type':'string'},{'type':'null'}]},
-   'kind':{'type':'string'},
-   'revision':{'anyOf':[{'type':'integer'},{'type':'null'}]},
-   'text':{'type':'string'}
-  },
-  'required':['kind','text']
- },
  'Certifications_VisualRenderBody':{
   'type':'object',
   'properties':{

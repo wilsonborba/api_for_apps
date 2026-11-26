@@ -220,6 +220,34 @@ class IntegrityTests(unittest.TestCase):
   doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
   dangling=check_local_refs(doc)
   self.assertEqual(dangling,[],f"Found dangling local schema references in real artifact: {dangling}")
+  schemas=doc['components']['schemas']
+  self.assertIn('AnnotationsItemWrite',schemas)
+  self.assertEqual(schemas['AnnotationsItemWrite']['required'],['expected_revision','item'])
+  self.assertNotIn('AnnotationsEdit',schemas)
+  self.assertEqual(doc['paths']['/apps/annotations/v1/instant/{code}/items']['post']['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsItemWrite')
+
+ def test_fixture_annotations_instant_items_contract(self):
+  with tempfile.TemporaryDirectory(prefix='annotations-doc-test-') as tmp:
+   root=pathlib.Path(tmp);(root/'tools').mkdir();(root/'src/core').mkdir(parents=True);(root/'src/presentation/assets').mkdir(parents=True)
+   shutil.copy(ROOT/'tools/generate_docs.py',root/'tools/generate_docs.py');shutil.copy(ROOT/'Cargo.toml',root/'Cargo.toml')
+   for name in ['defaults.json','apps.json']:shutil.copy(ROOT/'src/core'/name,root/'src/core'/name)
+   shutil.copy(ROOT/'src/presentation/assets/gateway_contracts.json',root/'src/presentation/assets/gateway_contracts.json')
+   repo=root/'annotations_api';(repo/'lib/presentation').mkdir(parents=True);(repo/'lib/domain').mkdir(parents=True)
+   (repo/'lib/presentation/mod.rs').write_text('pub fn routes() { Router::new().route("/instant/{code}/items", post(add_item)) }')
+   (repo/'lib/domain/rooms.rs').write_text('pub struct ItemWrite {\n pub expected_revision: i64,\n pub item: Value,\n}\n')
+   res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root)],capture_output=True,text=True)
+   self.assertEqual(res.returncode,0,res.stderr+res.stdout)
+   doc=json.loads((root/'src/presentation/assets/openapi.json').read_text())
+   schemas=doc['components']['schemas']
+   self.assertIn('AnnotationsItemWrite',schemas)
+   self.assertEqual(schemas['AnnotationsItemWrite']['required'],['expected_revision','item'])
+   self.assertIn('expected_revision',schemas['AnnotationsItemWrite']['properties'])
+   self.assertIn('item',schemas['AnnotationsItemWrite']['properties'])
+   self.assertNotIn('kind',schemas['AnnotationsItemWrite']['properties'])
+   self.assertNotIn('text',schemas['AnnotationsItemWrite']['properties'])
+   self.assertNotIn('AnnotationsEdit',schemas)
+   item_op=doc['paths']['/apps/annotations/v1/instant/{code}/items']['post']
+   self.assertEqual(item_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsItemWrite')
 
  def test_fixture_local_ref_integrity(self):
   with tempfile.TemporaryDirectory(prefix='integrity-doc-test-') as tmp:

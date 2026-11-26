@@ -28707,7 +28707,7 @@
             "description": "Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup."
           },
           "400": {
-            "description": "visual_insert_failed: newly uploaded visual blob compensation failed with no winning identical visual."
+            "description": "visual_insert_failed: insertion/persistence failure after compensation attempt and no matching winner."
           },
           "401": {
             "description": "Authentication required."

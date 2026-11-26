@@ -792,11 +792,7 @@ for app,folder in [('gateway','api_for_apps')]+[(app,v['source']) for app,v in r
  elif repo.exists():python_app(app,repo)
  else:gaps.append({'app':app,'gaps':['Source repository not available']})
 rust_reports(a.workspace/'reports')
-annotations_repo=a.workspace/'annotations_api'
-if not (annotations_repo/'lib/presentation/notes.rs').exists() or 'create_prepared_certification' not in (annotations_repo/'lib/presentation/notes.rs').read_text():
- cand=a.workspace.parent/'.cache/agi-impl/wt-annotations-api-main'
- if cand.exists() and (cand/'lib/presentation/notes.rs').exists():annotations_repo=cand
-rust_annotations(annotations_repo)
+rust_annotations(a.workspace/'annotations_api')
 rust_certifications(a.workspace/'certifications_api')
 cortex_new,cortex_old=rust_cortex(a.workspace/'cortex_api')
 operation('gateway','/apps/api/v1/logs/stream','get','Stream gateway logs','Server-sent events from the running gateway. Only administrators can connect. Events are transient and bounded; slow consumers receive gap events. Authorization is rechecked during the connection.',[],None,{'200':{'description':'Live SSE log stream.','content':{'text/event-stream':{'schema':{'type':'string'},'example':'event: log\ndata: gateway ready\n\n'}}},'403':{'description':'Administrator authorization required.'}},'src/presentation/logs.rs')

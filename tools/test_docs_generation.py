@@ -306,4 +306,20 @@ pub struct PreparedCertificationInput {
    self.assertEqual(prep_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsPreparedCertificationInput')
    self.assertEqual(prep_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_StudyDetail')
 
+ def test_committed_artifact_annotations_prepared_certification_contract(self):
+  doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
+  paths=doc.get('paths',{})
+  prep_path='/apps/annotations/v1/me/notes/{note_id}/certifications/prepared'
+  self.assertIn(prep_path,paths)
+  prep_op=paths[prep_path]['post']
+  self.assertEqual(prep_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsPreparedCertificationInput')
+  self.assertEqual(prep_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_StudyDetail')
+  schemas=doc.get('components',{}).get('schemas',{})
+  self.assertIn('AnnotationsPreparedCertificationInput',schemas)
+  self.assertIn('AnnotationsPreparedCertificationSourceInput',schemas)
+  self.assertIn('AnnotationsPreparedCertificationConfigInput',schemas)
+  self.assertEqual(schemas['AnnotationsPreparedCertificationInput']['required'],['title','sources'])
+  self.assertEqual(prep_op.get('x-source-tree-sha256'),'dbe7aff72f3512ad57e39c25f5d472ea13d4b16e0bb7cb5425c7e0c68ee53180')
+  self.assertEqual(check_local_refs(doc),[])
+
 if __name__=='__main__':unittest.main()

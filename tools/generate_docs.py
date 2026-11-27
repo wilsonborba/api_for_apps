@@ -216,10 +216,16 @@ def rust_schema(typ):
  if typ.startswith('Vec<'):return {'type':'array','items':rust_schema(typ[4:-1])}
  if typ.startswith('Paged<'):return {'type':'object','properties':{'items':{'type':'array','items':rust_schema(typ[6:-1])}},'additionalProperties':True}
  if typ in ('String','str','Uuid'):return {'type':'string'}
- if typ in ('i64','u64','usize','i32','u32'):return {'type':'integer'}
+ if typ in ('i64','u64','usize','i32','u32','u8','u16','i8','i16'):return {'type':'integer'}
  if typ in ('f64','f32'):return {'type':'number'}
  if typ=='bool':return {'type':'boolean'}
- if typ in ('I18nText',) or 'HashMap<' in typ or 'BTreeMap<' in typ:return {'type':'object','additionalProperties':True}
+ if typ in ('I18nText',):return {'type':'object','additionalProperties':True}
+ if typ.startswith('BTreeMap<String,') or typ.startswith('HashMap<String,'):
+  inner=typ[typ.find(',')+1:-1].strip()
+  return {'type':'object','additionalProperties':rust_schema(inner) if inner else True}
+ if 'HashMap<' in typ or 'BTreeMap<' in typ:return {'type':'object','additionalProperties':True}
+ base=typ.split('::')[-1]
+ if base in components:return {'$ref':'#/components/schemas/'+base}
  if typ in components:return {'$ref':'#/components/schemas/'+typ}
  return {}
 def rust_models(repo, source="engine/src"):
@@ -302,7 +308,7 @@ def rust_annotations(repo):
  import copy
  before=copy.deepcopy(components)
  rust_models(repo,'lib')
- selected_names=['Field','Draft','Translation','WritePost','Query','Edit','ItemWrite','PreparedCertificationInput','PreparedCertificationSourceInput','PreparedCertificationConfigInput']
+ selected_names=['Field','Draft','Translation','WritePost','Query','Edit','ItemWrite','PreparedCertificationInput','PreparedCertificationSourceInput','PreparedCertificationConfigInput','RegisterReportReferenceInput','ReportDeletePreview','CreatedReportPreview','DeleteNoteOutcome','FailedReportDeletion','ReusedReportWarning']
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  def get_refs(val):
   if isinstance(val,dict):
@@ -343,7 +349,7 @@ def rust_annotations(repo):
     elif path=='/links/preview':params=[{'name':'url','in':'query','required':True,'schema':{'type':'string','format':'uri'}}]
     elif path in ('/me/transcriptions/{run_id}/events','/me/content_jobs/{job_id}/events'):params=[{'name':'after','in':'query','schema':{'type':'string'}}]
     elif path=='/me/model_downloads/{download_id}/content':params=[{'name':'Range','in':'header','required':False,'schema':{'type':'string'}}]
-    model='Draft' if path=='/admin/schemas' and method=='post' else 'ItemWrite' if path.endswith('/items') and method=='post' else 'PreparedCertificationInput' if path.endswith('/certifications/prepared') and method=='post' else None
+    model='Draft' if path=='/admin/schemas' and method=='post' else 'ItemWrite' if path.endswith('/items') and method=='post' else 'PreparedCertificationInput' if path.endswith('/certifications/prepared') and method=='post' else 'RegisterReportReferenceInput' if path=='/me/notes/{note_id}/reports' and method=='post' else None
     if model:body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Annotations'+model}}}}
     if path=='/waitlist':body={'required':True,'content':{'application/json':{'schema':{'type':'object','required':['email'],'properties':{'email':{'type':'string','format':'email'},'message':{'type':'string','maxLength':2000}}}}}}
     if path=='/admin/catalog' and method=='put':body={'required':True,'content':{'application/json':{'schema':{'type':'object','description':'Normalized owners, channels, languages and topics collections.','properties':{key:{'type':'array','items':{'type':'object','properties':props,'required':list(props)}} for key,props in [('owners',{'id':{'type':'string'},'display_name':{'type':'string'}}),('channels',{'id':{'type':'string'},'name':{'type':'string'}}),('topics',{'id':{'type':'string'},'name':{'type':'string'}}),('languages',{'code':{'type':'string'},'label':{'type':'string'}})]}}}}}
@@ -359,6 +365,34 @@ def rust_annotations(repo):
      responses={'200':{'description':'Full model artifact stream.','content':{'application/octet-stream':{'schema':{'type':'string','format':'binary'}}}},'206':{'description':'Partial range model artifact stream.'},'416':{'description':'Requested byte range not satisfiable.'},'401':{'description':'Authentication required.'},'404':{'description':'Download missing or expired.'}}
     elif path.endswith('/certifications/prepared') and method=='post':
      responses={'201':{'description':'Prepared certification study detail.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_StudyDetail'}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found or caller not owner.'},'422':{'description':'Input validation failed.'}}
+    elif path=='/me/notes' and method=='post':
+     responses={'201':{'description':'Note created.','headers':{'ETag':{'schema':{'type':'string'},'description':'Current entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'200':{'description':'Idempotent replay of existing note.','headers':{'ETag':{'schema':{'type':'string'},'description':'Current entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'422':{'description':'Input validation failed.'},'503':{'description':'Storage service unavailable.'}}
+    elif path=='/me/notes/{note_id}':
+     if method=='get':
+      responses={'200':{'description':'Current note content.','headers':{'ETag':{'schema':{'type':'string'},'description':'Current entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found.'},'503':{'description':'Storage service unavailable.'}}
+     elif method in ('put','patch'):
+      params.append({'name':'If-Match','in':'header','required':True,'schema':{'type':'string'},'description':'Required entity tag for optimistic concurrency.'})
+      params.append({'name':'Idempotency-Key','in':'header','required':False,'schema':{'type':'string'},'description':'Optional client idempotency key.'})
+      responses={'200':{'description':'Note updated.','headers':{'ETag':{'schema':{'type':'string'},'description':'Updated entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found.'},'412':{'description':'Precondition failed (If-Match revision mismatch).'},'422':{'description':'Validation failed.'},'503':{'description':'Storage service unavailable.'}}
+     elif method=='delete':
+      params.append({'name':'If-Match','in':'header','required':True,'schema':{'type':'string'},'description':'Required entity tag for optimistic concurrency.'})
+      params.extend([{'name':'delete_owned_reports','in':'query','required':False,'schema':{'type':'string'},'description':'Set true to cascade deletion of owned reports.'},{'name':'confirm_reused_report_ids','in':'query','required':False,'schema':{'type':'string'},'description':'Comma-separated report IDs confirmed for deletion despite reuse.'}])
+      responses={'204':{'description':'Note deleted without cascade.'},'200':{'description':'Note deleted with cascaded report deletion outcome.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/AnnotationsDeleteNoteOutcome'}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found.'},'409':{'description':'Conflict: report items reused by other notes without confirmation.'},'412':{'description':'Precondition failed (If-Match revision mismatch).'},'503':{'description':'Storage service unavailable.'}}
+    elif path=='/me/notes/{note_id}/reports' and method=='post':
+     responses={'201':{'description':'Report reference registered.','content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found or caller not owner.'},'422':{'description':'Invalid input.'},'503':{'description':'Storage service unavailable.'}}
+    elif path=='/me/notes/{note_id}/reports/delete-preview' and method=='get':
+     responses={'200':{'description':'Preview of report items affected by note deletion.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/AnnotationsReportDeletePreview'}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found.'},'503':{'description':'Storage service unavailable.'}}
+    elif path=='/me/notes/{note_id}/reports/retry-cleanup' and method=='post':
+     responses={'200':{'description':'Cleanup retry outcome.','content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Note not found.'},'503':{'description':'Storage service unavailable.'}}
+    elif path=='/me/notes/{note_id}/publication':
+     if method=='get':
+      responses={'200':{'description':'Current publication details.','headers':{'ETag':{'schema':{'type':'string'},'description':'Publication revision entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Publication not found.'},'503':{'description':'Storage service unavailable.'}}
+     elif method=='put':
+      params.append({'name':'If-Match','in':'header','required':True,'schema':{'type':'string'},'description':'Required publication entity tag.'})
+      responses={'200':{'description':'Publication updated.','headers':{'ETag':{'schema':{'type':'string'},'description':'Updated publication revision entity tag.'}},'content':{'application/json':{'schema':{'type':'object','additionalProperties':True}}}},'401':{'description':'Authentication required.'},'404':{'description':'Publication not found.'},'412':{'description':'Precondition failed.'},'503':{'description':'Storage service unavailable.'}}
+     elif method=='delete':
+      params.append({'name':'If-Match','in':'header','required':True,'schema':{'type':'string'},'description':'Required publication entity tag.'})
+      responses={'204':{'description':'Note unpublished.','headers':{'ETag':{'schema':{'type':'string'},'description':'Unpublished publication revision entity tag.'}}},'401':{'description':'Authentication required.'},'404':{'description':'Publication not found.'},'412':{'description':'Precondition failed.'},'503':{'description':'Storage service unavailable.'}}
     else:
      responses={'200':{'description':'Current resource or operation result.','content':{'application/octet-stream' if binary else 'application/json':{'schema':{'type':'string','format':'binary'} if binary else {'type':'object','additionalProperties':True}}}},'404':{'description':'Resource missing, private, unpublished or expired.'},'422':{'description':'Input or registered document schema validation failed.'},'503':{'description':'A required storage or adapter service is unavailable.'}}
     if path=='/me/transcriptions/{run_id}/feedback':responses.update({'413':{'description':'Request body exceeds 2,000,000 bytes.'},'429':{'description':'Per-account or per-network feedback rate or concurrency limit exceeded.'}})
@@ -1052,7 +1086,7 @@ def rust_cortex(repo):
   gaps.append({'app':'cortex','gaps':['Cortex router composition is unresolved; source review is required.']})
   return set(),set()
  # Only the public API/model source tree is inspected. DAL credentials are not models.
- texts={f:f.read_text().split('#[cfg(test)]',1)[0] for base in [source,repo/'src/domain/models'] for f in base.rglob('*.rs')}
+ texts={f:f.read_text().split('#[cfg(test)]',1)[0] for base in [source,repo/'src/domain/models',repo/'src/domain/services'] for f in base.rglob('*.rs')}
  declarations={};names={};local={};new=set()
  def block(text,start,left='{',right='}'):
   depth=1;i=start;quoted=False
@@ -1148,21 +1182,65 @@ def rust_cortex(repo):
     if data:body={'required':True,'content':{'application/json':{'schema':typ(data[1],f)}}}
     if 'Multipart' in signature:
      body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file','app_id'],'additionalProperties':False,'properties':{'file':{'type':'string','format':'binary'},'app_id':{'type':'string','example':'cortex'},'temporary':{'type':'boolean','default':False}}}}}}
-    unknown=['Response data is built by Cortex code; detailed data shape requires central review.']
-    responses={'200':{'description':'Cortex result in the message/data envelope. Consult the linked handler for the data shape.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{}}}}}},'400':{'description':'Cortex validation or business error. data.error_number identifies the process.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable. data.error_number identifies the process.'}}
-    if method=='post':responses['201']=responses.pop('200');responses['201']['description']='Resource or chat created. A streaming chat uses an SSE response instead.'
-    declared=re.search(r'Envelope<',tail)
-    known=None
-    if declared:
-     data_type,_=block(tail,declared.end(),'<','>');known=typ(data_type,f)
-    elif rest.startswith('|'):
-     constructor=re.search(r'Envelope::new\(\s*"[^"]*"\s*,\s*(\w+)::(?:from|new)\(',rest)
-     if constructor:known=typ(constructor[1],f)
-    if known:
-     for response in responses.values():
-      content=response.get('content',{}).get('application/json')
-      if content:content['schema']['properties']['data']=known
+    hname=handler_match[1] if handler_match else ''
+    if hname=='create_child':
+     responses={'201':{'description':'Child run created.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRun',f)}}}}},'400':{'description':'Cortex validation or business error.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable.'}}
      unknown=[]
+    elif hname=='child_detail':
+     responses={'200':{'description':'Child run loaded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRun',f)}}}}},'404':{'description':'Child run not found.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='append_event':
+     responses={'200':{'description':'Child run event recorded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRunEvent',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Child run not found.'},'409':{'description':'Event sequence conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='cancel':
+     responses={'202':{'description':'Cancellation requested.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRunEvent',f)}}}}},'404':{'description':'Child run not found.'},'409':{'description':'Child run already terminal.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='create_action':
+     responses={'201':{'description':'Action approval requested.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRunEvent',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Child run not found.'},'409':{'description':'Action conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='answer_action':
+     responses={'200':{'description':'Action decision recorded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('ChildRunEvent',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Action or child run not found.'},'409':{'description':'Action already answered or conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='create_bound_child':
+     responses={'201':{'description':'Bound child run registered.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('BoundChildView',f)}}}}},'200':{'description':'Existing bound child run returned.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('BoundChildView',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Parent session or output not found.'},'409':{'description':'Child run state conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='create_output_action':
+     responses={'201':{'description':'Output action approval requested.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('OutputActionView',f)}}}}},'200':{'description':'Existing output action returned.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('OutputActionView',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Parent session or output not found.'},'409':{'description':'Action conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='get_output_action':
+     responses={'200':{'description':'Output action loaded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('OutputActionView',f)}}}}},'404':{'description':'Output action not found.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='answer_output_action':
+     responses={'200':{'description':'Output action decision recorded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('OutputActionView',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Output action not found.'},'409':{'description':'Output action already answered or conflict.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='claim_output_action':
+     responses={'200':{'description':'Output action claimed.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':typ('OutputActionView',f)}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Output action not found.'},'409':{'description':'Output action conflict or already claimed.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='tool_result':
+     responses={'202':{'description':'Tool result accepted.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{'type':'object','required':['session_id','output_id','call_id'],'properties':{'session_id':{'type':'string','format':'uuid'},'output_id':{'type':'string','format':'uuid'},'call_id':{'type':'string','format':'uuid'}}}}}}}},'400':{'description':'Cortex validation or business error.'},'404':{'description':'Chat session or output not found.'},'503':{'description':'A required service is unavailable.'}}
+     unknown=[]
+    elif hname=='graph':
+     responses={'200':{'description':'Memory graph loaded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{'type':'object','required':['nodes','edges'],'properties':{'nodes':{'type':'array','items':{'type':'object'}},'edges':{'type':'array','items':{'type':'object'}}},'additionalProperties':True}}}}}},'400':{'description':'Invalid query parameters.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'Upstream memory service unavailable.'}}
+     unknown=['Upstream Hippocampus node/edge metadata fields vary by memory type and are passed through.']
+    elif hname=='node':
+     responses={'200':{'description':'Memory graph node loaded.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{'type':'object','required':['nodes','edges','node'],'properties':{'nodes':{'type':'array','items':{'type':'object'}},'edges':{'type':'array','items':{'type':'object'}},'node':{'type':'object'}},'additionalProperties':True}}}}}},'400':{'description':'Invalid query parameters.'},'404':{'description':'Node not found.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'Upstream memory service unavailable.'}}
+     unknown=['Upstream Hippocampus node/edge metadata fields vary by memory type and are passed through.']
+    else:
+     unknown=['Response data is built by Cortex code; detailed data shape requires central review.']
+     responses={'200':{'description':'Cortex result in the message/data envelope. Consult the linked handler for the data shape.','content':{'application/json':{'schema':{'type':'object','required':['message','data'],'properties':{'message':{'type':'string'},'data':{}}}}}},'400':{'description':'Cortex validation or business error. data.error_number identifies the process.'},'403':{'description':'Gateway session or administrator authorization failed.'},'503':{'description':'A required service is unavailable. data.error_number identifies the process.'}}
+     if method=='post':responses['201']=responses.pop('200');responses['201']['description']='Resource or chat created. A streaming chat uses an SSE response instead.'
+     declared=re.search(r'Envelope<',tail)
+     known=None
+     if declared:
+      data_type,_=block(tail,declared.end(),'<','>');known=typ(data_type,f)
+     elif rest.startswith('|'):
+      constructor=re.search(r'Envelope::new\(\s*"[^"]*"\s*,\s*(\w+)::(?:from|new)\(',rest)
+      if constructor:known=typ(constructor[1],f)
+     if known:
+      for response in responses.values():
+       content=response.get('content',{}).get('application/json')
+       if content:content['schema']['properties']['data']=known
+      unknown=[]
     if method=='post' and path=='/files':
      responses['200']={'description':'Upload could not be saved. The notice number explains why; no file_id is returned.'}
     if method=='get' and (path=='/logs/stream' or path.endswith('/events') or path.endswith('/commands')):

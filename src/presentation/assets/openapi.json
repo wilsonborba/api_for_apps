@@ -27,6 +27,60 @@
         ],
         "type": "object"
       },
+      "AnnotationsCreatedReportPreview": {
+        "properties": {
+          "report_item_id": {
+            "type": "string"
+          },
+          "reused_by_note_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "report_item_id",
+          "reused_by_note_ids"
+        ],
+        "type": "object"
+      },
+      "AnnotationsDeleteNoteOutcome": {
+        "properties": {
+          "deleted_report_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "failed_report_deletions": {
+            "items": {
+              "$ref": "#/components/schemas/AnnotationsFailedReportDeletion"
+            },
+            "type": "array"
+          },
+          "note_deleted": {
+            "type": "boolean"
+          },
+          "reused_warnings": {
+            "items": {
+              "$ref": "#/components/schemas/AnnotationsReusedReportWarning"
+            },
+            "type": "array"
+          },
+          "skipped_linked_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "note_deleted",
+          "deleted_report_ids",
+          "failed_report_deletions",
+          "reused_warnings",
+          "skipped_linked_count"
+        ],
+        "type": "object"
+      },
       "AnnotationsDraft": {
         "properties": {
           "fields": {
@@ -46,6 +100,21 @@
           "name",
           "version",
           "fields"
+        ],
+        "type": "object"
+      },
+      "AnnotationsFailedReportDeletion": {
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "report_item_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "report_item_id",
+          "error"
         ],
         "type": "object"
       },
@@ -227,6 +296,112 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "AnnotationsRegisterReportReferenceInput": {
+        "properties": {
+          "item": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operation_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relation_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "AnnotationsReportDeletePreview": {
+        "properties": {
+          "created_items": {
+            "items": {
+              "$ref": "#/components/schemas/AnnotationsCreatedReportPreview"
+            },
+            "type": "array"
+          },
+          "linked_items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "note_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "note_id",
+          "created_items",
+          "linked_items"
+        ],
+        "type": "object"
+      },
+      "AnnotationsReusedReportWarning": {
+        "properties": {
+          "report_item_id": {
+            "type": "string"
+          },
+          "reused_by_note_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "report_item_id",
+          "reused_by_note_ids"
+        ],
         "type": "object"
       },
       "AnnotationsTranslation": {
@@ -952,11 +1127,18 @@
       "CardVisualBinding": {
         "properties": {
           "mapping": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
             "type": "object"
           },
           "options": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": "string"
+            },
             "type": "object"
           },
           "template": {
@@ -4941,7 +5123,14 @@
             "type": "integer"
           },
           "periods": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "anyOf": [
+                {},
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "description": "First and last value per field, computed once per loaded copy.",
             "type": "object"
           },
@@ -7577,6 +7766,685 @@
         ],
         "type": "object"
       },
+      "Cortex_src_domain_services_agent_runs_ChildEventKind": {
+        "enum": [
+          "queued",
+          "progress",
+          "completed",
+          "failed",
+          "cancel_requested",
+          "cancelled",
+          "action_requested",
+          "action_answered"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_services_agent_runs_ChildRun": {
+        "properties": {
+          "budget_reserved_tokens": {
+            "type": "integer"
+          },
+          "budget_settled": {
+            "type": "boolean"
+          },
+          "budget_tokens": {
+            "type": "integer"
+          },
+          "budget_used_tokens": {
+            "type": "integer"
+          },
+          "cancel_requested": {
+            "type": "boolean"
+          },
+          "child_chat_session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "child_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "child_output_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "depth": {
+            "type": "integer"
+          },
+          "parent_call_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent_chat_session_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent_output_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parent_run_id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunStatus"
+          },
+          "task": {
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "child_id",
+          "parent_run_id",
+          "role",
+          "task",
+          "budget_tokens",
+          "depth",
+          "status",
+          "cancel_requested",
+          "budget_used_tokens",
+          "budget_reserved_tokens",
+          "budget_settled",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_agent_runs_ChildRunEvent": {
+        "properties": {
+          "action_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "action_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approved": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildEventKind"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payload_digest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "seq": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "seq",
+          "event_id",
+          "kind",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_agent_runs_ChildRunStatus": {
+        "enum": [
+          "queued",
+          "running",
+          "completed",
+          "failed",
+          "cancelled"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_services_agent_runs_OutputAction": {
+        "properties": {
+          "action_digest": {
+            "type": "string"
+          },
+          "action_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "action_kind": {
+            "type": "string"
+          },
+          "approved": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "call_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "cancelled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chat_session_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "claimed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "output_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "tool_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action_id",
+          "chat_session_id",
+          "output_id",
+          "call_id",
+          "tool_name",
+          "action_kind",
+          "action_digest",
+          "display",
+          "expires_at",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_community_research_CommunityAccessOutcome": {},
+      "Cortex_src_domain_services_community_research_CommunityEvidence": {
+        "properties": {
+          "canonical_url": {
+            "type": "string"
+          },
+          "evidence_label": {
+            "type": "string"
+          },
+          "post": {}
+        },
+        "required": [
+          "post",
+          "evidence_label",
+          "canonical_url"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_openalex_OpenAlexEvidence": {
+        "properties": {
+          "content_excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "limitation_label": {
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_research_router_EvidenceStage"
+          },
+          "work": {}
+        },
+        "required": [
+          "work",
+          "stage",
+          "limitation_label"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_remote_cli_RemoteCliEvent": {
+        "properties": {
+          "created_at_ms": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_remote_cli_RemoteEventKind"
+          },
+          "payload": {}
+        },
+        "required": [
+          "id",
+          "kind",
+          "payload",
+          "created_at_ms"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_remote_cli_RemoteCliSessionView": {
+        "properties": {
+          "device_name": {
+            "type": "string"
+          },
+          "last_seen_ms": {
+            "type": "integer"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "device_name",
+          "platform",
+          "last_seen_ms",
+          "online"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_remote_cli_RemoteEventKind": {
+        "enum": [
+          "prompt",
+          "progress",
+          "answer_part",
+          "approval_request",
+          "approval_answer",
+          "artifact",
+          "turn_end",
+          "cancel",
+          "command_expired"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_services_research_limits_CachedWebPage": {
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_web_page_PageConditionalMeta"
+          },
+          "page": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_web_page_WebPage"
+          }
+        },
+        "required": [
+          "page",
+          "meta"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_limits_ConditionalCacheMeta": {
+        "properties": {
+          "etag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_modified": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_limits_CoverageReport": {},
+      "Cortex_src_domain_services_research_limits_PolitenessConfig": {
+        "properties": {
+          "default_host_spacing_ms": {
+            "type": "integer"
+          },
+          "max_backoff_secs": {
+            "type": "integer"
+          },
+          "max_global_concurrency": {
+            "type": "integer"
+          },
+          "max_response_bytes": {
+            "type": "integer"
+          },
+          "provider_quota_per_minute": {
+            "type": "integer"
+          },
+          "request_timeout_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_global_concurrency",
+          "default_host_spacing_ms",
+          "request_timeout_ms",
+          "max_response_bytes",
+          "max_backoff_secs",
+          "provider_quota_per_minute"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_router_EvidenceItem": {
+        "properties": {
+          "canonical_url": {
+            "type": "string"
+          },
+          "publication_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_host": {
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_research_router_EvidenceStage"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_url",
+          "title",
+          "source_host",
+          "stage"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_router_EvidenceStage": {
+        "enum": [
+          "found_link",
+          "metadata_only",
+          "read_content",
+          "used_in_answer"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_services_research_router_ResearchBudget": {
+        "properties": {
+          "max_sources": {
+            "type": "integer"
+          },
+          "remaining_pages": {
+            "type": "integer"
+          },
+          "remaining_requests": {
+            "type": "integer"
+          },
+          "remaining_time_ms": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "remaining_requests",
+          "remaining_pages",
+          "remaining_time_ms",
+          "max_sources"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_router_ResearchPlan": {
+        "properties": {
+          "catalog_total": {
+            "type": "integer"
+          },
+          "effective_mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_WebMode"
+          },
+          "page_budget": {
+            "type": "integer"
+          },
+          "selected": {
+            "items": {
+              "$ref": "#/components/schemas/Cortex_src_domain_services_research_router_RoutedSource"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "effective_mode",
+          "selected",
+          "catalog_total",
+          "page_budget"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_router_ResearchPurpose": {
+        "enum": [
+          "general",
+          "academic",
+          "news",
+          "technical",
+          "reference"
+        ],
+        "type": "string"
+      },
+      "Cortex_src_domain_services_research_router_ResearchRouteRequest": {
+        "properties": {
+          "budget": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_research_router_ResearchBudget"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Cortex_src_domain_models_run_record_WebMode"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_research_router_ResearchPurpose"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subjects": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "subjects",
+          "purpose",
+          "mode",
+          "budget"
+        ],
+        "type": "object"
+      },
+      "Cortex_src_domain_services_research_router_RoutedSource": {
+        "properties": {
+          "allocated_requests": {
+            "type": "integer"
+          },
+          "score": {
+            "type": "integer"
+          },
+          "source": {}
+        },
+        "required": [
+          "source",
+          "score",
+          "allocated_requests"
+        ],
+        "type": "object"
+      },
       "Cortex_src_presentation_agent_runs_ActionKind": {
         "enum": [
           "file_change",
@@ -7706,7 +8574,9 @@
             "format": "uuid",
             "type": "string"
           },
-          "status": {}
+          "status": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunStatus"
+          }
         },
         "required": [
           "child_id",
@@ -8057,7 +8927,9 @@
               }
             ]
           },
-          "kind": {},
+          "kind": {
+            "$ref": "#/components/schemas/Cortex_src_domain_services_remote_cli_RemoteEventKind"
+          },
           "payload": {}
         },
         "required": [
@@ -8289,7 +9161,12 @@
             ]
           },
           "mapping": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
             "type": "object"
           },
           "originating_scope": {
@@ -8308,7 +9185,9 @@
           },
           "scale": {
             "anyOf": [
-              {},
+              {
+                "type": "integer"
+              },
               {
                 "type": "null"
               }
@@ -8655,7 +9534,9 @@
           },
           "meta": {
             "anyOf": [
-              {},
+              {
+                "$ref": "#/components/schemas/DatasetMeta"
+              },
               {
                 "type": "null"
               }
@@ -8726,7 +9607,9 @@
             "type": "integer"
           },
           "field_semantics": {
-            "items": {},
+            "items": {
+              "$ref": "#/components/schemas/FieldSemantics"
+            },
             "type": "array"
           },
           "freshness_mode": {
@@ -8756,7 +9639,7 @@
       "DatasetPage": {
         "properties": {
           "applied_filters": {
-            "additionalProperties": true,
+            "additionalProperties": {},
             "type": "object"
           },
           "descriptor": {
@@ -8783,7 +9666,9 @@
           },
           "visual": {
             "anyOf": [
-              {},
+              {
+                "$ref": "#/components/schemas/CardVisualBinding"
+              },
               {
                 "type": "null"
               }
@@ -8993,11 +9878,15 @@
             "type": "array"
           },
           "params": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": "number"
+            },
             "type": "object"
           },
           "refs": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/RefSpec"
+            },
             "type": "object"
           },
           "row_derived": {
@@ -9042,7 +9931,13 @@
             "type": "array"
           },
           "value_labels": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "additionalProperties": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "object"
+            },
             "type": "object"
           },
           "warm": {
@@ -11338,7 +12233,9 @@
       "LineWriter": {
         "properties": {
           "buffer": {
-            "items": {},
+            "items": {
+              "type": "integer"
+            },
             "type": "array"
           },
           "sender": {}
@@ -11362,11 +12259,15 @@
           },
           "filters": {},
           "inputs": {
-            "items": {},
+            "items": {
+              "$ref": "#/components/schemas/InputRef"
+            },
             "type": "array"
           },
           "source_watermark": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Watermark"
+            },
             "description": "Watermark per input schema.",
             "type": "object"
           }
@@ -12040,11 +12941,14 @@
       "OperationsView": {
         "properties": {
           "cache": {
+            "$ref": "#/components/schemas/CacheCounters",
             "description": "Cache hits and misses and calculations since the engine started."
           },
           "collections": {
             "description": "Schema copies held in memory, shared by every card that reads them.",
-            "items": {},
+            "items": {
+              "$ref": "#/components/schemas/LoadedCollection"
+            },
             "type": "array"
           },
           "couchdb": {
@@ -13523,7 +14427,12 @@
             "type": "string"
           },
           "mapping": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
             "type": "object"
           },
           "originating_scope": {
@@ -13533,7 +14442,9 @@
             "items": {},
             "type": "array"
           },
-          "scale": {},
+          "scale": {
+            "type": "integer"
+          },
           "status": {
             "type": "string"
           },
@@ -14154,7 +15065,9 @@
       "Settings": {
         "properties": {
           "api_keys": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "type": "string"
+            },
             "description": "Named app keys, env REPORTS_API_KEYS (JSON object: app name to key).",
             "type": "object"
           },
@@ -14230,7 +15143,9 @@
           "server_host": {
             "type": "string"
           },
-          "server_port": {},
+          "server_port": {
+            "type": "integer"
+          },
           "service_api_key": {
             "description": "Key of local operator tools (`x-reports-service-key`), env REPORTS_SERVICE_API_KEY.",
             "type": "string"
@@ -14772,7 +15687,16 @@
       "Stored": {
         "properties": {
           "fields": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "type": "object"
           },
           "key": {
@@ -19946,16 +20870,43 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Idempotent replay of existing note.",
+            "headers": {
+              "ETag": {
+                "description": "Current entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
-          "404": {
-            "description": "Resource missing, private, unpublished or expired."
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Note created.",
+            "headers": {
+              "ETag": {
+                "description": "Current entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Input validation failed."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -19985,6 +20936,33 @@
         "operationId": "annotations_delete__me_notes__note_id_",
         "parameters": [
           {
+            "description": "Required entity tag for optimistic concurrency.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Set true to cascade deletion of owned reports.",
+            "in": "query",
+            "name": "delete_owned_reports",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Comma-separated report IDs confirmed for deletion despite reuse.",
+            "in": "query",
+            "name": "confirm_reused_report_ids",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "note_id",
             "required": true,
@@ -20007,21 +20985,29 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/AnnotationsDeleteNoteOutcome"
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Note deleted with cascaded report deletion outcome."
+          },
+          "204": {
+            "description": "Note deleted without cascade."
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Note not found."
           },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+          "409": {
+            "description": "Conflict: report items reused by other notes without confirmation."
+          },
+          "412": {
+            "description": "Precondition failed (If-Match revision mismatch)."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20067,16 +21053,24 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Current note content.",
+            "headers": {
+              "ETag": {
+                "description": "Current entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
-          },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Note not found."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20104,6 +21098,24 @@
         "operationId": "annotations_patch__me_notes__note_id_",
         "parameters": [
           {
+            "description": "Required entity tag for optimistic concurrency.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional client idempotency key.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "note_id",
             "required": true,
@@ -20142,16 +21154,30 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Note updated.",
+            "headers": {
+              "ETag": {
+                "description": "Updated entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Note not found."
+          },
+          "412": {
+            "description": "Precondition failed (If-Match revision mismatch)."
           },
           "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Validation failed."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20179,6 +21205,24 @@
         "operationId": "annotations_put__me_notes__note_id_",
         "parameters": [
           {
+            "description": "Required entity tag for optimistic concurrency.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optional client idempotency key.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "note_id",
             "required": true,
@@ -20217,16 +21261,30 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Note updated.",
+            "headers": {
+              "ETag": {
+                "description": "Updated entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Note not found."
+          },
+          "412": {
+            "description": "Precondition failed (If-Match revision mismatch)."
           },
           "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Validation failed."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20331,6 +21389,15 @@
         "operationId": "annotations_delete__me_notes__note_id__publication",
         "parameters": [
           {
+            "description": "Required publication entity tag.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "note_id",
             "required": true,
@@ -20349,25 +21416,28 @@
           }
         ],
         "responses": {
-          "200": {
-            "content": {
-              "application/json": {
+          "204": {
+            "description": "Note unpublished.",
+            "headers": {
+              "ETag": {
+                "description": "Unpublished publication revision entity tag.",
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "type": "string"
                 }
               }
-            },
-            "description": "Current resource or operation result."
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Publication not found."
           },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+          "412": {
+            "description": "Precondition failed."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20413,16 +21483,24 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Current publication details.",
+            "headers": {
+              "ETag": {
+                "description": "Publication revision entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
-          },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Publication not found."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20449,6 +21527,15 @@
         "description": "PUT /me/notes/{note_id}/publication. This operation belongs to annotations. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie. Mutable session requests also require the csrf cookie and matching X-CSRF-Token header.\n\nAnnotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.",
         "operationId": "annotations_put__me_notes__note_id__publication",
         "parameters": [
+          {
+            "description": "Required publication entity tag.",
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "note_id",
@@ -20488,16 +21575,27 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Publication updated.",
+            "headers": {
+              "ETag": {
+                "description": "Updated publication revision entity tag.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Publication not found."
           },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+          "412": {
+            "description": "Precondition failed."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20548,15 +21646,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/AnnotationsRegisterReportReferenceInput"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -20565,16 +21662,19 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Report reference registered."
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
+            "description": "Note not found or caller not owner."
           },
           "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Invalid input."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20591,7 +21691,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"mode\": \"example\", \"project\": \"example\", \"item\": \"example\", \"operation_key\": \"example\", \"report_item_id\": \"example\", \"relation_kind\": \"example\"}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:34",
@@ -20617,21 +21717,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/AnnotationsReportDeletePreview"
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Preview of report items affected by note deletion."
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
-          },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Note not found."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -20699,16 +21798,16 @@
                 }
               }
             },
-            "description": "Current resource or operation result."
+            "description": "Cleanup retry outcome."
+          },
+          "401": {
+            "description": "Authentication required."
           },
           "404": {
-            "description": "Resource missing, private, unpublished or expired."
-          },
-          "422": {
-            "description": "Input or registered document schema validation failed."
+            "description": "Note not found."
           },
           "503": {
-            "description": "A required storage or adapter service is unavailable."
+            "description": "Storage service unavailable."
           }
         },
         "security": [
@@ -31246,12 +32345,33 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "202": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "properties": {
+                        "call_id": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "output_id": {
+                          "format": "uuid",
+                          "type": "string"
+                        },
+                        "session_id": {
+                          "format": "uuid",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "session_id",
+                        "output_id",
+                        "call_id"
+                      ],
+                      "type": "object"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -31264,16 +32384,16 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Tool result accepted."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Chat session or output not found."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -31292,9 +32412,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/tool-results' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"name\": \"example\", \"result\": {\"output\": \"example\"}}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:43",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -33957,12 +35074,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -33975,16 +35094,41 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Existing output action returned."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Output action approval requested."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Parent session or output not found."
+          },
+          "409": {
+            "description": "Action conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34003,9 +35147,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:255",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34059,7 +35200,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34072,16 +35215,16 @@
                 }
               }
             },
-            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
-          },
-          "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Output action loaded."
           },
           "403": {
             "description": "Gateway session or administrator authorization failed."
           },
+          "404": {
+            "description": "Output action not found."
+          },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34100,9 +35243,6 @@
             "lang": "Shell",
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:259",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34170,12 +35310,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34188,16 +35330,19 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Output action decision recorded."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Output action not found."
+          },
+          "409": {
+            "description": "Output action already answered or conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34216,9 +35361,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:263",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34286,12 +35428,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34304,16 +35448,19 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Output action claimed."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Output action not found."
+          },
+          "409": {
+            "description": "Output action conflict or already claimed."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34332,9 +35479,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/claim' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"action_digest\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:267",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34393,12 +35537,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_BoundChildView"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34411,16 +35557,41 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Existing bound child run returned."
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_presentation_agent_runs_BoundChildView"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Bound child run registered."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Parent session or output not found."
+          },
+          "409": {
+            "description": "Child run state conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34439,9 +35610,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:251",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34487,7 +35655,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRun"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34500,16 +35670,16 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Child run created."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
           "403": {
             "description": "Gateway session or administrator authorization failed."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34528,9 +35698,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"parent_run_id\": \"example\", \"role\": \"example\", \"task\": \"example\", \"budget_tokens\": 1}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:137",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34566,7 +35733,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRun"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34579,16 +35748,16 @@
                 }
               }
             },
-            "description": "Cortex result in the message/data envelope. Consult the linked handler for the data shape."
-          },
-          "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Child run loaded."
           },
           "403": {
             "description": "Gateway session or administrator authorization failed."
           },
+          "404": {
+            "description": "Child run not found."
+          },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34607,9 +35776,6 @@
             "lang": "Shell",
             "source": "curl --request GET 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:138",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34664,7 +35830,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34677,16 +35845,19 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Action approval requested."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Child run not found."
+          },
+          "409": {
+            "description": "Action conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34705,9 +35876,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"action_id\": \"example\", \"parent_run_id\": \"example\", \"kind\": \"example\", \"payload_digest\": \"example\", \"display\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:150",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34766,12 +35934,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34784,16 +35954,19 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Action decision recorded."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Action or child run not found."
+          },
+          "409": {
+            "description": "Action already answered or conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34812,9 +35985,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true, \"payload_digest\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:154",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -34854,12 +36024,14 @@
           }
         ],
         "responses": {
-          "201": {
+          "202": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -34872,16 +36044,16 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Cancellation requested."
           },
-          "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+          "404": {
+            "description": "Child run not found."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "409": {
+            "description": "Child run already terminal."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -34900,9 +36072,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:146",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -35031,12 +36200,14 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
                   "properties": {
-                    "data": {},
+                    "data": {
+                      "$ref": "#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent"
+                    },
                     "message": {
                       "type": "string"
                     }
@@ -35049,16 +36220,19 @@
                 }
               }
             },
-            "description": "Resource or chat created. A streaming chat uses an SSE response instead."
+            "description": "Child run event recorded."
           },
           "400": {
-            "description": "Cortex validation or business error. data.error_number identifies the process."
+            "description": "Cortex validation or business error."
           },
-          "403": {
-            "description": "Gateway session or administrator authorization failed."
+          "404": {
+            "description": "Child run not found."
+          },
+          "409": {
+            "description": "Event sequence conflict."
           },
           "503": {
-            "description": "A required service is unavailable. data.error_number identifies the process."
+            "description": "A required service is unavailable."
           }
         },
         "security": [
@@ -35077,9 +36251,6 @@
             "lang": "Shell",
             "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"event_id\": \"example\", \"kind\": \"example\", \"message\": \"example\", \"result\": \"example\", \"error_code\": \"example\"}'"
           }
-        ],
-        "x-discovery-gaps": [
-          "Response data is built by Cortex code; detailed data shape requires central review."
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:142",
         "x-source-tree-sha256": "23b044447e0f9d0a2170ef09adbb191398a3246d447dfa03a639601e80a7f39f"
@@ -36825,7 +37996,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -36941,8 +38116,42 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "calculation_id": "example",
+                "definition": {
+                  "buckets": [],
+                  "calculator": "example",
+                  "derived": [],
+                  "description": {},
+                  "equation": "example",
+                  "fields": [],
+                  "filters": [],
+                  "having": [],
+                  "latest_snapshot": {
+                    "complete_field": "example",
+                    "id_field": "example",
+                    "order_field": "example"
+                  },
+                  "limit": 1,
+                  "lookups": [],
+                  "params": {},
+                  "refs": {},
+                  "row_derived": [],
+                  "sort": [],
+                  "source": "example",
+                  "stages": [],
+                  "title": {},
+                  "union": [],
+                  "value_labels": {},
+                  "warm": true,
+                  "where_": []
+                },
+                "input_schema_version": 1,
+                "version": 1
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CalculationDraftRequest"
+              }
             }
           },
           "required": true
@@ -36951,8 +38160,49 @@
           "201": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Draft saved"
@@ -36978,7 +38228,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
@@ -37028,8 +38278,49 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Published"
@@ -37108,8 +38399,49 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Retired"
@@ -38046,7 +39378,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -38151,7 +39487,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -38377,8 +39717,15 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "mapping": {},
+                "options": {},
+                "template": "example",
+                "version": 1
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CardVisualBinding"
+              }
             }
           },
           "required": true
@@ -38388,7 +39735,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -38424,7 +39775,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
@@ -38969,8 +40320,20 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "kind": "example",
+                "options": [],
+                "published_at": "example",
+                "slots": [],
+                "status": "example",
+                "template_id": "example",
+                "title": {},
+                "version": 1,
+                "visual": "example"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/VisualTemplateVersion"
+              }
             }
           },
           "required": true
@@ -38980,7 +40343,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -39016,7 +40383,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:148",
@@ -39067,7 +40434,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -40372,8 +41743,42 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "calculation_id": "example",
+                "definition": {
+                  "buckets": [],
+                  "calculator": "example",
+                  "derived": [],
+                  "description": {},
+                  "equation": "example",
+                  "fields": [],
+                  "filters": [],
+                  "having": [],
+                  "latest_snapshot": {
+                    "complete_field": "example",
+                    "id_field": "example",
+                    "order_field": "example"
+                  },
+                  "limit": 1,
+                  "lookups": [],
+                  "params": {},
+                  "refs": {},
+                  "row_derived": [],
+                  "sort": [],
+                  "source": "example",
+                  "stages": [],
+                  "title": {},
+                  "union": [],
+                  "value_labels": {},
+                  "warm": true,
+                  "where_": []
+                },
+                "input_schema_version": 1,
+                "version": 1
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CalculationDraftRequest"
+              }
             }
           },
           "required": true
@@ -40382,8 +41787,49 @@
           "201": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Draft saved"
@@ -40409,7 +41855,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
@@ -40459,8 +41905,49 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Published"
@@ -40539,8 +42026,49 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "calculation_id": "example",
+                  "created_at": "example",
+                  "definition": {
+                    "buckets": [],
+                    "calculator": "example",
+                    "derived": [],
+                    "description": {},
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "having": [],
+                    "latest_snapshot": {
+                      "complete_field": "example",
+                      "id_field": "example",
+                      "order_field": "example"
+                    },
+                    "limit": 1,
+                    "lookups": [],
+                    "params": {},
+                    "refs": {},
+                    "row_derived": [],
+                    "sort": [],
+                    "source": "example",
+                    "stages": [],
+                    "title": {},
+                    "union": [],
+                    "value_labels": {},
+                    "warm": true,
+                    "where_": []
+                  },
+                  "input_schema": "example",
+                  "input_schema_version": 1,
+                  "inputs": [],
+                  "needs_review": true,
+                  "project": "example",
+                  "published_at": "example",
+                  "status": "example",
+                  "version": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationVersion"
+                }
               }
             },
             "description": "Retired"
@@ -41414,7 +42942,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -41516,7 +43048,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -41685,8 +43221,15 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "mapping": {},
+                "options": {},
+                "template": "example",
+                "version": 1
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CardVisualBinding"
+              }
             }
           },
           "required": true
@@ -41696,7 +43239,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -41732,7 +43279,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
@@ -42223,8 +43770,20 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "example": "example",
-              "schema": {}
+              "example": {
+                "kind": "example",
+                "options": [],
+                "published_at": "example",
+                "slots": [],
+                "status": "example",
+                "template_id": "example",
+                "title": {},
+                "version": 1,
+                "visual": "example"
+              },
+              "schema": {
+                "$ref": "#/components/schemas/VisualTemplateVersion"
+              }
             }
           },
           "required": true
@@ -42234,7 +43793,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -42270,7 +43833,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:148",
@@ -42321,7 +43884,11 @@
             "content": {
               "application/json": {
                 "example": {
-                  "cache": "example",
+                  "cache": {
+                    "calculations": 1,
+                    "hits": 1,
+                    "misses": 1
+                  },
                   "collections": [],
                   "couchdb": true,
                   "postgres": true,
@@ -42762,7 +44329,17 @@
                     "equation": "example",
                     "fields": [],
                     "filters": [],
-                    "meta": "example",
+                    "meta": {
+                      "expected_refresh_minutes": 1,
+                      "freshness_mode": "example",
+                      "period_end": "example",
+                      "period_start": "example",
+                      "source": "example",
+                      "source_url": "example",
+                      "tier": "example",
+                      "timezone": "example",
+                      "updated_at": 1
+                    },
                     "title": "example",
                     "visibility": "example"
                   },
@@ -42779,7 +44356,12 @@
                   "offset": 1,
                   "rows": [],
                   "total_rows": 1,
-                  "visual": "example"
+                  "visual": {
+                    "mapping": {},
+                    "options": {},
+                    "template": "example",
+                    "version": 1
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/DatasetPage"
@@ -42856,8 +44438,27 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "can_view": true,
+                  "embed_url": "example",
+                  "height": 1,
+                  "html": "example",
+                  "placeholder": {
+                    "action": "example",
+                    "layout": "example",
+                    "message": "example"
+                  },
+                  "rows": [],
+                  "source_url": "example",
+                  "status": "example",
+                  "thumbnail_url": "example",
+                  "title": "example",
+                  "total_rows": 1,
+                  "width": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ViewerEmbedDescriptor"
+                }
               }
             },
             "description": "Live embed descriptor or restricted placeholder"
@@ -42930,8 +44531,20 @@
           "201": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "captured_at": "example",
+                  "captured_by": "example",
+                  "dataset_id": "example",
+                  "id": "example",
+                  "open_in_reports_url": "example",
+                  "project": "example",
+                  "report": "example",
+                  "title": "example",
+                  "total_rows": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CardSnapshotMeta"
+                }
               }
             },
             "description": "Snapshot captured"
@@ -43009,8 +44622,20 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "captured_at": "example",
+                  "captured_by": "example",
+                  "dataset_id": "example",
+                  "id": "example",
+                  "open_in_reports_url": "example",
+                  "project": "example",
+                  "report": "example",
+                  "title": "example",
+                  "total_rows": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CardSnapshotMeta"
+                }
               }
             },
             "description": "Snapshot metadata"
@@ -43088,8 +44713,43 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "captured_at": "example",
+                  "captured_by": "example",
+                  "dataset_id": "example",
+                  "descriptor": {
+                    "can_view": true,
+                    "data_tier": "example",
+                    "dataset_id": "example",
+                    "description": "example",
+                    "equation": "example",
+                    "fields": [],
+                    "filters": [],
+                    "meta": {
+                      "expected_refresh_minutes": 1,
+                      "freshness_mode": "example",
+                      "period_end": "example",
+                      "period_start": "example",
+                      "source": "example",
+                      "source_url": "example",
+                      "tier": "example",
+                      "timezone": "example",
+                      "updated_at": 1
+                    },
+                    "title": "example",
+                    "visibility": "example"
+                  },
+                  "id": "example",
+                  "open_in_reports_url": "example",
+                  "project": "example",
+                  "report": "example",
+                  "rows": [],
+                  "title": "example",
+                  "total_rows": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CardSnapshotContent"
+                }
               }
             },
             "description": "Snapshot content"
@@ -43169,7 +44829,17 @@
                     "equation": "example",
                     "fields": [],
                     "filters": [],
-                    "meta": "example",
+                    "meta": {
+                      "expected_refresh_minutes": 1,
+                      "freshness_mode": "example",
+                      "period_end": "example",
+                      "period_start": "example",
+                      "source": "example",
+                      "source_url": "example",
+                      "tier": "example",
+                      "timezone": "example",
+                      "updated_at": 1
+                    },
                     "title": "example",
                     "visibility": "example"
                   },
@@ -43186,7 +44856,12 @@
                   "offset": 1,
                   "rows": [],
                   "total_rows": 1,
-                  "visual": "example"
+                  "visual": {
+                    "mapping": {},
+                    "options": {},
+                    "template": "example",
+                    "version": 1
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/DatasetPage"
@@ -43381,7 +45056,17 @@
                     "equation": "example",
                     "fields": [],
                     "filters": [],
-                    "meta": "example",
+                    "meta": {
+                      "expected_refresh_minutes": 1,
+                      "freshness_mode": "example",
+                      "period_end": "example",
+                      "period_start": "example",
+                      "source": "example",
+                      "source_url": "example",
+                      "tier": "example",
+                      "timezone": "example",
+                      "updated_at": 1
+                    },
                     "title": "example",
                     "visibility": "example"
                   },
@@ -43398,7 +45083,12 @@
                   "offset": 1,
                   "rows": [],
                   "total_rows": 1,
-                  "visual": "example"
+                  "visual": {
+                    "mapping": {},
+                    "options": {},
+                    "template": "example",
+                    "version": 1
+                  }
                 },
                 "schema": {
                   "$ref": "#/components/schemas/DatasetPage"
@@ -43465,8 +45155,18 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "embed_url": "example",
+                  "height": 1,
+                  "html": "example",
+                  "source_url": "example",
+                  "thumbnail_url": "example",
+                  "title": "example",
+                  "width": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/EmbedDescriptor"
+                }
               }
             },
             "description": "Copyable embed and thumbnail URLs"
@@ -43679,7 +45379,9 @@
               "application/json": {
                 "example": [],
                 "schema": {
-                  "items": {},
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateDiscoveryItem"
+                  },
                   "type": "array"
                 }
               }
@@ -43878,7 +45580,7 @@
                 "mapping": {},
                 "originating_scope": "example",
                 "rows": [],
-                "scale": "example",
+                "scale": 1,
                 "template_id": "example",
                 "template_version": 1,
                 "ttl_seconds": 1,
@@ -43895,8 +45597,25 @@
           "201": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "config": "example",
+                  "created_at": 1,
+                  "expires_at": 1,
+                  "height": 1,
+                  "job_id": "example",
+                  "mapping": {},
+                  "originating_scope": "example",
+                  "rows": [],
+                  "scale": 1,
+                  "status": "example",
+                  "template_id": "example",
+                  "template_version": 1,
+                  "visual": "example",
+                  "width": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RenderJob"
+                }
               }
             },
             "description": "Render job created"
@@ -43931,7 +45650,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": \"example\", \"rows\": [], \"originating_scope\": \"example\", \"width\": 1, \"height\": 1, \"scale\": \"example\", \"ttl_seconds\": 1}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": \"example\", \"rows\": [], \"originating_scope\": \"example\", \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:244",
@@ -43972,8 +45691,12 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "cleaned": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CleanupOutcome"
+                }
               }
             },
             "description": "Cleanup outcome"
@@ -44038,8 +45761,13 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "deleted": true,
+                  "job_id": "example"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteRenderJobOutcome"
+                }
               }
             },
             "description": "Render job deleted"
@@ -44091,8 +45819,25 @@
           "200": {
             "content": {
               "application/json": {
-                "example": "example",
-                "schema": {}
+                "example": {
+                  "config": "example",
+                  "created_at": 1,
+                  "expires_at": 1,
+                  "height": 1,
+                  "job_id": "example",
+                  "mapping": {},
+                  "originating_scope": "example",
+                  "rows": [],
+                  "scale": 1,
+                  "status": "example",
+                  "template_id": "example",
+                  "template_version": 1,
+                  "visual": "example",
+                  "width": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RenderJob"
+                }
               }
             },
             "description": "Render job"
@@ -44232,7 +45977,9 @@
               "application/json": {
                 "example": [],
                 "schema": {
-                  "items": {},
+                  "items": {
+                    "$ref": "#/components/schemas/TemplateDiscoveryItem"
+                  },
                   "type": "array"
                 }
               }
@@ -49220,98 +50967,14 @@
   "x-discovery-gaps": [
     {
       "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "get",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions/{action_id}/answer"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/children"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "get",
-      "path": "/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/answer"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/claim"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
-      ],
-      "method": "post",
-      "path": "/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/tool-results"
-    },
-    {
-      "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
+        "Upstream Hippocampus node/edge metadata fields vary by memory type and are passed through."
       ],
       "method": "get",
       "path": "/apps/cortex/v1/memory-graph"
     },
     {
       "gaps": [
-        "Response data is built by Cortex code; detailed data shape requires central review."
+        "Upstream Hippocampus node/edge metadata fields vary by memory type and are passed through."
       ],
       "method": "get",
       "path": "/apps/cortex/v1/memory-graph/nodes/{node_id}"

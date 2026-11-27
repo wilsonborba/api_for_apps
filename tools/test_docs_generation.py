@@ -571,4 +571,80 @@ pub struct ParserRegressionTarget {
   self.assertEqual(cert_att_op.get('x-source-tree-sha256'),'2aa0115335ab76c3f5a4bd89d41f1ce767586954cd16a36e36962582227608ba')
   self.assertTrue(cert_att_op.get('x-source','').startswith('certifications_api/lib/presentation/attempts.rs'))
 
+ def test_consumer_and_cortex_contract_corrections(self):
+  doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
+  paths=doc.get('paths',{})
+  schemas=doc.get('components',{}).get('schemas',{})
+
+  # 1. Cortex 12 concrete operations and 2 graph operations
+  cr_post=paths['/apps/cortex/v1/remote/sessions/{session_id}/children']['post']
+  self.assertEqual(cr_post['responses']['201']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRun')
+  self.assertNotIn('x-discovery-gaps',cr_post)
+
+  cr_get=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}']['get']
+  self.assertEqual(cr_get['responses']['200']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRun')
+
+  cr_events=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events']['post']
+  self.assertEqual(cr_events['responses']['200']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent')
+
+  cr_cancel=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel']['post']
+  self.assertEqual(cr_cancel['responses']['202']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent')
+
+  cr_act=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions']['post']
+  self.assertEqual(cr_act['responses']['201']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent')
+
+  cr_ans=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions/{action_id}/answer']['post']
+  self.assertEqual(cr_ans['responses']['200']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_domain_services_agent_runs_ChildRunEvent')
+
+  b_child=paths['/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/children']['post']
+  self.assertIn('201',b_child['responses'])
+  self.assertIn('200',b_child['responses'])
+  self.assertEqual(b_child['responses']['201']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_presentation_agent_runs_BoundChildView')
+
+  b_act=paths['/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions']['post']
+  self.assertEqual(b_act['responses']['201']['content']['application/json']['schema']['properties']['data']['$ref'],'#/components/schemas/Cortex_src_presentation_agent_runs_OutputActionView')
+
+  tool_res=paths['/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/tool-results']['post']
+  self.assertIn('202',tool_res['responses'])
+  self.assertEqual(tool_res['responses']['202']['content']['application/json']['schema']['properties']['data']['required'],['session_id','output_id','call_id'])
+  self.assertNotIn('x-discovery-gaps',tool_res)
+
+  mg=paths['/apps/cortex/v1/memory-graph']['get']
+  self.assertIn('x-discovery-gaps',mg)
+  self.assertEqual(mg['x-discovery-gaps'],['Upstream Hippocampus node/edge metadata fields vary by memory type and are passed through.'])
+
+  # 2. Reports consumer schemas & integer scale
+  embed_op=paths['/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}/embed']['get']
+  self.assertEqual(embed_op['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/ViewerEmbedDescriptor')
+
+  rj_post=paths['/apps/reports/v1/render_jobs']['post']
+  self.assertEqual(rj_post['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/RenderJob')
+
+  scale_prop=schemas['CreateRenderJobInput']['properties']['scale']
+  self.assertEqual(scale_prop['anyOf'],[{'type':'integer'},{'type':'null'}])
+
+  # 3. Notes mutation contracts
+  notes_post=paths['/apps/annotations/v1/me/notes']['post']
+  self.assertIn('201',notes_post['responses'])
+  self.assertIn('200',notes_post['responses'])
+  self.assertIn('ETag',notes_post['responses']['201']['headers'])
+
+  note_put=paths['/apps/annotations/v1/me/notes/{note_id}']['put']
+  self.assertTrue(any(p.get('name')=='If-Match' and p.get('in')=='header' for p in note_put.get('parameters',[])))
+  self.assertIn('ETag',note_put['responses']['200']['headers'])
+
+  note_del=paths['/apps/annotations/v1/me/notes/{note_id}']['delete']
+  self.assertTrue(any(p.get('name')=='If-Match' and p.get('in')=='header' for p in note_del.get('parameters',[])))
+  self.assertIn('204',note_del['responses'])
+  self.assertEqual(note_del['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsDeleteNoteOutcome')
+
+  ref_post=paths['/apps/annotations/v1/me/notes/{note_id}/reports']['post']
+  self.assertIn('201',ref_post['responses'])
+  self.assertEqual(ref_post['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/AnnotationsRegisterReportReferenceInput')
+
+  # 4. README pinned accepted source
+  readme=(ROOT/'README.md').read_text()
+  self.assertIn('78e6f489edeed7508c5be5b0889abf79c9d1a17e',readme)
+  self.assertNotIn('accepted source `bb6b70e5`',readme)
+
 if __name__=='__main__':unittest.main()

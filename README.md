@@ -290,17 +290,29 @@ or writes the telemetry CouchDB store. Historical CouchDB data remains untouched
     `GET /apps/annotations/v1/me/notes/{note_id}/reports/delete-preview`,
     `DELETE /apps/annotations/v1/me/notes/{note_id}?delete_owned_reports=true`, and
     `POST /apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup`.
-- **Certifications Rust v2 rewrite (`certifications_api`, accepted source `bb6b70e5`)**:
+- **Certifications Rust v2 rewrite (`certifications_api`, accepted source `78e6f489edeed7508c5be5b0889abf79c9d1a17e`)**:
   - `POST /apps/certifications/v1/studies/{study_id}/sources` (dual request formats: JSON `UploadSourceBody` with reference constraints + `multipart/form-data` with bounded `file`/`filename`/`mime_type` fields, bounded by `max_file_bytes + 64 KiB`, audio magic-byte validation),
     `GET .../content` (`Range` 200/206/416 bounded by `max_file_bytes`, `Cache-Control: no-store`),
     `GET .../preview` (`content_url`, `supports_range`, PDF structure `page_count`, WAV `duration_seconds`),
     `POST /studies/prepared` (`x-service-key` or owned `sources.fsm_ref`), and
     `GET|POST /studies/{study_id}/analysis/stream` (SSE optional analysis).
   - Attempt history/overview, public stats, and public question-version reuse
-    are tracked against accepted source (`bb6b70e5`) while explicitly retaining unreleased cutover distinction (no claim deployed).
+    are tracked against accepted source (`78e6f489`) while explicitly retaining unreleased cutover distinction (no claim deployed).
 - **Reports v2 (`reports#70` consumer definitions, pending review)**:
   - Reproducible `aggregate_snapshot` v1 schema, `technical-aggregates` public report, and
     7 card/dataset IDs (`projects-by-status`, `categories-distribution`,
     `languages-distribution`, `project-language-bytes`, `skill-frequency`,
     `issuer-counts`, `certification-type-counts`) in `scripts/catalog/aggregates.py`
     (activated only with explicit `--project <slug>` / `REPORTS_AGGREGATE_PROJECT`).
+
+### Pinned Accepted Source Revisions (Local Contract Discovery)
+
+The contract generator discovers service routes and data schemas from pinned accepted upstream source trees:
+- `annotations_api`: `7e97d154404b77764fab36c71fb42b5536ba0281`
+- `certifications_api`: `78e6f489edeed7508c5be5b0889abf79c9d1a17e`
+- `cortex_api`: `f85757069bf25b54e9d558306d90f2b6eca3cac6`
+- `domain_api`: `3e38c0802c1af0608c6310f08355a7415e3f9bec`
+- `reports`: `7f1d4c5066bd4b067545bf83d7eab56931ce60f0`
+- `wilson_borba_api`: `10df839d0a7d6b3fbaf066792206e3f68079cf2f`
+
+These contracts remain tracked as unreleased cutovers; no live deployment or database activation is claimed.

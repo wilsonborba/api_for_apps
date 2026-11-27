@@ -21001,10 +21001,10 @@
             "description": "Note not found."
           },
           "409": {
-            "description": "Conflict: report items reused by other notes without confirmation."
+            "description": "Conflict: revision conflict (If-Match mismatch) or report items reused by other notes without confirmation."
           },
-          "412": {
-            "description": "Precondition failed (If-Match revision mismatch)."
+          "422": {
+            "description": "Validation failed (malformed If-Match or parameters)."
           },
           "428": {
             "description": "Precondition required (missing If-Match header)."
@@ -21173,8 +21173,8 @@
           "404": {
             "description": "Note not found."
           },
-          "412": {
-            "description": "Precondition failed (If-Match revision mismatch)."
+          "409": {
+            "description": "Revision conflict (If-Match revision mismatch)."
           },
           "422": {
             "description": "Validation failed."
@@ -21283,8 +21283,8 @@
           "404": {
             "description": "Note not found."
           },
-          "412": {
-            "description": "Precondition failed (If-Match revision mismatch)."
+          "409": {
+            "description": "Revision conflict (If-Match revision mismatch)."
           },
           "422": {
             "description": "Validation failed."
@@ -21442,8 +21442,11 @@
           "404": {
             "description": "Publication not found."
           },
-          "412": {
-            "description": "Precondition failed."
+          "409": {
+            "description": "Revision conflict (If-Match revision mismatch)."
+          },
+          "422": {
+            "description": "Validation failed (malformed If-Match or parameters)."
           },
           "428": {
             "description": "Precondition required (missing If-Match header)."
@@ -21603,8 +21606,11 @@
           "404": {
             "description": "Publication not found."
           },
-          "412": {
-            "description": "Precondition failed."
+          "409": {
+            "description": "Revision conflict (If-Match revision mismatch)."
+          },
+          "422": {
+            "description": "Validation failed (malformed If-Match or parameters)."
           },
           "428": {
             "description": "Precondition required (missing If-Match header)."
@@ -35139,6 +35145,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Parent session or output not found."
           },
@@ -36174,6 +36183,9 @@
           },
           "403": {
             "description": "Gateway session or administrator authorization failed."
+          },
+          "404": {
+            "description": "Parent session or child run not found."
           },
           "503": {
             "description": "A required service is unavailable. data.error_number identifies the process."
@@ -46112,7 +46124,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/attachments' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/support/v1/attachments' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:102",
@@ -46477,7 +46489,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages/{message_id}/read' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/messages/{message_id}/read' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:345",
@@ -46539,7 +46551,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/read' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/support/v1/tickets/{ticket_id}/read' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-python-baseline-source": "api_for_apps/src/presentation/routes/support_route.py:308",

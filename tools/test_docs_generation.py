@@ -657,19 +657,30 @@ pub struct ParserRegressionTarget {
   self.assertIn('--header "X-CSRF-Token: <csrf>"',put_sample)
   self.assertIn('--header "If-Match: <etag>"',put_sample)
   self.assertIn('428',note_put['responses'])
-  self.assertIn('412',note_put['responses'])
+  self.assertIn('409',note_put['responses'])
   self.assertIn('422',note_put['responses'])
+  self.assertNotIn('412',note_put['responses'])
 
   note_del=paths['/apps/annotations/v1/me/notes/{note_id}']['delete']
   del_sample=note_del['x-codeSamples'][0]['source']
   self.assertIn('--header "X-CSRF-Token: <csrf>"',del_sample)
   self.assertIn('--header "If-Match: <etag>"',del_sample)
   self.assertIn('428',note_del['responses'])
-  self.assertIn('412',note_del['responses'])
+  self.assertIn('409',note_del['responses'])
+  self.assertIn('422',note_del['responses'])
+  self.assertNotIn('412',note_del['responses'])
 
   pub_put=paths['/apps/annotations/v1/me/notes/{note_id}/publication']['put']
   self.assertIn('428',pub_put['responses'])
-  self.assertIn('412',pub_put['responses'])
+  self.assertIn('409',pub_put['responses'])
+  self.assertIn('422',pub_put['responses'])
+  self.assertNotIn('412',pub_put['responses'])
+
+  pub_del=paths['/apps/annotations/v1/me/notes/{note_id}/publication']['delete']
+  self.assertIn('428',pub_del['responses'])
+  self.assertIn('409',pub_del['responses'])
+  self.assertIn('422',pub_del['responses'])
+  self.assertNotIn('412',pub_del['responses'])
 
   cr_post=paths['/apps/cortex/v1/remote/sessions/{session_id}/children']['post']
   self.assertIn('404',cr_post['responses'])
@@ -679,7 +690,19 @@ pub struct ParserRegressionTarget {
   cr_events=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events']['post']
   self.assertIn('403',cr_events['responses'])
 
+  cr_events_get=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events']['get']
+  self.assertIn('404',cr_events_get['responses'])
+
   cr_cancel=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel']['post']
   self.assertIn('403',cr_cancel['responses'])
+
+  cr_out_act=paths['/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions']['post']
+  self.assertIn('403',cr_out_act['responses'])
+
+  # Curated gateway cookie mutations must include X-CSRF-Token in samples
+  for p in ['/apps/support/v1/attachments', '/apps/support/v1/tickets/{ticket_id}/read', '/apps/support/v1/tickets/{ticket_id}/messages/{message_id}/read']:
+   m = 'post' if p.endswith('attachments') else 'patch'
+   sample = paths[p][m]['x-codeSamples'][0]['source']
+   self.assertIn('--header "X-CSRF-Token: <csrf>"', sample)
 
 if __name__=='__main__':unittest.main()

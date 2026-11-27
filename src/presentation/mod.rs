@@ -264,6 +264,12 @@ async fn handle(
                         } else {
                             return response(400, "Bad request", Value::Null);
                         }
+                    } else if let Some(u) = u {
+                        if identity(s, &mut extra, &u).await.is_err() {
+                            return detail(503, "Account information unavailable");
+                        }
+                    } else if app == "certifications" {
+                        extra.insert("x-access-level", "1".parse().unwrap());
                     } else if let Ok(Some(u)) = auth::session(s, h).await
                         && identity(s, &mut extra, &u).await.is_err()
                     {

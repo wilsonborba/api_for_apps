@@ -5020,6 +5020,148 @@ async fn generic_proxy_permission_headers_are_gateway_owned() {
 }
 
 #[tokio::test]
+async fn certifications_admin_proxy_derives_trusted_access_level_and_preserves_boundaries() {
+    use axum::{Router, extract::Request as Incoming, routing::any};
+    let upstream = Router::new().fallback(any(|request: Incoming| async move {
+        let h = request.headers();
+        axum::Json(json!({
+            "access": h.get("x-access-level").and_then(|v| v.to_str().ok()),
+            "uuid": h.get("x-uuid").and_then(|v| v.to_str().ok()),
+            "auth": h.get("authorization").and_then(|v| v.to_str().ok()),
+            "display": h.get("x-display-name").and_then(|v| v.to_str().ok()),
+        }))
+    }));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let task = tokio::spawn(async move {
+        axum::serve(listener, upstream).await.unwrap();
+    });
+    let mut s = state().await;
+    Arc::make_mut(&mut s.settings.values)
+        .insert("CERTIFICATIONS_UPSTREAM".into(), format!("http://{address}"));
+
+    // 1. Key-only admin reaches upstream with derived x-access-level: 1, no uuid, no caller Authorization
+    let (status, value) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(
+        value,
+        json!({"access":"1","uuid":null,"auth":null,"display":null})
+    );
+
+    // Also on mutating POST key-only schema publish
+    let (status, value) = call(
+        s.clone(),
+        "POST",
+        "/apps/certifications/v1/admin/settings/schema",
+        json!({"publish": true}),
+        &[("authorization", "test-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(
+        value,
+        json!({"access":"1","uuid":null,"auth":null,"display":null})
+    );
+
+    // 2. Browser admin retains identity headers
+    s.db.insert(
+        "defaultdb_user",
+        &json!({"id": 10, "uuid_id": "admin-account", "first_name": "Cert", "last_name": "Admin"}),
+    )
+    .await
+    .unwrap();
+    s.cache
+        .set(
+            "exchange_auth_app:cert-admin",
+            json!({"user_id": 10, "user_uuid_id": "admin-account", "access_level": 1, "is_project_admin": true}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    let (status, value) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("cookie", "sid=cert-admin")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(
+        value,
+        json!({"access":"1","uuid":"admin-account","auth":null,"display":"Cert%20Admin"})
+    );
+
+    // 3. Valid key + non-admin session: authoritative verify accepts, derives x-access-level 1
+    s.db.insert(
+        "defaultdb_user",
+        &json!({"id": 11, "uuid_id": "user-account", "first_name": "Normal", "last_name": "User"}),
+    )
+    .await
+    .unwrap();
+    s.cache
+        .set(
+            "exchange_auth_app:cert-user",
+            json!({"user_id": 11, "user_uuid_id": "user-account", "access_level": 3, "is_project_admin": false}),
+            60,
+            false,
+        )
+        .await
+        .unwrap();
+    let (status, value) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("authorization", "test-admin"), ("cookie", "sid=cert-user")],
+    )
+    .await;
+    assert_eq!(status, 200);
+    assert_eq!(value["access"], "1");
+
+    // 4. Guest / non-admin / invalid key / forged headers denied or stripped
+    let (status, _) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("x-access-level", "1")],
+    )
+    .await;
+    assert_eq!(status, 403);
+
+    let (status, _) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("cookie", "sid=cert-user"), ("x-access-level", "1")],
+    )
+    .await;
+    assert_eq!(status, 403);
+
+    let (status, _) = call(
+        s.clone(),
+        "GET",
+        "/apps/certifications/v1/admin/settings",
+        json!({}),
+        &[("authorization", "invalid-key")],
+    )
+    .await;
+    assert_eq!(status, 403);
+
+    task.abort();
+}
+
+#[tokio::test]
 async fn annotations_exchange_defaults_exclude_private_networks_and_support_runtime_override() {
     let base = state().await;
     let exchange_origins = base.settings.value("APP_EXCHANGE_ORIGINS");

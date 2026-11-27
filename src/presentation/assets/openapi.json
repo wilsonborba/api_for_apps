@@ -28835,11 +28835,12 @@
                 }
               }
             },
-            "description": "Rendered question visual PNG bytes. Response is private to the study owner with a 300-second cache lifetime.",
+            "description": "Rendered question visual PNG bytes. Response is private to the study owner with Cache-Control: no-store enforced by shared backend presentation middleware.",
             "headers": {
               "Cache-Control": {
+                "description": "Strict no-store cache control enforced by shared presentation middleware.",
                 "schema": {
-                  "example": "private, max-age=300",
+                  "example": "no-store",
                   "type": "string"
                 }
               }

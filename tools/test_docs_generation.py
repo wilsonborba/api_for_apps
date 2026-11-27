@@ -387,7 +387,8 @@ pub struct PreparedCertificationInput {
   self.assertIn(vg_path,paths)
   vg_op=paths[vg_path]['get']
   self.assertIn('image/png',vg_op['responses']['200']['content'])
-  self.assertEqual(vg_op['responses']['200']['headers']['Cache-Control']['schema']['example'],'private, max-age=300')
+  self.assertEqual(vg_op['responses']['200']['headers']['Cache-Control']['schema']['example'],'no-store')
+  self.assertIn('no-store',vg_op['responses']['200']['description'])
   for code in ['200','403','404','503']:
    self.assertIn(code,vg_op['responses'])
 

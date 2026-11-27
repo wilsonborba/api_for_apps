@@ -647,4 +647,39 @@ pub struct ParserRegressionTarget {
   self.assertIn('78e6f489edeed7508c5be5b0889abf79c9d1a17e',readme)
   self.assertNotIn('accepted source `bb6b70e5`',readme)
 
+ def test_code_samples_and_error_status_contracts(self):
+  doc=json.loads((ROOT/'src/presentation/assets/openapi.json').read_text())
+  paths=doc.get('paths',{})
+
+  note_put=paths['/apps/annotations/v1/me/notes/{note_id}']['put']
+  put_sample=note_put['x-codeSamples'][0]['source']
+  self.assertIn('--cookie "sid=<session>; csrf=<csrf>"',put_sample)
+  self.assertIn('--header "X-CSRF-Token: <csrf>"',put_sample)
+  self.assertIn('--header "If-Match: <etag>"',put_sample)
+  self.assertIn('428',note_put['responses'])
+  self.assertIn('412',note_put['responses'])
+  self.assertIn('422',note_put['responses'])
+
+  note_del=paths['/apps/annotations/v1/me/notes/{note_id}']['delete']
+  del_sample=note_del['x-codeSamples'][0]['source']
+  self.assertIn('--header "X-CSRF-Token: <csrf>"',del_sample)
+  self.assertIn('--header "If-Match: <etag>"',del_sample)
+  self.assertIn('428',note_del['responses'])
+  self.assertIn('412',note_del['responses'])
+
+  pub_put=paths['/apps/annotations/v1/me/notes/{note_id}/publication']['put']
+  self.assertIn('428',pub_put['responses'])
+  self.assertIn('412',pub_put['responses'])
+
+  cr_post=paths['/apps/cortex/v1/remote/sessions/{session_id}/children']['post']
+  self.assertIn('404',cr_post['responses'])
+  self.assertIn('409',cr_post['responses'])
+  self.assertIn('403',cr_post['responses'])
+
+  cr_events=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events']['post']
+  self.assertIn('403',cr_events['responses'])
+
+  cr_cancel=paths['/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel']['post']
+  self.assertIn('403',cr_cancel['responses'])
+
 if __name__=='__main__':unittest.main()

@@ -17485,7 +17485,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/catalog' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"owners\": [], \"channels\": [], \"topics\": [], \"languages\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/catalog' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"owners\": [], \"channels\": [], \"topics\": [], \"languages\": []}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/posts.rs:18",
@@ -17557,7 +17557,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:88",
@@ -17626,7 +17626,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/files/{file_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/files/{file_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:89",
@@ -17822,7 +17822,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/files/{file_id}/content' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/files/{file_id}/content' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:93",
@@ -17943,7 +17943,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/notes' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/notes' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:61",
@@ -18012,7 +18012,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
@@ -18148,7 +18148,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
@@ -18226,7 +18226,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:62",
@@ -18295,7 +18295,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
@@ -18431,7 +18431,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/admin/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:69",
@@ -18581,7 +18581,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:77",
@@ -18650,7 +18650,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/admin/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
@@ -18786,7 +18786,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/admin/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/admin/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/admin.rs:78",
@@ -18906,7 +18906,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"version\": 1, \"fields\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"version\": 1, \"fields\": []}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:32",
@@ -18983,7 +18983,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/admin/schemas/{name}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/mod.rs:33",
@@ -20081,7 +20081,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/content_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/content_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:24",
@@ -20265,7 +20265,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/content_jobs/{job_id}/execution' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/content_jobs/{job_id}/execution' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/content_jobs.rs:27",
@@ -20334,7 +20334,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:32",
@@ -20400,7 +20400,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/files/{file_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/files/{file_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:33",
@@ -20587,7 +20587,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/files/{file_id}/content' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/files/{file_id}/content' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/files.rs:34",
@@ -20656,7 +20656,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/model_downloads' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/model_downloads' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/models.rs:24",
@@ -20923,7 +20923,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:29",
@@ -21006,6 +21006,9 @@
           "412": {
             "description": "Precondition failed (If-Match revision mismatch)."
           },
+          "428": {
+            "description": "Precondition required (missing If-Match header)."
+          },
           "503": {
             "description": "Storage service unavailable."
           }
@@ -21024,7 +21027,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"If-Match: <etag>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
@@ -21176,6 +21179,9 @@
           "422": {
             "description": "Validation failed."
           },
+          "428": {
+            "description": "Precondition required (missing If-Match header)."
+          },
           "503": {
             "description": "Storage service unavailable."
           }
@@ -21194,7 +21200,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"If-Match: <etag>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
@@ -21283,6 +21289,9 @@
           "422": {
             "description": "Validation failed."
           },
+          "428": {
+            "description": "Precondition required (missing If-Match header)."
+          },
           "503": {
             "description": "Storage service unavailable."
           }
@@ -21301,7 +21310,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"If-Match: <etag>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:30",
@@ -21376,7 +21385,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/certifications/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"expected_revision\": 1, \"sources\": [], \"config\": {\"language\": \"example\", \"count\": 1}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/certifications/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"expected_revision\": 1, \"sources\": [], \"config\": {\"language\": \"example\", \"count\": 1}}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:47",
@@ -21436,6 +21445,9 @@
           "412": {
             "description": "Precondition failed."
           },
+          "428": {
+            "description": "Precondition required (missing If-Match header)."
+          },
           "503": {
             "description": "Storage service unavailable."
           }
@@ -21454,7 +21466,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"If-Match: <etag>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:43",
@@ -21594,6 +21606,9 @@
           "412": {
             "description": "Precondition failed."
           },
+          "428": {
+            "description": "Precondition required (missing If-Match header)."
+          },
           "503": {
             "description": "Storage service unavailable."
           }
@@ -21612,7 +21627,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"If-Match: <etag>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:43",
@@ -21691,7 +21706,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"mode\": \"example\", \"project\": \"example\", \"item\": \"example\", \"operation_key\": \"example\", \"report_item_id\": \"example\", \"relation_kind\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"mode\": \"example\", \"project\": \"example\", \"item\": \"example\", \"operation_key\": \"example\", \"report_item_id\": \"example\", \"relation_kind\": \"example\"}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:34",
@@ -21824,7 +21839,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/notes/{note_id}/reports/retry-cleanup' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/notes.rs:39",
@@ -21968,7 +21983,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:17",
@@ -22034,7 +22049,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
@@ -22164,7 +22179,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:18",
@@ -22238,7 +22253,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
@@ -22321,7 +22336,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/projects/{project_id}/notes/{note_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/projects.rs:22",
@@ -22465,7 +22480,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/tasks' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/tasks' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:18",
@@ -22531,7 +22546,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/tasks/{task_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/tasks/{task_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
@@ -22661,7 +22676,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/tasks/{task_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/annotations/v1/me/tasks/{task_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/plane_tasks.rs:19",
@@ -22730,7 +22745,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/transcriptions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/transcriptions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:30",
@@ -22914,7 +22929,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/execution' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/execution' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:34",
@@ -22997,7 +23012,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/feedback' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/feedback' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:35",
@@ -23074,7 +23089,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/result' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/annotations/v1/me/transcriptions/{run_id}/result' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{}'"
           }
         ],
         "x-source": "annotations_api/lib/presentation/transcriptions.rs:33",
@@ -25859,7 +25874,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/certificates/{certificate_code}/revocation' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"reason\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/certificates/{certificate_code}/revocation' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"reason\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:85",
@@ -25988,7 +26003,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/cleanup/{cleanup_id}/retry' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/cleanup/{cleanup_id}/retry' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:78",
@@ -26063,7 +26078,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/holders/{holder_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/holders/{holder_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:84",
@@ -26129,7 +26144,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:79",
@@ -26205,7 +26220,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}/origin' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"origin\": \"example\", \"apply_to_questions\": true}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/quizzes/{quiz_id}/origin' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"origin\": \"example\", \"apply_to_questions\": true}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:80",
@@ -26336,7 +26351,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:63",
@@ -26410,7 +26425,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:67",
@@ -26555,7 +26570,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:67",
@@ -26639,7 +26654,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}/status' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/schemas/{schema_name}/versions/{version}/status' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:73",
@@ -26767,7 +26782,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/settings' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"items\": []}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/admin/settings' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"items\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/admin.rs:62",
@@ -27098,7 +27113,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/answers/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"selected_option_id\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/answers/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"selected_option_id\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:46",
@@ -27160,7 +27175,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/certificate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/certificate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/certificates.rs:24",
@@ -27237,7 +27252,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"events\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"events\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:50",
@@ -27444,7 +27459,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/submit' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/submit' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:51",
@@ -27890,7 +27905,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/generations/{job_id}/resume' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/generations/{job_id}/resume' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/generations.rs:44",
@@ -27952,7 +27967,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/generations/{job_id}/stop' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/generations/{job_id}/stop' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/generations.rs:43",
@@ -28142,7 +28157,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/me/identity' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/certifications/v1/me/identity' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"display_name\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/certificates.rs:23",
@@ -28311,7 +28326,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/quizzes/{quiz_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/quizzes/{quiz_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:94",
@@ -28420,7 +28435,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/quizzes/{quiz_id}/attempts' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/quizzes/{quiz_id}/attempts' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/attempts.rs:42",
@@ -28738,7 +28753,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:62",
@@ -28802,7 +28817,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"sources\": [], \"config\": {\"language\": \"en\", \"count\": 10}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/prepared' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\", \"sources\": [], \"config\": {\"language\": \"en\", \"count\": 10}}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:63",
@@ -28865,7 +28880,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:64",
@@ -28986,7 +29001,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"description\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:64",
@@ -29099,7 +29114,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/analysis' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/analysis' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:88",
@@ -29162,7 +29177,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/analysis/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/analysis/stream' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:92",
@@ -29301,7 +29316,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/generations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"count\": 1, \"idempotency_key\": \"example\", \"quiz_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/generations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"count\": 1, \"idempotency_key\": \"example\", \"quiz_id\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/generations.rs:40",
@@ -29373,7 +29388,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"tags\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/publication' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"tags\": []}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/catalog.rs:36",
@@ -29504,7 +29519,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"prompt\": \"example\", \"alternatives\": [], \"correct_id\": \"example\", \"explanation\": \"example\", \"source_id\": \"example\", \"citation_ref\": \"example\", \"visual_spec\": \"example\", \"origin\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"prompt\": \"example\", \"alternatives\": [], \"correct_id\": \"example\", \"explanation\": \"example\", \"source_id\": \"example\", \"citation_ref\": \"example\", \"visual_spec\": \"example\", \"origin\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:28",
@@ -29576,7 +29591,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/import' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"csv_text\": \"example\", \"confirm\": true, \"origin\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/import' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"csv_text\": \"example\", \"confirm\": true, \"origin\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:33",
@@ -29639,7 +29654,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/reuse' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/reuse' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:32",
@@ -29702,7 +29717,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:37",
@@ -29780,7 +29795,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"prompt\": \"example\", \"alternatives\": [], \"correct_id\": \"example\", \"explanation\": \"example\", \"citation_ref\": \"example\", \"origin\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"language\": \"example\", \"prompt\": \"example\", \"alternatives\": [], \"correct_id\": \"example\", \"explanation\": \"example\", \"citation_ref\": \"example\", \"origin\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:37",
@@ -29847,7 +29862,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:53",
@@ -29942,7 +29957,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": {}, \"rows\": [], \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": {}, \"rows\": [], \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:41",
@@ -30040,7 +30055,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"question_version_id\": \"example\", \"render_job_id\": \"example\", \"expected_width\": 1, \"expected_height\": 1, \"expected_scale\": 1, \"png_base64\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"question_version_id\": \"example\", \"render_job_id\": \"example\", \"expected_width\": 1, \"expected_height\": 1, \"expected_scale\": 1, \"png_base64\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/authoring.rs:45",
@@ -30218,7 +30233,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"filename\": \"example\", \"mime_type\": \"text/plain\", \"content_text\": \"example\", \"external_ref\": \"example\", \"fsm_ref\": \"example\", \"size_bytes\": 1, \"is_restricted\": false}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"filename\": \"example\", \"mime_type\": \"text/plain\", \"content_text\": \"example\", \"external_ref\": \"example\", \"fsm_ref\": \"example\", \"size_bytes\": 1, \"is_restricted\": false}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:68",
@@ -30289,7 +30304,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources/{source_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources/{source_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:72",
@@ -30562,7 +30577,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources/{source_id}/selection' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"spec\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources/{source_id}/selection' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"spec\": \"example\"}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:84",
@@ -31006,7 +31021,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_id\": \"example\", \"model_id\": \"example\", \"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"persona_id\": \"example\", \"temporary\": true}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"app_id\": \"example\", \"model_id\": \"example\", \"text\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"persona_id\": \"example\", \"temporary\": true}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -31097,7 +31112,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-discovery-gaps": [],
@@ -31571,7 +31586,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '\"example\"'"
           }
         ],
         "x-discovery-gaps": [],
@@ -31760,7 +31775,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/inputs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"text\": \"example\", \"model_id\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"continue_from\": {\"output_id\": \"example\", \"token_position\": 1, \"alternative_rank\": 1}, \"continuation\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/inputs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"text\": \"example\", \"model_id\": \"example\", \"file_ids\": [], \"stream\": true, \"needs_web\": true, \"web_mode\": \"example\", \"use_memory\": true, \"memory_topic\": \"example\", \"thinking\": true, \"continue_from\": {\"output_id\": \"example\", \"token_position\": 1, \"alternative_rank\": 1}, \"continuation\": \"example\"}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -32059,7 +32074,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\", \"thinking\": true}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"status\": \"example\", \"thinking\": true}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -32389,6 +32404,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Chat session or output not found."
           },
@@ -32410,7 +32428,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/tool-results' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"name\": \"example\", \"result\": {\"output\": \"example\"}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/chats/{session_id}/outputs/{output_id}/tool-results' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"name\": \"example\", \"result\": {\"output\": \"example\"}}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/chat_inputs.rs:43",
@@ -32542,7 +32560,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-discovery-gaps": [],
@@ -33055,7 +33073,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/memory-graph/nodes/{node_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/memory-graph/nodes/{node_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-discovery-gaps": [],
@@ -33670,7 +33688,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/personas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"type\": \"example\", \"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/personas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"type\": \"example\", \"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -33881,7 +33899,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-discovery-gaps": [],
@@ -34049,7 +34067,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/cortex/v1/personas/{persona_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"aliases\": [], \"is_self\": true, \"attributes\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/personas.rs:21",
@@ -34251,7 +34269,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"device_name\": \"example\", \"platform\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"device_name\": \"example\", \"platform\": \"example\"}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -34340,7 +34358,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-discovery-gaps": [],
@@ -34474,7 +34492,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/approvals/{approval_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/approvals/{approval_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -34597,7 +34615,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/cancel' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"turn_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/cancel' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"turn_id\": \"example\"}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -34890,7 +34908,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"payload\": \"example\", \"ack_command_id\": 1}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"payload\": \"example\", \"ack_command_id\": 1}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -35013,7 +35031,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/prompts' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"prompt\": \"example\", \"file_ids\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{id}/prompts' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"prompt\": \"example\", \"file_ids\": []}'"
           }
         ],
         "x-discovery-gaps": [],
@@ -35145,7 +35163,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:255",
@@ -35335,6 +35353,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Output action not found."
           },
@@ -35359,7 +35380,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:263",
@@ -35453,6 +35474,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Output action not found."
           },
@@ -35477,7 +35501,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/claim' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"action_digest\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/actions/{action_id}/claim' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\", \"action_digest\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:267",
@@ -35584,6 +35608,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Parent session or output not found."
           },
@@ -35608,7 +35635,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{remote_session_id}/outputs/{chat_session_id}/{output_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"call_id\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:251",
@@ -35678,6 +35705,12 @@
           "403": {
             "description": "Gateway session or administrator authorization failed."
           },
+          "404": {
+            "description": "Parent session or child run not found."
+          },
+          "409": {
+            "description": "Child run state conflict."
+          },
           "503": {
             "description": "A required service is unavailable."
           }
@@ -35696,7 +35729,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"parent_run_id\": \"example\", \"role\": \"example\", \"task\": \"example\", \"budget_tokens\": 1}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"parent_run_id\": \"example\", \"role\": \"example\", \"task\": \"example\", \"budget_tokens\": 1}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:137",
@@ -35850,6 +35883,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Child run not found."
           },
@@ -35874,7 +35910,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"action_id\": \"example\", \"parent_run_id\": \"example\", \"kind\": \"example\", \"payload_digest\": \"example\", \"display\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"action_id\": \"example\", \"parent_run_id\": \"example\", \"kind\": \"example\", \"payload_digest\": \"example\", \"display\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:150",
@@ -35959,6 +35995,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Action or child run not found."
           },
@@ -35983,7 +36022,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true, \"payload_digest\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/actions/{action_id}/answer' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"approved\": true, \"payload_digest\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:154",
@@ -36046,6 +36085,9 @@
             },
             "description": "Cancellation requested."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Child run not found."
           },
@@ -36070,7 +36112,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/cancel' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:146",
@@ -36225,6 +36267,9 @@
           "400": {
             "description": "Cortex validation or business error."
           },
+          "403": {
+            "description": "Gateway session or administrator authorization failed."
+          },
           "404": {
             "description": "Child run not found."
           },
@@ -36249,7 +36294,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"event_id\": \"example\", \"kind\": \"example\", \"message\": \"example\", \"result\": \"example\", \"error_code\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/cortex/v1/remote/sessions/{session_id}/children/{child_id}/events' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"event_id\": \"example\", \"kind\": \"example\", \"message\": \"example\", \"result\": \"example\", \"error_code\": \"example\"}'"
           }
         ],
         "x-source": "cortex_api/src/presentation/agent_runs.rs:142",
@@ -36581,7 +36626,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/categories' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"description\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/categories' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\", \"description\": \"example\"}'"
           }
         ],
         "x-source": "domain_api/src/presentation/routes/categories_route.py:12",
@@ -36651,7 +36696,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/flutter-icons' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/flutter-icons' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": \"example\"}'"
           }
         ],
         "x-source": "domain_api/src/presentation/routes/categories_route.py:18",
@@ -36758,7 +36803,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/legal/accept' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"document_type\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/legal/accept' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"document_type\": \"example\"}'"
           }
         ],
         "x-source": "domain_api/src/presentation/routes/legal_route.py:25",
@@ -36993,7 +37038,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"name\": \"example\", \"tagline\": \"example\", \"description\": \"example\", \"status\": \"idea\", \"main_link\": \"example\", \"image_url\": \"example\", \"github_repo\": \"example\", \"category_items\": [], \"links\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"name\": \"example\", \"tagline\": \"example\", \"description\": \"example\", \"status\": \"idea\", \"main_link\": \"example\", \"image_url\": \"example\", \"github_repo\": \"example\", \"category_items\": [], \"links\": []}'"
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:82",
@@ -37058,7 +37103,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:106",
@@ -37188,7 +37233,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"name\": \"example\", \"tagline\": \"example\", \"description\": \"example\", \"status\": \"example\", \"main_link\": \"example\", \"image_url\": \"example\", \"github_repo\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"name\": \"example\", \"tagline\": \"example\", \"description\": \"example\", \"status\": \"example\", \"main_link\": \"example\", \"image_url\": \"example\", \"github_repo\": \"example\"}'"
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:97",
@@ -37257,7 +37302,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request PUT 'https://api.asodya.com/apps/domain/v1/projects/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:88",
@@ -37458,7 +37503,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects/{slug}/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects/{slug}/files' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:114",
@@ -37616,7 +37661,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects/{slug}/image' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/projects/{slug}/image' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/projects_route.py:129",
@@ -37788,7 +37833,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/system/sync-stats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/system/sync-stats' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/system_route.py:15",
@@ -37853,7 +37898,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/system/sync-stats/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/domain/v1/system/sync-stats/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "domain_api/src/presentation/routes/system_route.py:21",
@@ -37979,7 +38024,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/fixtures/{manifest}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/fixtures/{manifest}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:242",
@@ -38228,7 +38273,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
@@ -38349,7 +38394,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
@@ -38467,7 +38512,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
@@ -38541,7 +38586,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/validate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/calculations/{calculation}/versions/{version}/validate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
@@ -38694,7 +38739,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/grants' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"user_uuid\": \"example\", \"report\": \"example\", \"card_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/grants' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"user_uuid\": \"example\", \"report\": \"example\", \"card_id\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:153",
@@ -38760,7 +38805,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/grants/{grant}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/grants/{grant}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:154",
@@ -38861,7 +38906,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/ingest/{schema}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project\": \"example\", \"schema_name\": \"example\", \"schema_version\": 1, \"records\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/ingest/{schema}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project\": \"example\", \"schema_name\": \"example\", \"schema_version\": 1, \"records\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:182",
@@ -38994,7 +39039,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/project' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": {}, \"tagline\": {}, \"description\": {}, \"is_active\": true, \"website_url\": \"example\", \"repository_url\": \"example\", \"sort_order\": 1, \"domain_project_id\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/project' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": {}, \"tagline\": {}, \"description\": {}, \"is_active\": true, \"website_url\": \"example\", \"repository_url\": \"example\", \"sort_order\": 1, \"domain_project_id\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:163",
@@ -39057,7 +39102,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:165",
@@ -39177,7 +39222,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:165",
@@ -39248,7 +39293,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:169",
@@ -39336,7 +39381,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:169",
@@ -39527,7 +39572,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/meta' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"source_url\": \"example\", \"period_start\": \"example\", \"period_end\": \"example\", \"timezone\": \"example\", \"freshness_mode\": \"example\", \"expected_refresh_minutes\": 1, \"field_semantics\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/meta' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"source_url\": \"example\", \"period_start\": \"example\", \"period_end\": \"example\", \"timezone\": \"example\", \"freshness_mode\": \"example\", \"expected_refresh_minutes\": 1, \"field_semantics\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:140",
@@ -39668,7 +39713,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:139",
@@ -39775,7 +39820,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
@@ -39887,7 +39932,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
@@ -39973,7 +40018,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
@@ -40111,7 +40156,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"schema_name\": \"example\", \"version\": 1, \"description\": \"example\", \"fields\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"schema_name\": \"example\", \"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:173",
@@ -40199,7 +40244,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:174",
@@ -40287,7 +40332,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/schemas/{schema}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:178",
@@ -40383,7 +40428,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:148",
@@ -40474,7 +40519,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates/{template}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/templates/{template}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:149",
@@ -40575,7 +40620,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/theme' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"light\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}, \"dark\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/admin/projects/{project}/theme' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"light\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}, \"dark\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:164",
@@ -40914,7 +40959,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/me/items/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/me/items/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:210",
@@ -41097,7 +41142,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/reports/v1/me/items/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"audience\": \"example\", \"visibility\": \"example\", \"config\": \"example\", \"mapping\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/reports/v1/me/items/{id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"audience\": \"example\", \"visibility\": \"example\", \"config\": \"example\", \"mapping\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:210",
@@ -41202,7 +41247,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/me/items/{id}/dataset' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"mapping\": \"example\", \"config\": \"example\", \"rows\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/me/items/{id}/dataset' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"mapping\": \"example\", \"config\": \"example\", \"rows\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:216",
@@ -41313,7 +41358,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/me/projects/{project}/items' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"source_app\": \"example\", \"template_id\": \"example\", \"template_version\": 1, \"audience\": \"example\", \"mapping\": \"example\", \"config\": \"example\", \"rows\": [], \"idempotency_key\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/me/projects/{project}/items' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": \"example\", \"source_app\": \"example\", \"template_id\": \"example\", \"template_version\": 1, \"audience\": \"example\", \"mapping\": \"example\", \"config\": \"example\", \"rows\": [], \"idempotency_key\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:209",
@@ -41855,7 +41900,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"calculation_id\": \"example\", \"version\": 1, \"input_schema_version\": 1, \"definition\": {\"title\": {}, \"description\": {}, \"equation\": \"example\", \"source\": \"example\", \"union\": [], \"lookups\": [], \"latest_snapshot\": {\"order_field\": \"example\", \"complete_field\": \"example\", \"id_field\": \"example\"}, \"buckets\": [], \"row_derived\": [], \"where_\": [], \"filters\": [], \"stages\": [], \"derived\": [], \"having\": [], \"calculator\": \"example\", \"params\": {}, \"refs\": {}, \"sort\": [], \"limit\": 1, \"fields\": [], \"value_labels\": {}, \"warm\": true}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:126",
@@ -41976,7 +42021,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:131",
@@ -42094,7 +42139,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:135",
@@ -42168,7 +42213,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/validate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/calculations/{calculation}/versions/{version}/validate' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:127",
@@ -42258,7 +42303,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/grants' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"user_uuid\": \"example\", \"report\": \"example\", \"card_id\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/grants' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"user_uuid\": \"example\", \"report\": \"example\", \"card_id\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:153",
@@ -42324,7 +42369,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/grants/{grant}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/grants/{grant}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:154",
@@ -42425,7 +42470,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/ingest/{schema}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project\": \"example\", \"schema_name\": \"example\", \"schema_version\": 1, \"records\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/ingest/{schema}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project\": \"example\", \"schema_name\": \"example\", \"schema_version\": 1, \"records\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:182",
@@ -42558,7 +42603,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/project' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": {}, \"tagline\": {}, \"description\": {}, \"is_active\": true, \"website_url\": \"example\", \"repository_url\": \"example\", \"sort_order\": 1, \"domain_project_id\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/project' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"name\": {}, \"tagline\": {}, \"description\": {}, \"is_active\": true, \"website_url\": \"example\", \"repository_url\": \"example\", \"sort_order\": 1, \"domain_project_id\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:163",
@@ -42621,7 +42666,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:165",
@@ -42741,7 +42786,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title\": {}, \"description\": {}, \"metadata\": {\"tags\": [], \"sort_order\": 1, \"period_source\": {\"collection\": \"example\", \"field\": \"example\"}, \"card_order\": []}, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:165",
@@ -42812,7 +42857,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:169",
@@ -42900,7 +42945,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"data_tier\": \"example\", \"calculation_id\": \"example\", \"calculation_version\": 1, \"visibility\": \"example\", \"discoverable\": true, \"owner_id\": \"example\", \"audience\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:169",
@@ -43088,7 +43133,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/meta' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"source_url\": \"example\", \"period_start\": \"example\", \"period_end\": \"example\", \"timezone\": \"example\", \"freshness_mode\": \"example\", \"expected_refresh_minutes\": 1, \"field_semantics\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/meta' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"source_url\": \"example\", \"period_start\": \"example\", \"period_end\": \"example\", \"timezone\": \"example\", \"freshness_mode\": \"example\", \"expected_refresh_minutes\": 1, \"field_semantics\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:140",
@@ -43172,7 +43217,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:139",
@@ -43279,7 +43324,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/reports/{report}/datasets/{dataset}/visual' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template\": \"example\", \"version\": 1, \"mapping\": {}, \"options\": {}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:144",
@@ -43384,7 +43429,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
@@ -43470,7 +43515,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/roles/{user}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"is_project_admin\": true}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:155",
@@ -43561,7 +43606,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"schema_name\": \"example\", \"version\": 1, \"description\": \"example\", \"fields\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"schema_name\": \"example\", \"version\": 1, \"description\": \"example\", \"fields\": []}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:173",
@@ -43649,7 +43694,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:174",
@@ -43737,7 +43782,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/schemas/{schema}/versions/{version}/retire' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:178",
@@ -43833,7 +43878,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"version\": 1, \"kind\": \"example\", \"status\": \"example\", \"visual\": \"example\", \"title\": {}, \"slots\": [], \"options\": [], \"published_at\": \"example\"}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:148",
@@ -43924,7 +43969,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates/{template}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/templates/{template}/versions/{version}/publish' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:149",
@@ -44025,7 +44070,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/theme' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"light\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}, \"dark\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/reports/v1/projects/{project}/admin/theme' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"light\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}, \"dark\": {\"canvas\": \"example\", \"surface\": \"example\", \"surface_alt\": \"example\", \"border\": \"example\", \"text_primary\": \"example\", \"text_muted\": \"example\", \"accent\": \"example\", \"on_accent\": \"example\", \"positive\": \"example\", \"warning\": \"example\", \"negative\": \"example\", \"info\": \"example\", \"caution\": \"example\", \"series\": [], \"other\": \"example\"}}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:164",
@@ -44573,7 +44618,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/projects/{project}/reports/{report}/cards/{dataset}/snapshots' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:227",
@@ -45650,7 +45695,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": \"example\", \"rows\": [], \"originating_scope\": \"example\", \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"template_id\": \"example\", \"template_version\": 1, \"mapping\": {}, \"config\": \"example\", \"rows\": [], \"originating_scope\": \"example\", \"width\": 1, \"height\": 1, \"scale\": 1, \"ttl_seconds\": 1}'"
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:244",
@@ -45719,7 +45764,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs/cleanup' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/reports/v1/render_jobs/cleanup' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:245",
@@ -45796,7 +45841,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/render_jobs/{job_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/reports/v1/render_jobs/{job_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "reports/engine/src/presentation/api/server.rs:246",
@@ -46637,7 +46682,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"others\", \"is_visible\": true, \"sort_order\": 0}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"others\", \"is_visible\": true, \"sort_order\": 0}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:293",
@@ -46702,7 +46747,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:315",
@@ -46850,7 +46895,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:302",
@@ -46943,7 +46988,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"title_en\": \"example\", \"title_pt\": \"example\", \"title_th\": \"example\", \"issuer\": \"example\", \"issued_date\": \"example\", \"expiration_date\": \"example\", \"credential_id\": \"example\", \"credential_url\": \"example\", \"description_en\": \"example\", \"description_pt\": \"example\", \"description_th\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"badge_file_key\": \"example\", \"group_key\": \"example\", \"is_visible\": true, \"sort_order\": 1}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:302",
@@ -47089,7 +47134,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}/file' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/certifications/{slug_or_id}/file' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:325",
@@ -47212,7 +47257,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:482",
@@ -47286,7 +47331,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/contact' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"email\": \"user@example.com\", \"location\": \"example\", \"availability\": \"example\", \"linkedin_url\": \"example\", \"github_url\": \"example\", \"website_url\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:482",
@@ -47418,7 +47463,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/content/refresh' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/content/refresh' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:57",
@@ -47566,7 +47611,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"doc_type\": \"example\", \"locale\": \"en\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"application/pdf\", \"is_primary\": false, \"sort_order\": 0}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"slug\": \"example\", \"doc_type\": \"example\", \"locale\": \"en\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"application/pdf\", \"is_primary\": false, \"sort_order\": 0}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:377",
@@ -47695,7 +47740,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/documents/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:383",
@@ -47760,7 +47805,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:420",
@@ -47891,7 +47936,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:411",
@@ -47975,7 +48020,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/documents/{slug_or_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"doc_type\": \"example\", \"locale\": \"example\", \"title\": \"example\", \"description\": \"example\", \"file_key\": \"example\", \"file_name\": \"example\", \"file_type\": \"example\", \"is_primary\": true, \"sort_order\": 1}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:411",
@@ -48165,7 +48210,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/educations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 0, \"group_key\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/educations' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 0, \"group_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:142",
@@ -48230,7 +48275,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:158",
@@ -48360,7 +48405,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:149",
@@ -48443,7 +48488,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/educations/{edu_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"institution\": \"example\", \"degree\": \"example\", \"field\": \"example\", \"description\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:149",
@@ -48569,7 +48614,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/experiences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 0, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/experiences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 0, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:100",
@@ -48634,7 +48679,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:116",
@@ -48765,7 +48810,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:107",
@@ -48849,7 +48894,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/experiences/{exp_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"company\": \"example\", \"role\": \"example\", \"location\": \"example\", \"start_date\": \"example\", \"end_date\": \"example\", \"sort_order\": 1, \"group_key\": \"example\", \"group_name\": \"example\", \"highlights\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:107",
@@ -48969,7 +49014,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/media/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/media/upload' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:447",
@@ -49161,7 +49206,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/profile' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"name\": \"example\", \"headline\": \"example\", \"tagline\": \"example\", \"summary\": \"example\", \"location\": \"example\", \"avatar_file_key\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/profile' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"name\": \"example\", \"headline\": \"example\", \"tagline\": \"example\", \"summary\": \"example\", \"location\": \"example\", \"avatar_file_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:76",
@@ -49235,7 +49280,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/profile' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"name\": \"example\", \"headline\": \"example\", \"tagline\": \"example\", \"summary\": \"example\", \"location\": \"example\", \"avatar_file_key\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/profile' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"name\": \"example\", \"headline\": \"example\", \"tagline\": \"example\", \"summary\": \"example\", \"location\": \"example\", \"avatar_file_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:76",
@@ -49420,7 +49465,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:240",
@@ -49500,7 +49545,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"project_slug\": \"example\", \"source\": \"domain_api\", \"is_visible\": true, \"is_highlighted\": false, \"sort_order\": 100, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:240",
@@ -49565,7 +49610,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:255",
@@ -49652,7 +49697,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"is_visible\": true, \"is_highlighted\": true, \"sort_order\": 1, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/projects/preferences/{slug}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"source\": \"example\", \"is_visible\": true, \"is_highlighted\": true, \"sort_order\": 1, \"custom_name_en\": \"example\", \"custom_name_pt\": \"example\", \"custom_name_th\": \"example\", \"custom_description_en\": \"example\", \"custom_description_pt\": \"example\", \"custom_description_th\": \"example\", \"custom_tags\": [], \"diagram_file_key\": \"example\"}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:246",
@@ -49829,7 +49874,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/skills' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"category\": \"example\", \"sort_order\": 0, \"items\": []}'"
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/skills' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"locale\": \"en\", \"category\": \"example\", \"sort_order\": 0, \"items\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:184",
@@ -49894,7 +49939,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request DELETE 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:206",
@@ -50019,7 +50064,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
+            "source": "curl --request PATCH 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:193",
@@ -50097,7 +50142,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
+            "source": "curl --request PUT 'https://api.asodya.com/apps/wilson_borba/v1/skills/{group_id}' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"category\": \"example\", \"sort_order\": 1, \"items\": []}'"
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:193",
@@ -50154,7 +50199,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/sync/domain' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/sync/domain' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:491",
@@ -50229,7 +50274,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/system/cache/refresh' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/wilson_borba/v1/system/cache/refresh' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"X-CSRF-Token: <csrf>\""
           }
         ],
         "x-source": "wilson_borba_api/src/presentation/routes/portfolio_route.py:57",

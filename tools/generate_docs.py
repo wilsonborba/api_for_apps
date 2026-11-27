@@ -10,8 +10,6 @@ def discover_workspace():
  if env and pathlib.Path(env).is_dir():return pathlib.Path(env).resolve()
  snap=ROOT.parent/'accepted-snapshots'
  if snap.is_dir():return snap.resolve()
- snap_fallback=pathlib.Path('/home/main-server/.cache/agi-impl/accepted-snapshots')
- if snap_fallback.is_dir():return snap_fallback.resolve()
  if (ROOT.parent/'certifications_api').is_dir():return ROOT.parent.resolve()
  git_file=ROOT/'.git'
  if git_file.is_file():
@@ -646,9 +644,6 @@ def rust_certifications(repo):
  for name,model in selected.items():
   cname='Certifications_'+name
   components[cname]=namespace(model)
- for sname in ('Certifications_TakingQuestion','Certifications_ReviewedQuestion','Certifications_UploadVisualReceipt','Certifications_AttemptVisualReference'):
-  if sname in ACCEPTED_PRIOR_SCHEMAS:
-   components[sname]=copy.deepcopy(ACCEPTED_PRIOR_SCHEMAS[sname])
  if 'Certifications_QuestionVisual' in components:
   components['Certifications_QuestionVisual']['properties'].pop('fsm_ref',None)
   if 'required' in components['Certifications_QuestionVisual'] and 'fsm_ref' in components['Certifications_QuestionVisual']['required']:
@@ -1043,22 +1038,6 @@ def rust_certifications(repo):
     operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1),deprecated=deprecated)
  if ('/apps/certifications/v1/me/quizzes/{quiz_id}/statistics','get') not in seen:
   operation('certifications','/me/quizzes/{quiz_id}/statistics','get','GET /me/quizzes/{quiz_id}/statistics',desc,[{'name':'quiz_id','in':'path','required':True,'schema':{'type':'string'}}],None,{'200':{'description':'Operation result.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublicQuizStats'}}}},'404':{'description':'Resource not found.'},'422':{'description':'Input validation failed.'}},'lib/presentation/catalog.rs:1')
- for vp, vm in [
-  ('/studies/{study_id}/questions/{question_id}/visual_jobs','post'),
-  ('/studies/{study_id}/questions/{question_id}/visuals','post'),
-  ('/studies/{study_id}/questions/{question_id}/visuals/{visual_id}','get'),
-  ('/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}','get'),
- ]:
-  full = '/apps/certifications/v1' + vp
-  if (full, vm) not in seen and full in previous.get('paths',{}) and vm in previous['paths'][full]:
-   op = copy.deepcopy(previous['paths'][full][vm])
-   if vp == '/studies/{study_id}/questions/{question_id}/visuals' and vm == 'post':
-    op['responses']['201']['content']['application/json']['schema']['$ref'] = '#/components/schemas/Certifications_UploadVisualReceipt'
-   elif vp.startswith('/attempts/') and vm == 'get':
-    op['x-source'] = 'certifications_api/lib/presentation/attempts.rs:154'
-    op['x-source-tree-sha256'] = source_hash(repo,'rs')
-   operations.setdefault(full,{})[vm]=op
-   seen.add((full, vm))
 
 def rust_cortex(repo):
  source=repo/'src/presentation'

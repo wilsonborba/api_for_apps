@@ -473,8 +473,8 @@ pub struct PreparedCertificationInput {
   self.assertEqual(att_op['responses']['200']['headers']['X-Content-Type-Options']['schema']['example'],'nosniff')
   for code in ['200','401','403','404','503']:
    self.assertIn(code,att_op['responses'])
-  self.assertEqual(att_op['x-source'],'certifications_api/lib/presentation/attempts.rs:154')
-  self.assertEqual(len(att_op['x-source-tree-sha256']),64)
+  self.assertTrue(att_op['x-source'].startswith('certifications_api/lib/presentation/attempts.rs:'))
+  self.assertEqual(att_op['x-source-tree-sha256'],'2aa0115335ab76c3f5a4bd89d41f1ce767586954cd16a36e36962582227608ba')
 
   # 4. legacy visual
   vl_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual'
@@ -564,5 +564,11 @@ pub struct ParserRegressionTarget {
   self.assertIn('/apps/reports/v1/me/items/{id}',paths)
   self.assertIn('/apps/reports/v1/templates',paths)
   self.assertIn('/apps/reports/v1/render_jobs',paths)
+  # Certifications accepted V2 visual route and source tree hash
+  cert_att_path='/apps/certifications/v1/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}'
+  self.assertIn(cert_att_path,paths)
+  cert_att_op=paths[cert_att_path]['get']
+  self.assertEqual(cert_att_op.get('x-source-tree-sha256'),'2aa0115335ab76c3f5a4bd89d41f1ce767586954cd16a36e36962582227608ba')
+  self.assertTrue(cert_att_op.get('x-source','').startswith('certifications_api/lib/presentation/attempts.rs'))
 
 if __name__=='__main__':unittest.main()

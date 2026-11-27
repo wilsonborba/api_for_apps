@@ -165,6 +165,7 @@ pub struct StudyDetail {
     pub study: StudySummary,
     pub sources: Vec<SourceSummary>,
     pub quota: QuotaMeter,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<PreparedStudyConfig>,
 }
 pub struct AvailableStudyTag {
@@ -280,6 +281,9 @@ pub struct AttemptHistoryPage {
    self.assertEqual(pub_stats['x-access-level'],'public')
    self.assertEqual(pub_stats['security'],[])
    # Visual authoring and attempt visual models
+   self.assertIn('Certifications_StudyDetail',schemas)
+   self.assertIn('config',schemas['Certifications_StudyDetail']['properties'])
+   self.assertNotIn('config',schemas['Certifications_StudyDetail'].get('required',[]))
    self.assertIn('Certifications_UploadVisualReceipt',schemas)
    self.assertEqual(schemas['Certifications_UploadVisualReceipt']['required'],['id','mime_type','created_at','prepared_question_version_id','result_question_version_id','result_quiz_version_id'])
    self.assertIn('Certifications_QuestionVisual',schemas)
@@ -500,5 +504,65 @@ pub struct PreparedCertificationInput {
   self.assertEqual(schemas['Certifications_ReviewedQuestion']['properties']['visuals']['items']['$ref'],'#/components/schemas/Certifications_AttemptVisualReference')
   self.assertIn('visuals',schemas['Certifications_ReviewedQuestion']['required'])
   self.assertEqual(check_local_refs(doc),[])
+
+ def test_serde_skip_parser(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   tpath=pathlib.Path(tmp)
+   (tpath/'test.rs').write_text('''
+pub struct ParserRegressionTarget {
+    pub normal_field: String,
+    #[serde(skip)]
+    pub private_skip: String,
+    #[serde(skip_serializing)]
+    pub private_fsm_ref: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub config: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub default_config: Option<i64>,
+}
+''')
+   import importlib.util
+   spec=importlib.util.spec_from_file_location("generate_docs",ROOT/'tools/generate_docs.py')
+   gd=importlib.util.module_from_spec(spec)
+   spec.loader.exec_module(gd)
+   gd.rust_models(tpath,source=".")
+   target=gd.components.get('ParserRegressionTarget')
+   self.assertIsNotNone(target)
+   props=target['properties']
+   req=target.get('required',[])
+   self.assertIn('normal_field',props)
+   self.assertIn('normal_field',req)
+   self.assertNotIn('private_skip',props)
+   self.assertNotIn('private_fsm_ref',props)
+   self.assertIn('config',props)
+   self.assertNotIn('config',req)
+   self.assertIn('default_config',props)
+   self.assertNotIn('default_config',req)
+
+ def test_accepted_v2_routes_retained(self):
+  doc_path=ROOT/'src/presentation/assets/openapi.json'
+  self.assertTrue(doc_path.exists())
+  doc=json.loads(doc_path.read_text())
+  paths=doc.get('paths',{})
+  self.assertGreaterEqual(len(paths),319)
+  ops_count=sum(len(m) for m in paths.values())
+  self.assertGreaterEqual(ops_count,432)
+  # Notes accepted V2 routes
+  self.assertIn('/apps/annotations/v1/me/content_jobs',paths)
+  self.assertIn('/apps/annotations/v1/me/content_jobs/{job_id}',paths)
+  self.assertIn('/apps/annotations/v1/me/content_jobs/{job_id}/events',paths)
+  self.assertIn('/apps/annotations/v1/me/content_jobs/{job_id}/execution',paths)
+  self.assertIn('/apps/annotations/v1/me/notes/{note_id}/reports',paths)
+  self.assertIn('/apps/annotations/v1/me/tasks',paths)
+  # Cortex remote sessions accepted V2 routes
+  self.assertIn('/apps/cortex/v1/remote/sessions',paths)
+  self.assertIn('/apps/cortex/v1/remote/sessions/{id}',paths)
+  self.assertIn('/apps/cortex/v1/remote/sessions/{id}/approvals/{approval_id}',paths)
+  self.assertIn('/apps/cortex/v1/remote/sessions/{id}/cancel',paths)
+  self.assertIn('/apps/cortex/v1/remote/sessions/{session_id}/children',paths)
+  # Reports accepted V2 routes
+  self.assertIn('/apps/reports/v1/me/items/{id}',paths)
+  self.assertIn('/apps/reports/v1/templates',paths)
+  self.assertIn('/apps/reports/v1/render_jobs',paths)
 
 if __name__=='__main__':unittest.main()

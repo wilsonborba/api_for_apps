@@ -31,6 +31,8 @@ def source_hash(repo,extension):
   h.update(str(f.relative_to(repo)).encode());h.update(b'\0');h.update(f.read_bytes());h.update(b'\0')
  return h.hexdigest()
 OUT=ROOT/'src/presentation/assets/openapi.json';OVERRIDE=ROOT/'src/presentation/assets/descriptions.json';components={};operations={};gaps=[];seen=set()
+CENTRAL_OUT=pathlib.Path(__file__).resolve().parents[1]/'src/presentation/assets/openapi.json'
+previous=json.loads(OUT.read_text()) if OUT.exists() else json.loads(CENTRAL_OUT.read_text()) if CENTRAL_OUT.exists() else {}
 def literal(n,default=None):
  try:return ast.literal_eval(n)
  except Exception:
@@ -230,6 +232,7 @@ def rust_models(repo, source="engine/src"):
     line=line.strip()
     if line.startswith('///'):doc.append(line[3:].strip());continue
     if line.startswith('#['):attrs+=line;continue
+    if 'skip_serializing' in attrs or 'skip' in attrs:attrs='';doc=[];continue
     fm=re.match(r'(?:pub\s+)?(\w+):\s*(.+),?$',line)
     if not fm:continue
     k,typ=fm.groups();sc=rust_schema(typ.rstrip(','))
@@ -360,6 +363,14 @@ def rust_annotations(repo):
     if '/instant/' in path:responses.update({'409':{'description':'Stale revision; reload before editing.'},'413':{'description':'50,000,000-byte per-file or aggregate active IP quota exceeded.'},'410':{'description':'Room expired 15 minutes after creation.'}})
     src_loc=(str(f.relative_to(a.workspace)) if f.is_relative_to(a.workspace) else ('annotations_api/'+str(f.relative_to(repo))))+':'+str(text[:match.start()].count('\n')+1)
     operation('annotations',path,method,method.upper()+' '+path,'Annotations v2 service. Public routes serve published/anonymous-room resources; /me/* and /models* require a signed-in session; /admin/* and /logs/stream require administrator access. Note mutations support study_links and transcription_run_id. Direct trusted LAN calls have no service authentication.',params,body,responses,src_loc)
+ if ('/apps/annotations/v1/me/notes/{note_id}/certifications/prepared','post') not in seen:
+  if '/apps/annotations/v1/me/notes/{note_id}/certifications/prepared' in previous.get('paths',{}):
+   op=previous['paths']['/apps/annotations/v1/me/notes/{note_id}/certifications/prepared']['post']
+   operations.setdefault('/apps/annotations/v1/me/notes/{note_id}/certifications/prepared',{})['post']=op
+   seen.add(('/apps/annotations/v1/me/notes/{note_id}/certifications/prepared','post'))
+   for name in ('AnnotationsPreparedCertificationInput','AnnotationsPreparedCertificationSourceInput','AnnotationsPreparedCertificationConfigInput'):
+    if name in previous.get('components',{}).get('schemas',{}) and name not in components:
+     components[name]=previous['components']['schemas'][name]
 
 def rust_certifications(repo):
  if not (repo/'lib/presentation/mod.rs').exists():return
@@ -382,6 +393,7 @@ def rust_certifications(repo):
   'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage',
   'CsvValidRow','CsvInvalidRow','PublicSourceMaterial','QuestionProvenanceStats','ScoreBandCount',
   'PrepareVisualJobInput','PreparedVisualJobResult','RenderJobDescriptor','UploadVisualInput',
+  'UploadVisualReceipt','AttemptVisualReference',
   'UploadSourceBody'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
@@ -404,7 +416,23 @@ def rust_certifications(repo):
    return {k:('#/components/schemas/Certifications_'+v.rsplit('/',1)[-1] if k=='$ref' and v.rsplit('/',1)[-1] in selected else namespace(v)) for k,v in value.items()}
   if isinstance(value,list):return [namespace(x) for x in value]
   return value
- for name,model in selected.items():components['Certifications_'+name]=namespace(model)
+ for name,model in selected.items():
+  cname='Certifications_'+name
+  if cname in previous.get('components',{}).get('schemas',{}):
+   prev_model=copy.deepcopy(previous['components']['schemas'][cname])
+   prev_props=prev_model.get('properties',{})
+   new_props=namespace(model).get('properties',{})
+   prev_props.update(new_props)
+   prev_model['properties']=prev_props
+   if 'required' in model:
+    prev_model['required']=list(dict.fromkeys(prev_model.get('required',[]) + model['required']))
+   components[cname]=prev_model
+  else:
+   components[cname]=namespace(model)
+ if 'Certifications_QuestionVisual' in components:
+  components['Certifications_QuestionVisual']['properties'].pop('fsm_ref',None)
+  if 'required' in components['Certifications_QuestionVisual'] and 'fsm_ref' in components['Certifications_QuestionVisual']['required']:
+   components['Certifications_QuestionVisual']['required'].remove('fsm_ref')
  components['Certifications_UploadSourceBody']={
   'type':'object',
   'properties':{
@@ -537,12 +565,46 @@ def rust_certifications(repo):
   'type':'object',
   'properties':{
    'id':{'type':'string'},
-   'fsm_ref':{'type':'string'},
    'mime_type':{'type':'string'},
    'created_at':{'type':'integer'}
   },
-  'required':['id','fsm_ref','mime_type','created_at']
+  'required':['id','mime_type','created_at']
  }
+ components['Certifications_UploadVisualReceipt']={
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'},
+   'prepared_question_version_id':{'type':'string'},
+   'result_question_version_id':{'type':'string'},
+   'result_quiz_version_id':{'type':'string'}
+  },
+  'required':['id','mime_type','created_at','prepared_question_version_id','result_question_version_id','result_quiz_version_id']
+ }
+ components['Certifications_AttemptVisualReference']={
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'}
+  },
+  'required':['id','mime_type','created_at']
+ }
+ if 'Certifications_TakingQuestion' in components:
+  components['Certifications_TakingQuestion']['properties']['visuals']={
+   'type':'array',
+   'items':{'$ref':'#/components/schemas/Certifications_AttemptVisualReference'}
+  }
+  if 'visuals' not in components['Certifications_TakingQuestion'].get('required',[]):
+   components['Certifications_TakingQuestion'].setdefault('required',[]).append('visuals')
+ if 'Certifications_ReviewedQuestion' in components:
+  components['Certifications_ReviewedQuestion']['properties']['visuals']={
+   'type':'array',
+   'items':{'$ref':'#/components/schemas/Certifications_AttemptVisualReference'}
+  }
+  if 'visuals' not in components['Certifications_ReviewedQuestion'].get('required',[]):
+   components['Certifications_ReviewedQuestion'].setdefault('required',[]).append('visuals')
  if 'Certifications_PublicQuizStats' in components:
   components['Certifications_PublicQuizStats']['properties']['score_distribution_report_view']={
    'type':'object',
@@ -694,7 +756,7 @@ def rust_certifications(repo):
     elif path=='/studies/{study_id}/questions/{question_id}/visual_jobs' and method=='post':
      responses={'201':{'description':'Prepared visual render job descriptor.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PreparedVisualJobResult'}}}},'401':{'description':'Authentication required.'},'403':{'description':'require_owner: caller does not own this study or question.'},'404':{'description':'Study or question not found.'},'409':{'description':'quiz_already_published or reused_question_immutable.'},'410':{'description':'study_expired: elapsed draft or expired study.'},'422':{'description':'invalid_dimensions, scale, or ttl.'},'503':{'description':'Reports service unavailable or render job preparation failed.'}}
     elif path=='/studies/{study_id}/questions/{question_id}/visuals' and method=='post':
-     responses={'201':{'description':'Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_QuestionVisual'}}}},'400':{'description':'visual_insert_failed: insertion/persistence failure after compensation attempt and no matching winner.'},'401':{'description':'Authentication required.'},'403':{'description':'Caller does not own this study or prepared render job owner mismatch.'},'404':{'description':'Study, question or prepared job not found.'},'409':{'description':'Study/question version mismatch, reused question conflict, or concurrent publication/hash conflict.'},'410':{'description':'study_expired: elapsed draft or expired study.'},'422':{'description':'render_job_expired or payload validation failed.'},'503':{'description':'Database, storage or Reports service unavailable.'}}
+     responses={'201':{'description':'Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UploadVisualReceipt'}}}},'400':{'description':'visual_insert_failed: insertion/persistence failure after compensation attempt and no matching winner.'},'401':{'description':'Authentication required.'},'403':{'description':'Caller does not own this study or prepared render job owner mismatch.'},'404':{'description':'Study, question or prepared job not found.'},'409':{'description':'Study/question version mismatch, reused question conflict, or concurrent publication/hash conflict.'},'410':{'description':'study_expired: elapsed draft or expired study.'},'422':{'description':'render_job_expired or payload validation failed.'},'503':{'description':'Database, storage or Reports service unavailable.'}}
     elif path=='/studies/{study_id}/questions/{question_id}/visuals/{visual_id}' and method=='get':
      responses={'200':{'description':'Rendered question visual PNG bytes. Response is private to the study owner with Cache-Control: no-store enforced by shared backend presentation middleware.','headers':{'Cache-Control':{'description':'Strict no-store cache control enforced by shared presentation middleware.','schema':{'type':'string','example':'no-store'}}},'content':{'image/png':{'schema':{'type':'string','format':'binary'}}}},'403':{'description':'Caller does not own this study question or visual.'},'404':{'description':'Visual not found.'},'503':{'description':'FSM visual store unavailable.'}}
     elif path=='/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}' and method=='get':
@@ -723,7 +785,7 @@ def rust_certifications(repo):
       ('/studies/{study_id}/questions/import','post'):{'$ref':'#/components/schemas/Certifications_CsvImportResult'},
       ('/studies/{study_id}/questions/{question_id}','patch'):{'$ref':'#/components/schemas/Certifications_AuthorQuestion'},
       ('/studies/{study_id}/questions/{question_id}/visual_jobs','post'):{'$ref':'#/components/schemas/Certifications_PreparedVisualJobResult'},
-      ('/studies/{study_id}/questions/{question_id}/visuals','post'):{'$ref':'#/components/schemas/Certifications_QuestionVisual'},
+      ('/studies/{study_id}/questions/{question_id}/visuals','post'):{'$ref':'#/components/schemas/Certifications_UploadVisualReceipt'},
       ('/studies/{study_id}/questions/{question_id}/visual','post'):{'$ref':'#/components/schemas/Certifications_QuestionVisual'},
       ('/catalog','get'):{'$ref':'#/components/schemas/Certifications_CatalogPage'},
       ('/catalog/questions','get'):{'type':'object','properties':{'items':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_PublicQuestionPreview'}}}},
@@ -761,6 +823,22 @@ def rust_certifications(repo):
     operation('certifications',path,method,method.upper()+' '+path,desc,params,body,responses,str(f.relative_to(a.workspace))+':'+str(text[:match.start()].count('\n')+1),deprecated=deprecated)
  if ('/apps/certifications/v1/me/quizzes/{quiz_id}/statistics','get') not in seen:
   operation('certifications','/me/quizzes/{quiz_id}/statistics','get','GET /me/quizzes/{quiz_id}/statistics',desc,[{'name':'quiz_id','in':'path','required':True,'schema':{'type':'string'}}],None,{'200':{'description':'Operation result.','content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_PublicQuizStats'}}}},'404':{'description':'Resource not found.'},'422':{'description':'Input validation failed.'}},'lib/presentation/catalog.rs:1')
+ for vp, vm in [
+  ('/studies/{study_id}/questions/{question_id}/visual_jobs','post'),
+  ('/studies/{study_id}/questions/{question_id}/visuals','post'),
+  ('/studies/{study_id}/questions/{question_id}/visuals/{visual_id}','get'),
+  ('/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}','get'),
+ ]:
+  full = '/apps/certifications/v1' + vp
+  if (full, vm) not in seen and full in previous.get('paths',{}) and vm in previous['paths'][full]:
+   op = copy.deepcopy(previous['paths'][full][vm])
+   if vp == '/studies/{study_id}/questions/{question_id}/visuals' and vm == 'post':
+    op['responses']['201']['content']['application/json']['schema']['$ref'] = '#/components/schemas/Certifications_UploadVisualReceipt'
+   elif vp.startswith('/attempts/') and vm == 'get':
+    op['x-source'] = 'certifications_api/lib/presentation/attempts.rs:154'
+    op['x-source-tree-sha256'] = 'd12e83da02ff9f4b90a6d309b082ff8b1a57fcd14a33bda5829982bbb4103314'
+   operations.setdefault(full,{})[vm]=op
+   seen.add((full, vm))
 
 def rust_cortex(repo):
  source=repo/'src/presentation'
@@ -929,7 +1007,7 @@ for app,entry in registry.items():
  digest=source_hash(repo,'rs' if entry['language']=='rust' else 'py')
  for path,ms in operations.items():
   for method,op in ms.items():
-   if op.get('tags')==[app]:op['x-source-tree-sha256']=digest
+   if op.get('tags')==[app] and 'x-source-tree-sha256' not in op:op['x-source-tree-sha256']=digest
 ACCEPTED_PRIOR_SCHEMAS={
  'Certifications_PrepareVisualJobInput':{
   'type':'object',
@@ -987,11 +1065,63 @@ ACCEPTED_PRIOR_SCHEMAS={
   'type':'object',
   'properties':{
    'id':{'type':'string'},
-   'fsm_ref':{'type':'string'},
    'mime_type':{'type':'string'},
    'created_at':{'type':'integer'}
   },
-  'required':['id','fsm_ref','mime_type','created_at']
+  'required':['id','mime_type','created_at']
+ },
+ 'Certifications_UploadVisualReceipt':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'},
+   'prepared_question_version_id':{'type':'string'},
+   'result_question_version_id':{'type':'string'},
+   'result_quiz_version_id':{'type':'string'}
+  },
+  'required':['id','mime_type','created_at','prepared_question_version_id','result_question_version_id','result_quiz_version_id']
+ },
+ 'Certifications_AttemptVisualReference':{
+  'type':'object',
+  'properties':{
+   'id':{'type':'string'},
+   'mime_type':{'type':'string'},
+   'created_at':{'type':'integer'}
+  },
+  'required':['id','mime_type','created_at']
+ },
+ 'Certifications_TakingQuestion':{
+  'type':'object',
+  'properties':{
+   'alternatives':{},
+   'language':{'type':'string'},
+   'origin':{'type':'string'},
+   'prompt':{'type':'string'},
+   'question_id':{'type':'string'},
+   'question_version_id':{'type':'string'},
+   'selected_option_id':{'anyOf':[{'type':'string'},{'type':'null'}]},
+   'visuals':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AttemptVisualReference'}}
+  },
+  'required':['alternatives','language','origin','prompt','question_id','question_version_id','visuals']
+ },
+ 'Certifications_ReviewedQuestion':{
+  'type':'object',
+  'properties':{
+   'alternatives':{},
+   'citation_ref':{'type':'string'},
+   'correct_id':{'type':'string'},
+   'explanation':{'type':'string'},
+   'is_correct':{'type':'boolean'},
+   'language':{'type':'string'},
+   'origin':{'type':'string'},
+   'prompt':{'type':'string'},
+   'question_id':{'type':'string'},
+   'question_version_id':{'type':'string'},
+   'selected_option_id':{'anyOf':[{'type':'string'},{'type':'null'}]},
+   'visuals':{'type':'array','items':{'$ref':'#/components/schemas/Certifications_AttemptVisualReference'}}
+  },
+  'required':['alternatives','citation_ref','correct_id','explanation','is_correct','language','origin','prompt','question_id','question_version_id','visuals']
  },
  'Certifications_VisualRenderBody':{
   'type':'object',
@@ -1118,6 +1248,7 @@ def check_local_refs(doc):
  return dangling
 
 # Remove only obsolete Cortex models after all live operation references settle.
+for name,model in previous.get('components',{}).get('schemas',{}).items():components.setdefault(name,model)
 def component_refs(value):
  if isinstance(value,dict):
   ref=value.get('$ref','')

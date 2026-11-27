@@ -94,7 +94,54 @@ async fn create(Json(body): Json<NewChat>) -> Response { response() }
   .route("/me/quizzes/{quiz_id}/statistics", get(get_my_quiz_statistics))
   .route("/me/quizzes/{quiz_id}/summary", get(get_my_quiz_summary))
   .route("/attempts", get(list_my_attempts))
+  .route("/studies/{study_id}/questions/{question_id}/visuals", post(upload_visual))
+  .route("/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}", get(get_attempt_question_visual))
 }''')
+   (repo/'lib/domain/visuals.rs').write_text('''pub struct QuestionVisual {
+    pub id: String,
+    #[serde(skip_serializing)]
+    pub fsm_ref: String,
+    pub mime_type: String,
+    pub created_at: i64,
+}
+pub struct UploadVisualReceipt {
+    pub id: String,
+    pub mime_type: String,
+    pub created_at: i64,
+    pub prepared_question_version_id: String,
+    pub result_question_version_id: String,
+    pub result_quiz_version_id: String,
+}
+pub struct AttemptVisualReference {
+    pub id: String,
+    pub mime_type: String,
+    pub created_at: i64,
+}
+pub struct TakingQuestion {
+    pub question_id: String,
+    pub question_version_id: String,
+    pub language: String,
+    pub origin: String,
+    pub prompt: String,
+    pub alternatives: Value,
+    pub selected_option_id: Option<String>,
+    pub visuals: Vec<AttemptVisualReference>,
+}
+pub struct ReviewedQuestion {
+    pub question_id: String,
+    pub question_version_id: String,
+    pub language: String,
+    pub origin: String,
+    pub prompt: String,
+    pub alternatives: Value,
+    pub selected_option_id: Option<String>,
+    pub correct_id: String,
+    pub is_correct: bool,
+    pub explanation: String,
+    pub citation_ref: String,
+    pub visuals: Vec<AttemptVisualReference>,
+}
+''')
    (repo/'lib/domain/studies.rs').write_text('''pub struct PreparedStudyConfig {
     pub language: String,
     pub count: i64,
@@ -232,6 +279,27 @@ pub struct AttemptHistoryPage {
    pub_stats=doc['paths']['/apps/certifications/v1/quizzes/{quiz_id}/statistics']['get']
    self.assertEqual(pub_stats['x-access-level'],'public')
    self.assertEqual(pub_stats['security'],[])
+   # Visual authoring and attempt visual models
+   self.assertIn('Certifications_UploadVisualReceipt',schemas)
+   self.assertEqual(schemas['Certifications_UploadVisualReceipt']['required'],['id','mime_type','created_at','prepared_question_version_id','result_question_version_id','result_quiz_version_id'])
+   self.assertIn('Certifications_QuestionVisual',schemas)
+   self.assertNotIn('fsm_ref',schemas['Certifications_QuestionVisual']['properties'])
+   self.assertNotIn('fsm_ref',schemas['Certifications_QuestionVisual'].get('required',[]))
+   self.assertEqual(schemas['Certifications_QuestionVisual']['required'],['id','mime_type','created_at'])
+   self.assertIn('Certifications_AttemptVisualReference',schemas)
+   self.assertEqual(schemas['Certifications_AttemptVisualReference']['required'],['id','mime_type','created_at'])
+   self.assertEqual(schemas['Certifications_TakingQuestion']['properties']['visuals']['items']['$ref'],'#/components/schemas/Certifications_AttemptVisualReference')
+   self.assertIn('visuals',schemas['Certifications_TakingQuestion']['required'])
+   self.assertEqual(schemas['Certifications_ReviewedQuestion']['properties']['visuals']['items']['$ref'],'#/components/schemas/Certifications_AttemptVisualReference')
+   self.assertIn('visuals',schemas['Certifications_ReviewedQuestion']['required'])
+   # Upload visual response references UploadVisualReceipt
+   up_vis=doc['paths']['/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visuals']['post']
+   self.assertEqual(up_vis['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_UploadVisualReceipt')
+   # Pinned attempt visual endpoint
+   att_vis=doc['paths']['/apps/certifications/v1/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}']['get']
+   self.assertEqual(att_vis['responses']['200']['headers']['Cache-Control']['schema']['example'],'private, no-store')
+   self.assertEqual(att_vis['responses']['200']['headers']['X-Content-Type-Options']['schema']['example'],'nosniff')
+   self.assertEqual(check_local_refs(doc),[])
    # Invalid workspace directory fails clearly
    res=subprocess.run(['python3',str(root/'tools/generate_docs.py'),'--workspace',str(root/'nonexistent-path')],capture_output=True,text=True)
    self.assertNotEqual(res.returncode,0)
@@ -378,7 +446,7 @@ pub struct PreparedCertificationInput {
   self.assertIn(vs_path,paths)
   vs_op=paths[vs_path]['post']
   self.assertEqual(vs_op['requestBody']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_UploadVisualInput')
-  self.assertEqual(vs_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_QuestionVisual')
+  self.assertEqual(vs_op['responses']['201']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_UploadVisualReceipt')
   for code in ['201','400','401','403','404','409','410','422','503']:
    self.assertIn(code,vs_op['responses'])
 
@@ -401,6 +469,8 @@ pub struct PreparedCertificationInput {
   self.assertEqual(att_op['responses']['200']['headers']['X-Content-Type-Options']['schema']['example'],'nosniff')
   for code in ['200','401','403','404','503']:
    self.assertIn(code,att_op['responses'])
+  self.assertEqual(att_op['x-source'],'certifications_api/lib/presentation/attempts.rs:154')
+  self.assertEqual(len(att_op['x-source-tree-sha256']),64)
 
   # 4. legacy visual
   vl_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual'
@@ -414,13 +484,21 @@ pub struct PreparedCertificationInput {
 
   # 5. DTO schemas and properties
   schemas=doc.get('components',{}).get('schemas',{})
-  for s in ['Certifications_PrepareVisualJobInput','Certifications_PreparedVisualJobResult','Certifications_RenderJobDescriptor','Certifications_UploadVisualInput','Certifications_QuestionVisual']:
+  for s in ['Certifications_PrepareVisualJobInput','Certifications_PreparedVisualJobResult','Certifications_RenderJobDescriptor','Certifications_UploadVisualInput','Certifications_QuestionVisual','Certifications_UploadVisualReceipt','Certifications_AttemptVisualReference']:
    self.assertIn(s,schemas)
 
   self.assertEqual(schemas['Certifications_PrepareVisualJobInput']['required'],['template_id','template_version','mapping','config','rows'])
   self.assertEqual(schemas['Certifications_UploadVisualInput']['required'],['question_version_id','render_job_id','png_base64'])
   self.assertEqual(schemas['Certifications_RenderJobDescriptor']['required'],['job_id','template_id','template_version','mapping','config','rows','width','height','scale','expires_at'])
-  self.assertEqual(schemas['Certifications_QuestionVisual']['required'],['id','fsm_ref','mime_type','created_at'])
+  self.assertEqual(schemas['Certifications_QuestionVisual']['required'],['id','mime_type','created_at'])
+  self.assertNotIn('fsm_ref',schemas['Certifications_QuestionVisual']['properties'])
+  self.assertNotIn('fsm_ref',schemas['Certifications_QuestionVisual'].get('required',[]))
+  self.assertEqual(schemas['Certifications_UploadVisualReceipt']['required'],['id','mime_type','created_at','prepared_question_version_id','result_question_version_id','result_quiz_version_id'])
+  self.assertEqual(schemas['Certifications_AttemptVisualReference']['required'],['id','mime_type','created_at'])
+  self.assertEqual(schemas['Certifications_TakingQuestion']['properties']['visuals']['items']['$ref'],'#/components/schemas/Certifications_AttemptVisualReference')
+  self.assertIn('visuals',schemas['Certifications_TakingQuestion']['required'])
+  self.assertEqual(schemas['Certifications_ReviewedQuestion']['properties']['visuals']['items']['$ref'],'#/components/schemas/Certifications_AttemptVisualReference')
+  self.assertIn('visuals',schemas['Certifications_ReviewedQuestion']['required'])
   self.assertEqual(check_local_refs(doc),[])
 
 if __name__=='__main__':unittest.main()

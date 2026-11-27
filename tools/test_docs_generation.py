@@ -392,6 +392,16 @@ pub struct PreparedCertificationInput {
   for code in ['200','403','404','503']:
    self.assertIn(code,vg_op['responses'])
 
+  # 3b. pinned attempt visual
+  att_path='/apps/certifications/v1/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}'
+  self.assertIn(att_path,paths)
+  att_op=paths[att_path]['get']
+  self.assertIn('image/png',att_op['responses']['200']['content'])
+  self.assertEqual(att_op['responses']['200']['headers']['Cache-Control']['schema']['example'],'private, no-store')
+  self.assertEqual(att_op['responses']['200']['headers']['X-Content-Type-Options']['schema']['example'],'nosniff')
+  for code in ['200','401','403','404','503']:
+   self.assertIn(code,att_op['responses'])
+
   # 4. legacy visual
   vl_path='/apps/certifications/v1/studies/{study_id}/questions/{question_id}/visual'
   self.assertIn(vl_path,paths)

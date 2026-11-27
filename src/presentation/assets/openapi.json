@@ -26199,6 +26199,98 @@
         "x-source-tree-sha256": "d12e83da02ff9f4b90a6d309b082ff8b1a57fcd14a33bda5829982bbb4103314"
       }
     },
+    "/apps/certifications/v1/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}": {
+      "get": {
+        "description": "GET /attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. Use the sid session cookie.\n\nCertifications v2 service. Pinned attempt question visual source contract from certifications_api; not asserting deployed runtime availability or database migration activation.",
+        "operationId": "certifications_get__attempts__attempt_id__question_versions__question_version_id__visuals__visual_id_",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "attempt_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "question_version_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "visual_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Pinned attempt question visual PNG bytes. Response is private to the attempt caller with strict no-store cache control. Source contract from certifications_api v2 without asserting deployed runtime availability.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Strict no-store cache control enforced by shared presentation middleware.",
+                "schema": {
+                  "example": "private, no-store",
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Content type sniffing protection.",
+                "schema": {
+                  "example": "nosniff",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required."
+          },
+          "403": {
+            "description": "Attempt caller mismatch or unauthorized."
+          },
+          "404": {
+            "description": "Attempt, question version, or visual not found."
+          },
+          "503": {
+            "description": "FSM visual store unavailable."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "GET /attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}",
+        "tags": [
+          "certifications"
+        ],
+        "x-access-level": "session",
+        "x-codeSamples": [
+          {
+            "label": "cURL",
+            "lang": "Shell",
+            "source": "curl --request GET 'https://api.asodya.com/apps/certifications/v1/attempts/{attempt_id}/question_versions/{question_version_id}/visuals/{visual_id}' \\\n  --cookie \"sid=<session>\""
+          }
+        ],
+        "x-source": "certifications_api/lib/presentation/attempts.rs:68",
+        "x-source-tree-sha256": "78e6f489edeed7508c5be5b0889abf79c9d1a17e"
+      }
+    },
     "/apps/certifications/v1/catalog": {
       "get": {
         "description": "GET /catalog. This operation belongs to certifications. Send requests through the Asodya gateway at the path shown here. The gateway allows anonymous access to this operation. The backend can apply additional validation.\n\nCertifications v2 service. Public routes serve catalog quizzes, reusable questions and certificate verification; /studies/*, /generations/*, /attempts/* and /me/* require a signed-in session; /admin/* and /logs/stream require administrator access.",
@@ -28747,7 +28839,7 @@
                 }
               }
             },
-            "description": "Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup."
+            "description": "Uploaded question visual receipt. Durable identical replay succeeds prior to job expiry lookup. Exact schema 2 canonical visual receipt source contract without asserting deployed runtime availability."
           },
           "400": {
             "description": "visual_insert_failed: insertion/persistence failure after compensation attempt and no matching winner."

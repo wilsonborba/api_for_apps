@@ -4335,6 +4335,49 @@
         },
         "type": "object"
       },
+      "Certifications_UploadSourceBody": {
+        "additionalProperties": false,
+        "properties": {
+          "content_text": {
+            "description": "Raw text content for direct text source uploads. Required when kind does not select a reference branch.",
+            "type": "string"
+          },
+          "external_ref": {
+            "description": "External reference URI or identifier.",
+            "type": "string"
+          },
+          "filename": {
+            "description": "Display filename for the source.",
+            "type": "string"
+          },
+          "fsm_ref": {
+            "description": "Storage artifact reference authorized by backend. Not accepted when kind is \"report\", where backend derives lineage and restrictions.",
+            "type": "string"
+          },
+          "is_restricted": {
+            "default": false,
+            "description": "Source restriction flag. For report references, restrictions and access controls are enforced and derived by the backend and cannot be cleared by caller.",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "Source reference kind. Values \"fsm_ref\", \"link\", or \"report\" select the reference source branch; omitted or other values fall back to direct text source creation requiring content_text.",
+            "type": "string"
+          },
+          "mime_type": {
+            "default": "text/plain",
+            "description": "MIME type of the source material.",
+            "type": "string"
+          },
+          "size_bytes": {
+            "description": "Declared size in bytes for referenced source.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "filename"
+        ],
+        "type": "object"
+      },
       "Certifications_UploadVisualInput": {
         "properties": {
           "expected_height": {
@@ -28858,42 +28901,27 @@
         ],
         "requestBody": {
           "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Certifications_UploadSourceBody"
+              }
+            },
             "multipart/form-data": {
               "schema": {
+                "additionalProperties": false,
                 "properties": {
-                  "content_text": {
-                    "type": "string"
-                  },
-                  "external_ref": {
-                    "type": "string"
-                  },
                   "file": {
+                    "description": "Binary source file payload",
                     "format": "binary",
                     "type": "string"
                   },
                   "filename": {
-                    "type": "string"
-                  },
-                  "fsm_ref": {
-                    "type": "string"
-                  },
-                  "is_restricted": {
-                    "type": "boolean"
-                  },
-                  "kind": {
+                    "description": "Optional bounded filename override",
                     "type": "string"
                   },
                   "mime_type": {
+                    "description": "Optional bounded MIME type override",
                     "type": "string"
-                  },
-                  "selection_kind": {
-                    "type": "string"
-                  },
-                  "selection_spec": {
-                    "type": "string"
-                  },
-                  "size_bytes": {
-                    "type": "integer"
                   }
                 },
                 "required": [
@@ -28937,7 +28965,7 @@
           {
             "label": "cURL",
             "lang": "Shell",
-            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources' \\\n  --cookie \"sid=<session>; csrf=<csrf>\""
+            "source": "curl --request POST 'https://api.asodya.com/apps/certifications/v1/studies/{study_id}/sources' \\\n  --cookie \"sid=<session>; csrf=<csrf>\" \\\n  --header \"Content-Type: application/json\" \\\n  --data '{\"kind\": \"example\", \"filename\": \"example\", \"mime_type\": \"text/plain\", \"content_text\": \"example\", \"external_ref\": \"example\", \"fsm_ref\": \"example\", \"size_bytes\": 1, \"is_restricted\": false}'"
           }
         ],
         "x-source": "certifications_api/lib/presentation/studies.rs:68",

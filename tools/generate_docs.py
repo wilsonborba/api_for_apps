@@ -408,14 +408,14 @@ def rust_certifications(repo):
  components['Certifications_UploadSourceBody']={
   'type':'object',
   'properties':{
-   'kind':{'type':'string','enum':['fsm_ref','link','report'],'description':'Reference source kind. When provided, attaches an external reference (fsm_ref, link, report) rather than direct text content.'},
+   'kind':{'type':'string','description':'Source reference kind. Values "fsm_ref", "link", or "report" select the reference source branch; omitted or other values fall back to direct text source creation requiring content_text.'},
    'filename':{'type':'string','description':'Display filename for the source.'},
    'mime_type':{'type':'string','default':'text/plain','description':'MIME type of the source material.'},
-   'content_text':{'type':'string','description':'Raw text content. Required when kind is omitted for direct text source uploads.'},
+   'content_text':{'type':'string','description':'Raw text content for direct text source uploads. Required when kind does not select a reference branch.'},
    'external_ref':{'type':'string','description':'External reference URI or identifier.'},
-   'fsm_ref':{'type':'string','description':'Finite state machine or artifact reference identifier.'},
+   'fsm_ref':{'type':'string','description':'Storage artifact reference authorized by backend. Not accepted when kind is "report", where backend derives lineage and restrictions.'},
    'size_bytes':{'type':'integer','description':'Declared size in bytes for referenced source.'},
-   'is_restricted':{'type':'boolean','default':False,'description':'Whether this source is restricted from external extraction.'}
+   'is_restricted':{'type':'boolean','default':False,'description':'Source restriction flag. For report references, restrictions and access controls are enforced and derived by the backend and cannot be cleared by caller.'}
   },
   'required':['filename'],
   'additionalProperties':False

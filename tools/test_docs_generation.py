@@ -99,6 +99,16 @@ async fn create(Json(body): Json<NewChat>) -> Response { response() }
     pub language: String,
     pub count: i64,
 }
+pub struct UploadSourceBody {
+    pub kind: Option<String>,
+    pub filename: String,
+    pub mime_type: String,
+    pub content_text: Option<String>,
+    pub external_ref: Option<String>,
+    pub fsm_ref: Option<String>,
+    pub size_bytes: Option<i64>,
+    pub is_restricted: bool,
+}
 pub struct PreparedStudyInput {
     pub title: String,
     pub description: String,
@@ -186,6 +196,32 @@ pub struct AttemptHistoryPage {
    for expected_param in ('limit','offset','q','created_from','created_to','status','quiz_id','tag'):
     self.assertIn(expected_param,param_names)
    self.assertEqual(studies_op['responses']['200']['content']['application/json']['schema']['$ref'],'#/components/schemas/Certifications_StudyHistoryPage')
+   # /studies/{study_id}/sources POST dual request formats: multipart/form-data and application/json
+   sources_op=doc['paths']['/apps/certifications/v1/studies/{study_id}/sources']['post']
+   sources_content=sources_op['requestBody']['content']
+   self.assertIn('multipart/form-data',sources_content)
+   self.assertIn('application/json',sources_content)
+   mp_schema=sources_content['multipart/form-data']['schema']
+   self.assertEqual(mp_schema['required'],['file'])
+   self.assertFalse(mp_schema.get('additionalProperties',True))
+   self.assertIn('file',mp_schema['properties'])
+   self.assertIn('filename',mp_schema['properties'])
+   self.assertIn('mime_type',mp_schema['properties'])
+   for prohibited in ('fsm_ref','is_restricted','kind','content_text','external_ref','size_bytes','selection_spec','selection_kind','owner_id','user_id','access_level','is_admin','role'):
+    self.assertNotIn(prohibited,mp_schema['properties'])
+   json_ref=sources_content['application/json']['schema']['$ref']
+   self.assertEqual(json_ref,'#/components/schemas/Certifications_UploadSourceBody')
+   self.assertIn('Certifications_UploadSourceBody',schemas)
+   body_schema=schemas['Certifications_UploadSourceBody']
+   self.assertEqual(body_schema['required'],['filename'])
+   self.assertFalse(body_schema.get('additionalProperties',True))
+   self.assertIn('kind',body_schema['properties'])
+   self.assertEqual(body_schema['properties']['kind']['enum'],['fsm_ref','link','report'])
+   self.assertIn('content_text',body_schema['properties'])
+   self.assertIn('fsm_ref',body_schema['properties'])
+   self.assertIn('external_ref',body_schema['properties'])
+   self.assertIn('size_bytes',body_schema['properties'])
+   self.assertIn('is_restricted',body_schema['properties'])
    # /me/quizzes/{quiz_id}/statistics is session-protected
    my_stats=doc['paths']['/apps/certifications/v1/me/quizzes/{quiz_id}/statistics']['get']
    self.assertEqual(my_stats['x-access-level'],'session')

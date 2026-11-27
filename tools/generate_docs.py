@@ -381,7 +381,8 @@ def rust_certifications(repo):
   'HolderUpdateBody','RevokeBody','AdminStatistics','SchemaDraftBody','SchemaStatusBody',
   'AvailableStudyTag','StudyHistoryPage','OwnerQuizSummary','AttemptHistoryPage',
   'CsvValidRow','CsvInvalidRow','PublicSourceMaterial','QuestionProvenanceStats','ScoreBandCount',
-  'PrepareVisualJobInput','PreparedVisualJobResult','RenderJobDescriptor','UploadVisualInput'
+  'PrepareVisualJobInput','PreparedVisualJobResult','RenderJobDescriptor','UploadVisualInput',
+  'UploadSourceBody'
  ]
  selected={k:copy.deepcopy(components[k]) for k in selected_names if k in components}
  def get_refs(val):
@@ -404,6 +405,21 @@ def rust_certifications(repo):
   if isinstance(value,list):return [namespace(x) for x in value]
   return value
  for name,model in selected.items():components['Certifications_'+name]=namespace(model)
+ components['Certifications_UploadSourceBody']={
+  'type':'object',
+  'properties':{
+   'kind':{'type':'string','enum':['fsm_ref','link','report'],'description':'Reference source kind. When provided, attaches an external reference (fsm_ref, link, report) rather than direct text content.'},
+   'filename':{'type':'string','description':'Display filename for the source.'},
+   'mime_type':{'type':'string','default':'text/plain','description':'MIME type of the source material.'},
+   'content_text':{'type':'string','description':'Raw text content. Required when kind is omitted for direct text source uploads.'},
+   'external_ref':{'type':'string','description':'External reference URI or identifier.'},
+   'fsm_ref':{'type':'string','description':'Finite state machine or artifact reference identifier.'},
+   'size_bytes':{'type':'integer','description':'Declared size in bytes for referenced source.'},
+   'is_restricted':{'type':'boolean','default':False,'description':'Whether this source is restricted from external extraction.'}
+  },
+  'required':['filename'],
+  'additionalProperties':False
+ }
  components['Certifications_PreparedStudyConfig']={
   'type':'object',
   'properties':{
@@ -612,7 +628,26 @@ def rust_certifications(repo):
     elif path=='/studies/{study_id}' and method=='patch':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_UpdateStudyInput'}}}}
     elif path=='/studies/{study_id}/sources' and method=='post':
-     body={'required':True,'content':{'multipart/form-data':{'schema':{'type':'object','required':['file'],'properties':{'file':{'type':'string','format':'binary'},'kind':{'type':'string'},'filename':{'type':'string'},'mime_type':{'type':'string'},'content_text':{'type':'string'},'external_ref':{'type':'string'},'fsm_ref':{'type':'string'},'size_bytes':{'type':'integer'},'selection_spec':{'type':'string'},'selection_kind':{'type':'string'},'is_restricted':{'type':'boolean'}}}}}}
+     body={
+      'required':True,
+      'content':{
+       'multipart/form-data':{
+        'schema':{
+         'type':'object',
+         'required':['file'],
+         'properties':{
+          'file':{'type':'string','format':'binary','description':'Binary source file payload'},
+          'filename':{'type':'string','description':'Optional bounded filename override'},
+          'mime_type':{'type':'string','description':'Optional bounded MIME type override'}
+         },
+         'additionalProperties':False
+        }
+       },
+       'application/json':{
+        'schema':{'$ref':'#/components/schemas/Certifications_UploadSourceBody'}
+       }
+      }
+     }
     elif path=='/studies/{study_id}/sources/{source_id}/selection' and method=='patch':
      body={'required':True,'content':{'application/json':{'schema':{'$ref':'#/components/schemas/Certifications_SelectionInput'}}}}
     elif path=='/studies/{study_id}/generations' and method=='post':
